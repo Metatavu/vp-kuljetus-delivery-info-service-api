@@ -196,6 +196,7 @@ abstract class AbstractApi {
         return "$entity with id $id not found"
     }
 
+
     companion object {
         const val NOT_FOUND_MESSAGE = "Not found"
         const val UNAUTHORIZED = "Unauthorized"
@@ -204,6 +205,11 @@ abstract class AbstractApi {
         const val INVALID_REQUEST_BODY = "Invalid request body"
 
         const val SITE = "Site"
+        const val FREIGHT = "Freight"
+        const val FREIGHT_UNIT = "Freight Unit"
+
+        const val DRIVER_ROLE = "driver"
+        const val MANAGER_ROLE = "manager"
     }
 
 }
