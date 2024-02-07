@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - develop
+      - feature-5-deployment-pipelines
 env:
   REGISTRY: ghcr.io
   GITHUB_REPOSITORY: ${{ github.repository }}
