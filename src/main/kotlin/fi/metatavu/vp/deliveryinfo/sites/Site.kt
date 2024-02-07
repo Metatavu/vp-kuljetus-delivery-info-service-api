@@ -22,7 +22,8 @@ class Site: Metadata() {
     @NotEmpty
     lateinit var name: String
 
-    @Column
+    @Column(nullable = false)
+    @NotEmpty
     lateinit var location: String
 
     override lateinit var creatorId: UUID
