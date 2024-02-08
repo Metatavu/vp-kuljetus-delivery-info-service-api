@@ -12,7 +12,10 @@
             <column name="name" type="varchar(255)">
                 <constraints nullable="false"/>
             </column>
-            <column name="location" type="varchar(255)">
+            <column name="latitude" type="double">
+                <constraints nullable="false"/>
+            </column>
+            <column name="longitude" type="double">
                 <constraints nullable="false"/>
             </column>
 

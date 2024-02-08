@@ -23,8 +23,10 @@ class Site: Metadata() {
     lateinit var name: String
 
     @Column(nullable = false)
-    @NotEmpty
-    lateinit var location: String
+    var latitude: Double = 0.0
+
+    @Column(nullable = false)
+    var longitude: Double = 0.0
 
     override lateinit var creatorId: UUID
 

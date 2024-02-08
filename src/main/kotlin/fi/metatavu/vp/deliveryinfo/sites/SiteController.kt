@@ -2,6 +2,7 @@ package fi.metatavu.vp.deliveryinfo.sites
 
 import jakarta.enterprise.context.ApplicationScoped
 import jakarta.inject.Inject
+import org.locationtech.jts.geom.Geometry
 import org.locationtech.jts.io.WKTReader
 import java.util.*
 
@@ -20,14 +21,13 @@ class SiteController {
      * Checks if the given location is a valid point
      *
      * @param location location
-     * @return true if the location is a valid point
+     * @return parsed geography or null if not valid
      */
-    fun isValidPoint(location: String): Boolean {
-        try {
+    fun parsePoint(location: String): Geometry? {
+        return try {
             reader.read(location)
-            return true
         } catch (e: Exception) {
-            return false
+            null
         }
     }
 
@@ -46,14 +46,18 @@ class SiteController {
      * Creates a new site
      *
      * @param site site
+     * @param parsedPoint parsed point
      * @param userId user id
      * @return created site
      */
-    suspend fun createSite(site: fi.metatavu.vp.api.model.Site, userId: UUID): Site {
+    suspend fun createSite(site: fi.metatavu.vp.api.model.Site, parsedPoint: Geometry, userId: UUID): Site {
+        val ( lat, lon ) = getLatLon(parsedPoint)
+
         return siteRepository.create(
             id = UUID.randomUUID(),
             name = site.name,
-            location = site.location,
+            latitude = lat,
+            longitude = lon,
             creatorId = userId
         )
     }
@@ -76,9 +80,11 @@ class SiteController {
      * @param userId user id
      * @return updated site
      */
-    suspend fun updateSite(existingSite: Site, site: fi.metatavu.vp.api.model.Site, userId: UUID): Site {
+    suspend fun updateSite(existingSite: Site, site: fi.metatavu.vp.api.model.Site, newLocation: Geometry, userId: UUID): Site {
         existingSite.name = site.name
-        existingSite.location = site.location
+        val ( lat, lon ) = getLatLon(newLocation)
+        existingSite.latitude = lat
+        existingSite.longitude = lon
         existingSite.lastModifierId = userId
         return siteRepository.persistSuspending(existingSite)
     }
@@ -90,5 +96,17 @@ class SiteController {
      */
     suspend fun deleteSite(site: Site) {
         siteRepository.deleteSuspending(site)
+    }
+
+    /**
+     * Parses lat lon from geography object
+     *
+     * @param point geography object
+     * @return lat lon pair
+     */
+    private fun getLatLon(point: Geometry): Pair<Double, Double> {
+        val lat = point.coordinate.x
+        val lon = point.coordinate.y
+        return Pair(lat, lon)
     }
 }

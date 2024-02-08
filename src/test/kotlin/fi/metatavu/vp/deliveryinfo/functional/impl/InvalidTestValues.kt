@@ -15,7 +15,7 @@ class InvalidTestValues: InvalidValues() {
     companion object {
         val INVALID_SITES = listOf(
             Site(name = "Test site 1", location = "qqq"),
-            Site(name = "", location = "POINT(60.16952 24.93545)"),
+            Site(name = "", location = "POINT (60.16952 24.93545)"),
             Site(name = "Test site 1", location = "")
         ).map { jacksonObjectMapper().writeValueAsString(it) }.map { SimpleInvalidValueProvider(it) }
 
