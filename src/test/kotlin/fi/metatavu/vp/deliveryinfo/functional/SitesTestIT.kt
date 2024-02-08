@@ -23,7 +23,7 @@ class SitesTestIT : AbstractFunctionalTest() {
     fun testCreate() = createTestBuilder().use {
         val site1 = Site(
             name = "Test site 1",
-            location = "POINT(60.16952 24.93545)"
+            location = "POINT (60.16952 24.93545)"
         )
 
         val result = it.user.sites.create(site1)
@@ -55,15 +55,15 @@ class SitesTestIT : AbstractFunctionalTest() {
     fun testList() = createTestBuilder().use {
         val site1 = Site(
             name = "Test site 1",
-            location = "POINT(60.16952 24.93545)"
+            location = "POINT (60.16952 24.93545)"
         )
         val site2 = Site(
             name = "Test site 2",
-            location = "POINT(60.16952 24.93545)"
+            location = "POINT (60.16952 24.93545)"
         )
         val site3 = Site(
             name = "Test site 3",
-            location = "POINT(60.16952 24.93545)"
+            location = "POINT (60.16952 24.93545)"
         )
         it.user.sites.create(site1)
         it.user.sites.create(site2)
@@ -93,7 +93,7 @@ class SitesTestIT : AbstractFunctionalTest() {
         val createdSite = it.user.sites.create()
         val updateData = Site(
             name = "Test site 2",
-            location = "POINT(100 100)"
+            location = "POINT (100 100)"
         )
         val result = it.user.sites.updateSite(createdSite.id!!, updateData)
         assertNotNull(result)

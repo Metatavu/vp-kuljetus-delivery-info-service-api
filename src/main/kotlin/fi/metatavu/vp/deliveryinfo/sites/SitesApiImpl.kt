@@ -39,10 +39,11 @@ class SitesApiImpl: SitesApi, AbstractApi() {
     @WithTransaction
     override fun createSite(site: Site): Uni<Response> = CoroutineScope(vertx.dispatcher()).async {
         val userId = loggedUserId ?: return@async createUnauthorized(UNAUTHORIZED)
-        if (!siteController.isValidPoint(site.location) || site.name.isEmpty()) {
+        val parsedPoint = siteController.parsePoint(site.location)
+        if (parsedPoint == null || site.name.isEmpty()) {
             return@async createBadRequest(INVALID_REQUEST_BODY)
         }
-        val createdSite = siteController.createSite(site, userId)
+        val createdSite = siteController.createSite(site, parsedPoint, userId)
         createOk(siteTranslator.translate(createdSite))
     }.asUni()
 
@@ -54,11 +55,12 @@ class SitesApiImpl: SitesApi, AbstractApi() {
     @WithTransaction
     override fun updateSite(siteId: UUID, site: Site): Uni<Response> = CoroutineScope(vertx.dispatcher()).async {
         val userId = loggedUserId ?: return@async createUnauthorized(UNAUTHORIZED)
-        if (!siteController.isValidPoint(site.location) || site.name.isEmpty()) {
+        val parsedPoint = siteController.parsePoint(site.location)
+        if (parsedPoint == null || site.name.isEmpty()) {
             return@async createBadRequest(INVALID_REQUEST_BODY)
         }
         val existingSite = siteController.findSite(siteId) ?: return@async createNotFound(createNotFoundMessage(SITE, siteId))
-        val updatedSite = siteController.updateSite(existingSite, site, userId)
+        val updatedSite = siteController.updateSite(existingSite, site, parsedPoint, userId)
         createOk(siteTranslator.translate(updatedSite))
     }.asUni()
 
