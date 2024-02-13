@@ -25,7 +25,7 @@ class Task: Metadata() {
 
     @Column(nullable=false)
     @Enumerated(EnumType.STRING)
-    lateinit var type: TaskType
+    lateinit var taskType: TaskType
 
     @Column
     var remarks: String? = null

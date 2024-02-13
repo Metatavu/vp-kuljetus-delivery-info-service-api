@@ -41,7 +41,7 @@ class TaskRepository : AbstractRepository<Task, UUID>() {
         task.id = id
         task.freight = freight
         task.site = site
-        task.type = type
+        task.taskType = type
         task.remarks = remarks
         task.routeId = routeId
         task.creatorId = creatorId

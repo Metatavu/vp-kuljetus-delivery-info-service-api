@@ -134,7 +134,7 @@ class TaskController {
     ): Task {
         existingTask.freight = freight
         existingTask.site = site
-        existingTask.type = restTask.type
+        existingTask.taskType = restTask.type
         existingTask.remarks = restTask.remarks
         existingTask.routeId = restTask.routeId
         existingTask.lastModifierId = modifierId
