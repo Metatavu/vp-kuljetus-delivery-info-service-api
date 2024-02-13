@@ -97,7 +97,7 @@ class TaskRepository : AbstractRepository<Task, UUID>() {
         }
 
         if (type != null) {
-            addCondition(queryBuilder, "type = :type")
+            addCondition(queryBuilder, "taskType = :type")
             parameters.and("type", type)
         }
 
