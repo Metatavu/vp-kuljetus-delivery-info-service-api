@@ -76,6 +76,7 @@ class TasksApiImpl : TasksApi, AbstractApi() {
     @WithTransaction
     @RolesAllowed(MANAGER_ROLE)
     override fun createTask(task: Task): Uni<Response> = CoroutineScope(vertx.dispatcher()).async {
+        println("Creating task ${task.type}")
         val userId = loggedUserId ?: return@async createUnauthorized(UNAUTHORIZED)
         val freight = task.freightId.let {
             val foundFreight =
