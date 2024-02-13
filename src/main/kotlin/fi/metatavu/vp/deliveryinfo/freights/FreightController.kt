@@ -1,6 +1,7 @@
 package fi.metatavu.vp.deliveryinfo.freights
 
 import fi.metatavu.vp.deliveryinfo.freights.freightunits.FreightUnitController
+import fi.metatavu.vp.deliveryinfo.tasks.TaskRepository
 import jakarta.enterprise.context.ApplicationScoped
 import jakarta.inject.Inject
 import java.util.*
@@ -17,6 +18,9 @@ class FreightController {
     @Inject
     lateinit var freightUnitController: FreightUnitController
 
+    @Inject
+    lateinit var taskRepository: TaskRepository
+
     /**
      * Lists freights
      *
@@ -25,7 +29,7 @@ class FreightController {
      * @return pair of list of freights and total count
      */
     suspend fun list(first: Int?, max: Int?): Pair<List<Freight>, Long> {
-        return freightRepository.listAllSuspending(first, max)
+        return freightRepository.list(first, max)
     }
 
     /**
@@ -94,6 +98,9 @@ class FreightController {
         val freightUnits = freightUnitController.list(freight, null, null)
         freightUnits.first.forEach {
             freightUnitController.delete(it)
+        }
+        taskRepository.list(freight = freight).first.forEach {
+            taskRepository.deleteSuspending(it)
         }
         freightRepository.deleteSuspending(freight)
     }

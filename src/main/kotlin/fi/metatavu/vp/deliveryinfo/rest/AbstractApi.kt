@@ -207,6 +207,7 @@ abstract class AbstractApi {
         const val SITE = "Site"
         const val FREIGHT = "Freight"
         const val FREIGHT_UNIT = "Freight Unit"
+        const val TASK = "Task"
 
         const val DRIVER_ROLE = "driver"
         const val MANAGER_ROLE = "manager"

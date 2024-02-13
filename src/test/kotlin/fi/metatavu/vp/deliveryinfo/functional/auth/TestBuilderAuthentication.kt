@@ -7,6 +7,7 @@ import fi.metatavu.vp.deliveryinfo.functional.TestBuilder
 import fi.metatavu.vp.deliveryinfo.functional.impl.FreightTestBuilderResource
 import fi.metatavu.vp.deliveryinfo.functional.impl.FreightUnitTestBuilderResource
 import fi.metatavu.vp.deliveryinfo.functional.impl.SiteTestBuilderResource
+import fi.metatavu.vp.deliveryinfo.functional.impl.TaskTestBuilderResource
 import fi.metatavu.vp.deliveryinfo.functional.settings.ApiTestSettings
 
 /**
@@ -26,6 +27,7 @@ class TestBuilderAuthentication(
     val sites = SiteTestBuilderResource(testBuilder, accessTokenProvider, createClient(accessTokenProvider))
     val freights = FreightTestBuilderResource(testBuilder, accessTokenProvider, createClient(accessTokenProvider))
     val freightUnits = FreightUnitTestBuilderResource(testBuilder, accessTokenProvider, createClient(accessTokenProvider))
+    val tasks = TaskTestBuilderResource(testBuilder, accessTokenProvider, createClient(accessTokenProvider))
 
     override fun createClient(authProvider: AccessTokenProvider): ApiClient {
         val result = ApiClient(ApiTestSettings.apiBasePath)

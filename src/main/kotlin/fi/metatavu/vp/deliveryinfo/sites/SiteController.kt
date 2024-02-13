@@ -1,5 +1,6 @@
 package fi.metatavu.vp.deliveryinfo.sites
 
+import fi.metatavu.vp.deliveryinfo.tasks.TaskRepository
 import jakarta.enterprise.context.ApplicationScoped
 import jakarta.inject.Inject
 import org.locationtech.jts.geom.Geometry
@@ -14,6 +15,9 @@ class SiteController {
 
     @Inject
     lateinit var siteRepository: SiteRepository
+
+    @Inject
+    lateinit var tasksRepository: TaskRepository
 
     private val reader = WKTReader();
 
@@ -39,7 +43,7 @@ class SiteController {
      * @return list of sites
      */
     suspend fun listSites(first: Int?, max: Int?): Pair<List<Site>, Long> {
-        return siteRepository.listAllSuspending(first, max)
+        return siteRepository.list(first, max)
     }
 
     /**
@@ -95,6 +99,9 @@ class SiteController {
      * @param site site
      */
     suspend fun deleteSite(site: Site) {
+        tasksRepository.list(site = site).first.forEach {
+            tasksRepository.deleteSuspending(it)
+        }
         siteRepository.deleteSuspending(site)
     }
 

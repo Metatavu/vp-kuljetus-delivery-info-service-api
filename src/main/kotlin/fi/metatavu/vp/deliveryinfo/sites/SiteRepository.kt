@@ -1,6 +1,7 @@
 package fi.metatavu.vp.deliveryinfo.sites
 
 import fi.metatavu.vp.deliveryinfo.persistence.AbstractRepository
+import io.quarkus.panache.common.Sort
 import jakarta.enterprise.context.ApplicationScoped
 import java.util.*
 
@@ -29,6 +30,17 @@ class SiteRepository: AbstractRepository<Site, UUID>() {
         site.creatorId = creatorId
         site.lastModifierId = creatorId
         return persistSuspending(site)
+    }
+
+    /**
+     * Lists sites
+     *
+     * @param first first result
+     * @param max max results
+     * @return list of sites
+     */
+    suspend fun list(first: Int?, max: Int?): Pair<List<Site>, Long> {
+        return applyFirstMaxToQuery(findAll(Sort.descending("modifiedAt")), first, max)
     }
 
 }

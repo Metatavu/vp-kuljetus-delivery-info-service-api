@@ -101,4 +101,35 @@
             </column>
         </createTable>
     </changeSet>
+
+    <changeSet id="tasks" author="katja danilova">
+        <createTable tableName="task">
+            <column name="id" type="binary(16)">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="freight_id" type="binary(16)">
+                <constraints nullable="false" foreignKeyName="FK_TASK_FREIGHT_ID" referencedColumnNames="id" referencedTableName="freight"/>
+            </column>
+            <column name="site_id" type="binary(16)">
+                <constraints nullable="false" foreignKeyName="FK_TASK_SITE_ID" referencedColumnNames="id" referencedTableName="site"/>
+            </column>
+            <column name="type" type="varchar(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="remarks" type="longtext" />
+            <column name="routeid" type="binary(16)" />
+            <column name="creatorid" type="binary(16)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="createdat" type="datetime(6)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="lastmodifierid" type="binary(16)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="modifiedat" type="datetime(6)">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+    </changeSet>
 </databaseChangeLog>

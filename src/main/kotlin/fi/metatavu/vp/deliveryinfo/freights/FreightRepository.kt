@@ -1,6 +1,7 @@
 package fi.metatavu.vp.deliveryinfo.freights
 
 import fi.metatavu.vp.deliveryinfo.persistence.AbstractRepository
+import io.quarkus.panache.common.Sort
 import jakarta.enterprise.context.ApplicationScoped
 import java.util.UUID
 
@@ -55,5 +56,16 @@ class FreightRepository: AbstractRepository<Freight, UUID>() {
         freight.creatorId = creatorId
         freight.lastModifierId = lastModifierId
         return persistSuspending(freight)
+    }
+
+    /**
+     * Lists freights
+     *
+     * @param first first result
+     * @param max max results
+     * @return pair of list of freights and total count
+     */
+    suspend fun list(first: Int?, max: Int?): Pair<List<Freight>, Long> {
+        return applyFirstMaxToQuery(findAll(Sort.descending("modifiedAt")), first, max)
     }
 }
