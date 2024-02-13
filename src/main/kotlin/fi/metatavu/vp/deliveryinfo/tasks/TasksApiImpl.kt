@@ -82,13 +82,11 @@ class TasksApiImpl : TasksApi, AbstractApi() {
                 freightController.findFreight(it) ?: return@async createBadRequest(createNotFoundMessage(FREIGHT, it))
             foundFreight
         }
-        println("freight is valid")
 
         val site = task.customerSiteId.let {
             val foundSite = siteController.findSite(it) ?: return@async createBadRequest(createNotFoundMessage(SITE, it))
             foundSite
         }
-        println("site is valid")
 
         if (task.routeId != null && !taskController.routeExists(task.routeId)) {
             return@async createBadRequest("Bad request")
