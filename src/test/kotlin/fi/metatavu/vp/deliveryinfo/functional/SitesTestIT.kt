@@ -26,7 +26,7 @@ class SitesTestIT : AbstractFunctionalTest() {
             location = "POINT (60.16952 24.93545)"
         )
 
-        val result = it.user.sites.create(site1)
+        val result = it.manager.sites.create(site1)
         assertNotNull(result)
         assertNotNull(result.id)
         assertEquals(site1.name, result.name)
@@ -35,10 +35,15 @@ class SitesTestIT : AbstractFunctionalTest() {
 
     @Test
     fun testCreateFail() = createTestBuilder().use { tb ->
+        //Access rights checks
+        tb.user.sites.assertCreateFail(403)
+        tb.driver.sites.assertCreateFail(403)
+
+        // Invalid values checks
         InvalidValueTestScenarioBuilder(
             path = "v1/sites",
             method = Method.POST,
-            token = tb.user.accessTokenProvider.accessToken,
+            token = tb.manager.accessTokenProvider.accessToken,
             basePath = ApiTestSettings.apiBasePath
         )
             .body(
@@ -65,23 +70,32 @@ class SitesTestIT : AbstractFunctionalTest() {
             name = "Test site 3",
             location = "POINT (60.16952 24.93545)"
         )
-        it.user.sites.create(site1)
-        it.user.sites.create(site2)
-        it.user.sites.create(site3)
-        val totalList = it.user.sites.listSites()
+        it.manager.sites.create(site1)
+        it.manager.sites.create(site2)
+        it.manager.sites.create(site3)
+        val totalList = it.manager.sites.listSites()
         assertEquals(3, totalList.size)
 
-        val pagedList1 = it.user.sites.listSites(first = 1, max = 1)
+        val pagedList1 = it.manager.sites.listSites(first = 1, max = 1)
         assertEquals(1, pagedList1.size)
 
-        val pagedList2 = it.user.sites.listSites(first = 2, max = 5)
+        val pagedList2 = it.manager.sites.listSites(first = 2, max = 5)
         assertEquals(1, pagedList2.size)
     }
 
     @Test
+    fun testListFail() = createTestBuilder().use {
+        //Access rights checks
+        it.user.sites.assertListSitesFail(403)
+        it.driver.sites.listSites()
+        it.manager.sites.listSites()
+        return@use
+    }
+
+    @Test
     fun testFind() = createTestBuilder().use {
-        val createdSite = it.user.sites.create()
-        val foundSite = it.user.sites.findSite(createdSite.id!!)
+        val createdSite = it.manager.sites.create()
+        val foundSite = it.manager.sites.findSite(createdSite.id!!)
         assertNotNull(foundSite)
         assertEquals(createdSite.id, foundSite.id)
         assertEquals(foundSite.name, foundSite.name)
@@ -89,13 +103,39 @@ class SitesTestIT : AbstractFunctionalTest() {
     }
 
     @Test
+    fun testFindFail() = createTestBuilder().use { tb ->
+        val createdSite = tb.manager.sites.create()
+
+        // access rights
+        tb.user.sites.assertFindSiteFail(createdSite.id!!, 403)
+        tb.driver.sites.findSite(createdSite.id)
+
+        InvalidValueTestScenarioBuilder(
+            path = "v1/sites/{siteId}",
+            method = Method.GET,
+            token = tb.manager.accessTokenProvider.accessToken,
+            basePath = ApiTestSettings.apiBasePath
+        )
+            .path(
+                InvalidValueTestScenarioPath(
+                    name = "siteId",
+                    values = InvalidValues.STRING_NOT_NULL,
+                    default = createdSite.id!!,
+                    expectedStatus = 404
+                )
+            )
+            .build()
+            .test()
+    }
+
+    @Test
     fun testUpdate() = createTestBuilder().use {
-        val createdSite = it.user.sites.create()
+        val createdSite = it.manager.sites.create()
         val updateData = Site(
             name = "Test site 2",
             location = "POINT (100 100)"
         )
-        val result = it.user.sites.updateSite(createdSite.id!!, updateData)
+        val result = it.manager.sites.updateSite(createdSite.id!!, updateData)
         assertNotNull(result)
         assertEquals(createdSite.id, result.id)
         assertEquals(updateData.name, result.name)
@@ -104,12 +144,16 @@ class SitesTestIT : AbstractFunctionalTest() {
 
     @Test
     fun testUpdateFail() = createTestBuilder().use { tb ->
-        val createdSite = tb.user.sites.create()
+        val createdSite = tb.manager.sites.create()
+
+        // access rights
+        tb.driver.sites.assertUpdateSiteFail(createdSite.id!!, 403)
+        tb.user.sites.assertUpdateSiteFail(createdSite.id, 403)
 
         InvalidValueTestScenarioBuilder(
             path = "v1/sites/{siteId}",
             method = Method.PUT,
-            token = tb.user.accessTokenProvider.accessToken,
+            token = tb.manager.accessTokenProvider.accessToken,
             basePath = ApiTestSettings.apiBasePath
         )
             .path(
@@ -132,10 +176,35 @@ class SitesTestIT : AbstractFunctionalTest() {
 
     @Test
     fun testDelete() = createTestBuilder().use {
-        val createdSite = it.user.sites.create()
-        it.user.sites.deleteSite(createdSite.id!!)
-        val emptyList = it.user.sites.listSites()
+        val createdSite = it.manager.sites.create()
+        it.manager.sites.deleteSite(createdSite.id!!)
+        val emptyList = it.manager.sites.listSites()
         assertEquals(0, emptyList.size)
+    }
+
+    @Test
+    fun testDeleteFail() = createTestBuilder().use {
+        val createdSite = it.manager.sites.create()
+
+        it.user.sites.assertDeleteSiteFail(createdSite.id!!, 403)
+        it.driver.sites.assertDeleteSiteFail(createdSite.id, 403)
+
+        InvalidValueTestScenarioBuilder(
+            path = "v1/sites/{siteId}",
+            method = Method.DELETE,
+            token = it.manager.accessTokenProvider.accessToken,
+            basePath = ApiTestSettings.apiBasePath
+        )
+            .path(
+                InvalidValueTestScenarioPath(
+                    name = "siteId",
+                    values = InvalidValues.STRING_NOT_NULL,
+                    default = createdSite.id!!,
+                    expectedStatus = 404
+                )
+            )
+            .build()
+            .test()
     }
 
 }
