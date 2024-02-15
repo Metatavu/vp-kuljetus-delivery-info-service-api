@@ -18,6 +18,7 @@ val quarkusPlatformVersion: String by project
 val jaxrsFunctionalTestBuilderVersion: String by project
 val okhttpVersion: String by project
 val jtsVersion: String by project
+val wiremockVersion: String by project
 
 dependencies {
     implementation(enforcedPlatform("${quarkusPlatformGroupId}:${quarkusPlatformArtifactId}:${quarkusPlatformVersion}"))
@@ -29,6 +30,7 @@ dependencies {
     implementation("io.quarkus:quarkus-undertow")
     implementation("io.quarkus:quarkus-resteasy-reactive")
     implementation("io.quarkus:quarkus-resteasy-reactive-kotlin")
+    implementation("io.quarkus:quarkus-rest-client-reactive-jackson")
     implementation("io.quarkus:quarkus-resteasy-reactive-jackson")
     implementation("io.quarkus:quarkus-oidc")
     implementation("io.quarkus:quarkus-kotlin")
@@ -46,6 +48,7 @@ dependencies {
     }
     implementation("org.jboss.logging:commons-logging-jboss-logging")
 
+    testImplementation("org.wiremock:wiremock:$wiremockVersion")
     testImplementation("io.rest-assured:kotlin-extensions")
     testImplementation("io.rest-assured:rest-assured")
     testImplementation("io.quarkus:quarkus-junit5")
@@ -65,6 +68,7 @@ java {
 
 sourceSets["main"].java {
     srcDir("build/generated/api-spec/src/main/kotlin")
+    srcDir("build/generated/work-planning-api-spec/src/main/kotlin")
 }
 sourceSets["test"].java {
     srcDir("build/generated/api-client/src/main/kotlin")
@@ -78,6 +82,11 @@ allOpen {
     annotation("io.quarkus.test.junit.QuarkusTest")
     annotation("jakarta.persistence.Entity")
     annotation("jakarta.persistence.MappedSuperclass")
+}
+
+tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile> {
+    kotlinOptions.jvmTarget = JavaVersion.VERSION_17.toString()
+    kotlinOptions.javaParameters = true
 }
 
 tasks.withType<Test> {
@@ -123,8 +132,29 @@ val generateApiClient = tasks.register("generateApiClient",GenerateTask::class){
     this.configOptions.put("enumPropertyNaming", "UPPERCASE")
 }
 
+val generateWorkPlanningApiClient = tasks.register("generateWorkPlanningApiClient",GenerateTask::class){
+    setProperty("generatorName", "kotlin-server")
+    setProperty("inputSpec",  "$rootDir/vp-kuljetus-transport-management-specs/services/work-planning-services.yaml")
+    setProperty("outputDir", "$buildDir/generated/work-planning-api-spec")
+    setProperty("apiPackage", "${project.group}.workplanning.spec")
+    setProperty("invokerPackage", "${project.group}.workplanning.invoker")
+    setProperty("modelPackage", "${project.group}.workplanning.model")
+    setProperty("templateDir", "$rootDir/openapi/rest-client")
+    setProperty("validateSpec", false)
+
+    this.configOptions.put("library", "jaxrs-spec")
+    this.configOptions.put("dateLibrary", "java8")
+    this.configOptions.put("enumPropertyNaming", "UPPERCASE")
+    this.configOptions.put("interfaceOnly", "true")
+    this.configOptions.put("useMutiny", "true")
+    this.configOptions.put("returnResponse", "true")
+    this.configOptions.put("useSwaggerAnnotations", "false")
+    this.configOptions.put("additionalModelTypeAnnotations", "@io.quarkus.runtime.annotations.RegisterForReflection")
+}
+
 tasks.named("compileKotlin") {
     dependsOn(generateApiSpec)
+    dependsOn(generateWorkPlanningApiClient)
 }
 
 tasks.named("compileTestKotlin") {

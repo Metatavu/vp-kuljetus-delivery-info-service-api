@@ -5,6 +5,8 @@ import fi.metatavu.invalid.InvalidValues
 import fi.metatavu.invalid.providers.SimpleInvalidValueProvider
 import fi.metatavu.vp.test.client.models.FreightUnit
 import fi.metatavu.vp.test.client.models.Site
+import fi.metatavu.vp.test.client.models.Task
+import fi.metatavu.vp.test.client.models.TaskType
 import java.util.*
 
 /**
@@ -30,6 +32,35 @@ class InvalidTestValues: InvalidValues() {
         val INVALID_FREIGHT_UNITS_FREIGHT_ID = listOf(
             FreightUnit(freightId = UUID.randomUUID(), quantityUnit = "pc", type = "type", quantity = "quantity", reservations = "reservations")
         ).map { jacksonObjectMapper().writeValueAsString(it) }.map { SimpleInvalidValueProvider(it) }
+
+        /**
+         * Builds invalid tasks
+         *
+         * @param validRouteId valid route id examples
+         * @param validFreightId valid freight id example
+         * @param validSiteId valid site id example
+         * @return list of invalid body options
+         */
+        fun getInvalidTasks(
+            validRouteId: UUID,
+            validFreightId: UUID,
+            validSiteId: UUID
+        ): List<SimpleInvalidValueProvider> {
+            val sampleValidTask = Task(
+                freightId = validFreightId,
+                customerSiteId = validSiteId,
+                type = TaskType.LOAD,
+                remarks = "remarks",
+                routeId = validRouteId
+            )
+            return listOf(
+                Site(name = "Test site 1", location = "qqq"),
+                sampleValidTask.copy(freightId = UUID.randomUUID()),
+                sampleValidTask.copy(customerSiteId = UUID.randomUUID()),
+                sampleValidTask.copy(routeId = UUID.randomUUID())
+            ).map { jacksonObjectMapper().writeValueAsString(it) }
+                .map { SimpleInvalidValueProvider(it) }
+        }
     }
 
 }
