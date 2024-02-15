@@ -78,6 +78,7 @@ class TaskController {
      * @param freight freight
      * @param site site
      * @param type type
+     * @param status status
      * @param remarks remarks
      * @param routeId route id
      * @param creatorId creator id
@@ -88,6 +89,7 @@ class TaskController {
         freight: Freight,
         site: Site,
         type: TaskType,
+        status: fi.metatavu.vp.api.model.TaskStatus,
         remarks: String?,
         routeId: UUID?,
         creatorId: UUID,
@@ -98,6 +100,7 @@ class TaskController {
             freight = freight,
             site = site,
             type = type,
+            status = status,
             remarks = remarks,
             routeId = routeId,
             creatorId = creatorId,
@@ -135,6 +138,7 @@ class TaskController {
         existingTask.freight = freight
         existingTask.site = site
         existingTask.taskType = restTask.type
+        existingTask.status = restTask.status
         existingTask.remarks = restTask.remarks
         existingTask.routeId = restTask.routeId
         existingTask.lastModifierId = modifierId

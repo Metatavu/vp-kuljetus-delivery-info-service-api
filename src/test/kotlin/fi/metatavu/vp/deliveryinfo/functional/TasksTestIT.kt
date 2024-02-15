@@ -9,6 +9,7 @@ import fi.metatavu.vp.deliveryinfo.functional.impl.WorkPlanningMock
 import fi.metatavu.vp.deliveryinfo.functional.impl.WorkPlanningMock.Companion.routeId
 import fi.metatavu.vp.deliveryinfo.functional.settings.ApiTestSettings
 import fi.metatavu.vp.test.client.models.Task
+import fi.metatavu.vp.test.client.models.TaskStatus
 import fi.metatavu.vp.test.client.models.TaskType
 import io.quarkus.test.common.QuarkusTestResource
 import io.quarkus.test.junit.QuarkusTest
@@ -81,7 +82,8 @@ class TasksTestIT : AbstractFunctionalTest() {
             customerSiteId = site1.id!!,
             type = TaskType.LOAD,
             remarks = "remarks",
-            routeId = routeId
+            routeId = routeId,
+            status = TaskStatus.TODO
         )
 
         val createdTask = it.manager.tasks.create(taskData)
@@ -92,6 +94,7 @@ class TasksTestIT : AbstractFunctionalTest() {
         assertEquals(taskData.remarks, createdTask.remarks)
         assertEquals(taskData.freightId, createdTask.freightId)
         assertEquals(taskData.routeId, createdTask.routeId)
+        assertEquals(taskData.status, createdTask.status)
     }
 
     @Test
@@ -104,7 +107,8 @@ class TasksTestIT : AbstractFunctionalTest() {
             customerSiteId = site1.id!!,
             type = TaskType.LOAD,
             remarks = "remarks",
-            routeId = routeId
+            routeId = routeId,
+            status = TaskStatus.TODO
         )
 
         //Access rights checks
@@ -142,7 +146,8 @@ class TasksTestIT : AbstractFunctionalTest() {
             customerSiteId = site1.id!!,
             type = TaskType.LOAD,
             remarks = "remarks",
-            routeId = routeId
+            routeId = routeId,
+            status = TaskStatus.TODO
         )
 
         val createdTask = it.manager.tasks.create(taskData)
@@ -155,6 +160,7 @@ class TasksTestIT : AbstractFunctionalTest() {
         assertEquals(createdTask.remarks, foundTask.remarks)
         assertEquals(createdTask.freightId, foundTask.freightId)
         assertEquals(createdTask.routeId, foundTask.routeId)
+        assertEquals(createdTask.status, foundTask.status)
     }
 
     @Test
@@ -202,7 +208,8 @@ class TasksTestIT : AbstractFunctionalTest() {
             customerSiteId = site1.id!!,
             type = TaskType.LOAD,
             remarks = "remarks",
-            routeId = routeId
+            routeId = routeId,
+            status = TaskStatus.TODO
         )
 
         val createdTask = it.manager.tasks.create(taskData)
@@ -211,7 +218,8 @@ class TasksTestIT : AbstractFunctionalTest() {
             customerSiteId = site2.id!!,
             type = TaskType.UNLOAD,
             remarks = "remarks2",
-            routeId = null
+            routeId = null,
+            status = TaskStatus.IN_PROGRESS
         )
 
         val updated = it.manager.tasks.updateTask(createdTask.id!!, updateData)
@@ -220,6 +228,7 @@ class TasksTestIT : AbstractFunctionalTest() {
         assertEquals(updateData.type, updated.type)
         assertEquals(updateData.remarks, updated.remarks)
         assertEquals(updateData.routeId, updated.routeId)
+        assertEquals(updateData.status, updated.status)
     }
 
     @Test
@@ -309,5 +318,10 @@ class TasksTestIT : AbstractFunctionalTest() {
             )
             .build()
             .test()
+
+        //cannot delete done task
+        val updated = it.manager.tasks.updateTask(createdTask.id, createdTask.copy(status = TaskStatus.DONE))
+        it.manager.tasks.assertDeleteTaskFail(409, updated.id!!)
+        it.manager.tasks.updateTask(updated.id, updated.copy(status = TaskStatus.TODO))
     }
 }

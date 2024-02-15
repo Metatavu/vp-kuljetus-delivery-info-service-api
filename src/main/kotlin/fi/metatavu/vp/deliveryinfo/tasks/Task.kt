@@ -1,5 +1,6 @@
 package fi.metatavu.vp.deliveryinfo.tasks
 
+import fi.metatavu.vp.api.model.TaskStatus
 import fi.metatavu.vp.api.model.TaskType
 import fi.metatavu.vp.deliveryinfo.freights.Freight
 import fi.metatavu.vp.deliveryinfo.persistence.Metadata
@@ -26,6 +27,10 @@ class Task: Metadata() {
     @Column(nullable=false)
     @Enumerated(EnumType.STRING)
     lateinit var taskType: TaskType
+
+    @Column(nullable=false)
+    @Enumerated(EnumType.STRING)
+    lateinit var status: TaskStatus
 
     @Column
     var remarks: String? = null
