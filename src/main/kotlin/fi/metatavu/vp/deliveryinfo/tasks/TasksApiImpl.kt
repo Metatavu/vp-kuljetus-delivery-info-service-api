@@ -1,6 +1,7 @@
 package fi.metatavu.vp.deliveryinfo.tasks
 
 import fi.metatavu.vp.api.model.Task
+import fi.metatavu.vp.api.model.TaskStatus
 import fi.metatavu.vp.api.model.TaskType
 import fi.metatavu.vp.api.spec.TasksApi
 import fi.metatavu.vp.deliveryinfo.freights.FreightController
@@ -94,6 +95,7 @@ class TasksApiImpl : TasksApi, AbstractApi() {
             freight = freight,
             site = site,
             type = task.type,
+            status = task.status,
             remarks = task.remarks,
             routeId = task.routeId,
             creatorId = userId,
@@ -152,6 +154,9 @@ class TasksApiImpl : TasksApi, AbstractApi() {
     override fun deleteTask(taskId: UUID): Uni<Response> = CoroutineScope(vertx.dispatcher()).async {
         loggedUserId ?: return@async createUnauthorized(UNAUTHORIZED)
         val foundTask = taskController.findTask(taskId) ?: return@async createNotFound(createNotFoundMessage(TASK, taskId))
+        if (foundTask.status == TaskStatus.DONE) {
+            return@async createConflict("Done task cannot be deleted")
+        }
         taskController.deleteTask(foundTask)
         createNoContent()
     }.asUni()
