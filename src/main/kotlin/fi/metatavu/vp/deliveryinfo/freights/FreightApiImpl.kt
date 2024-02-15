@@ -2,7 +2,9 @@ package fi.metatavu.vp.deliveryinfo.freights
 
 import fi.metatavu.vp.api.model.Freight
 import fi.metatavu.vp.api.spec.FreightsApi
+import fi.metatavu.vp.deliveryinfo.freights.freightunits.FreightUnitController
 import fi.metatavu.vp.deliveryinfo.rest.AbstractApi
+import fi.metatavu.vp.deliveryinfo.tasks.TaskController
 import io.quarkus.hibernate.reactive.panache.common.WithSession
 import io.quarkus.hibernate.reactive.panache.common.WithTransaction
 import io.smallrye.mutiny.Uni
@@ -31,6 +33,12 @@ class FreightApiImpl: FreightsApi, AbstractApi() {
 
     @Inject
     lateinit var freightTranslator: FreightTranslator
+
+    @Inject
+    lateinit var freightUnitController: FreightUnitController
+
+    @Inject
+    lateinit var taskController: TaskController
 
     @Inject
     lateinit var vertx: Vertx
@@ -68,6 +76,17 @@ class FreightApiImpl: FreightsApi, AbstractApi() {
     @WithTransaction
     override fun deleteFreight(freightId: UUID): Uni<Response> = CoroutineScope(vertx.dispatcher()).async {
         val freight = freightController.findFreight(freightId) ?: return@async createNotFound(createNotFoundMessage(FREIGHT, freightId))
+
+        val freightUnits = freightUnitController.list(freight = freight)
+        if (freightUnits.first.isNotEmpty()) {
+            return@async createConflict("Freight has freight units")
+        }
+
+        val tasks = taskController.listTasks(freight = freight)
+        if (tasks.first.isNotEmpty()) {
+            return@async createConflict("Freight has tasks")
+        }
+
         freightController.delete(freight)
         createNoContent()
     }.asUni()

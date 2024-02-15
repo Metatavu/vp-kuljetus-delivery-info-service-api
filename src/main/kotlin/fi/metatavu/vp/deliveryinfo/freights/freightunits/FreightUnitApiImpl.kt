@@ -42,12 +42,12 @@ class FreightUnitApiImpl : FreightUnitsApi, AbstractApi() {
     @RolesAllowed(DRIVER_ROLE, MANAGER_ROLE)
     override fun listFreightUnits(freightId: UUID?, first: Int?, max: Int?): Uni<Response> = CoroutineScope(vertx.dispatcher()).async {
         val freightFilter = if (freightId != null) {
-        val freight = freightController.findFreight(freightId) ?: return@async createNotFound(createNotFoundMessage(FREIGHT, freightId))
-            freight
+            freightController.findFreight(freightId) ?: return@async createNotFound(createNotFoundMessage(FREIGHT, freightId))
         } else null
+
         val (freightUnits, count) = freightUnitController.list(freightFilter, first, max)
         createOk(freightUnits.map { freightUnitTranslator.translate(it) }, count)
-        }.asUni()
+    }.asUni()
 
     @RolesAllowed(DRIVER_ROLE, MANAGER_ROLE)
     @WithTransaction

@@ -14,6 +14,7 @@ class TaskTranslator: AbstractTranslator<Task, fi.metatavu.vp.api.model.Task>() 
             freightId = entity.freight.id,
             customerSiteId = entity.site.id!!,
             type = entity.taskType,
+            status = entity.status,
             remarks = entity.remarks,
             routeId = entity.routeId,
             creatorId = entity.creatorId,

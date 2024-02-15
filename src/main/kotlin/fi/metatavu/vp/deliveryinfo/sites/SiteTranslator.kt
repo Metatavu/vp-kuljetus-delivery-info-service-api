@@ -23,6 +23,7 @@ class SiteTranslator: AbstractTranslator<Site, fi.metatavu.vp.api.model.Site>() 
             id = entity.id,
             name = entity.name,
             location = writer.write(point),
+            archivedAt = entity.archivedAt,
             creatorId = entity.creatorId,
             lastModifierId = entity.lastModifierId,
             createdAt = entity.createdAt,

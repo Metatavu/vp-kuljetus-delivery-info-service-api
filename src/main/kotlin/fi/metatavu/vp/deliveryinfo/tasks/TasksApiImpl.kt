@@ -1,6 +1,7 @@
 package fi.metatavu.vp.deliveryinfo.tasks
 
 import fi.metatavu.vp.api.model.Task
+import fi.metatavu.vp.api.model.TaskStatus
 import fi.metatavu.vp.api.model.TaskType
 import fi.metatavu.vp.api.spec.TasksApi
 import fi.metatavu.vp.deliveryinfo.freights.FreightController
@@ -52,13 +53,11 @@ class TasksApiImpl : TasksApi, AbstractApi() {
         max: Int?
     ): Uni<Response> = CoroutineScope(vertx.dispatcher()).async {
         val freightFilter = freightId?.let {
-            val foundFreight = freightController.findFreight(it) ?: return@async createNotFound(createNotFoundMessage(FREIGHT, it))
-            foundFreight
+            freightController.findFreight(it) ?: return@async createNotFound(createNotFoundMessage(FREIGHT, it))
         }
 
         val siteFilter = customerSiteId?.let {
-            val foundSite = siteController.findSite(it) ?: return@async createNotFound(createNotFoundMessage(SITE, it))
-            foundSite
+            siteController.findSite(it) ?: return@async createNotFound(createNotFoundMessage(SITE, it))
         }
 
         val (tasks, count) = taskController.listTasks(
@@ -76,7 +75,6 @@ class TasksApiImpl : TasksApi, AbstractApi() {
     @WithTransaction
     @RolesAllowed(MANAGER_ROLE)
     override fun createTask(task: Task): Uni<Response> = CoroutineScope(vertx.dispatcher()).async {
-        println("Creating task ${task.type}")
         val userId = loggedUserId ?: return@async createUnauthorized(UNAUTHORIZED)
         val freight = task.freightId.let {
             val foundFreight =
@@ -90,13 +88,14 @@ class TasksApiImpl : TasksApi, AbstractApi() {
         }
 
         if (task.routeId != null && !taskController.routeExists(task.routeId)) {
-            return@async createBadRequest("Bad request")
+            return@async createBadRequest("Route does not exist")
         }
 
         val createdTask = taskController.createTask(
             freight = freight,
             site = site,
             type = task.type,
+            status = task.status,
             remarks = task.remarks,
             routeId = task.routeId,
             creatorId = userId,
@@ -122,18 +121,14 @@ class TasksApiImpl : TasksApi, AbstractApi() {
             if (foundTask.freight.id == it) {
                 return@let foundTask.freight
             }
-            val foundFreight =
-                freightController.findFreight(it) ?: return@async createBadRequest(createNotFoundMessage(FREIGHT, it))
-            foundFreight
+            freightController.findFreight(it) ?: return@async createBadRequest(createNotFoundMessage(FREIGHT, it))
         }
 
         val site = task.customerSiteId.let {
             if (foundTask.site.id == it) {
                 return@let foundTask.site
             }
-            val foundSite =
-                siteController.findSite(it) ?: return@async createBadRequest(createNotFoundMessage(SITE, it))
-            foundSite
+            siteController.findSite(it) ?: return@async createBadRequest(createNotFoundMessage(SITE, it))
         }
 
         if (task.routeId != null
@@ -159,6 +154,9 @@ class TasksApiImpl : TasksApi, AbstractApi() {
     override fun deleteTask(taskId: UUID): Uni<Response> = CoroutineScope(vertx.dispatcher()).async {
         loggedUserId ?: return@async createUnauthorized(UNAUTHORIZED)
         val foundTask = taskController.findTask(taskId) ?: return@async createNotFound(createNotFoundMessage(TASK, taskId))
+        if (foundTask.status == TaskStatus.DONE) {
+            return@async createConflict("Done task cannot be deleted")
+        }
         taskController.deleteTask(foundTask)
         createNoContent()
     }.asUni()

@@ -1,5 +1,6 @@
 package fi.metatavu.vp.deliveryinfo.tasks
 
+import fi.metatavu.vp.api.model.TaskStatus
 import fi.metatavu.vp.api.model.TaskType
 import fi.metatavu.vp.deliveryinfo.freights.Freight
 import fi.metatavu.vp.deliveryinfo.persistence.AbstractRepository
@@ -21,6 +22,7 @@ class TaskRepository : AbstractRepository<Task, UUID>() {
      * @param freight freight
      * @param site site
      * @param type type
+     * @param status status
      * @param remarks remarks
      * @param routeId route id
      * @param creatorId creator id
@@ -32,6 +34,7 @@ class TaskRepository : AbstractRepository<Task, UUID>() {
         freight: Freight,
         site: Site,
         type: TaskType,
+        status: TaskStatus,
         remarks: String?,
         routeId: UUID?,
         creatorId: UUID,
@@ -42,6 +45,7 @@ class TaskRepository : AbstractRepository<Task, UUID>() {
         task.freight = freight
         task.site = site
         task.taskType = type
+        task.status = status
         task.remarks = remarks
         task.routeId = routeId
         task.creatorId = creatorId

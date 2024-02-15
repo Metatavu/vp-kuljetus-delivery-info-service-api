@@ -132,4 +132,18 @@
             </column>
         </createTable>
     </changeSet>
+
+    <changeSet id="task_fields" author="katja danilova">
+        <addColumn tableName="task">
+            <column name="status" type="varchar(191)">
+                <constraints nullable="false"/>
+            </column>
+        </addColumn>
+    </changeSet>
+
+    <changeSet id="site-archiving" author="katja danilova">
+        <addColumn tableName="site">
+            <column name="archivedat" type="datetime(6)" />
+        </addColumn>
+    </changeSet>
 </databaseChangeLog>

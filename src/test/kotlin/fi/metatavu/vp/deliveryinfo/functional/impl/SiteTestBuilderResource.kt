@@ -102,10 +102,11 @@ class SiteTestBuilderResource(
      *
      * @param id site id
      * @param expectedStatus expected status
+     * @param updateData update data
      */
-    fun assertUpdateSiteFail(id: UUID, expectedStatus: Int) {
+    fun assertUpdateSiteFail(id: UUID, expectedStatus: Int, updateData: Site) {
         try {
-            updateSite(id, Site("11", "POINT(60.16952 24.93545)"))
+            updateSite(id, updateData)
             Assert.fail(String.format("Expected update to fail with status %d", expectedStatus))
         } catch (ex: ClientException) {
             assertClientExceptionStatus(expectedStatus, ex)
@@ -114,12 +115,13 @@ class SiteTestBuilderResource(
     /**
      * Lists sites
      *
+     * @param archived archived
      * @param first first result
      * @param max max results
      * @return list of sites
      */
-    fun listSites(first: Int? = null, max: Int? = null): Array<Site> {
-        return api.listSites(first = first, max = max)
+    fun listSites(archived: Boolean? = null, first: Int? = null, max: Int? = null): Array<Site> {
+        return api.listSites(archived = archived, first = first, max = max)
     }
 
     /**
