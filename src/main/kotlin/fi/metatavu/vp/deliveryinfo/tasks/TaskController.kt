@@ -53,13 +53,13 @@ class TaskController {
      * @return pair of list of tasks and total count
      */
     suspend fun listTasks(
-        routeId: UUID?,
-        assignedToRoute: Boolean?,
-        freight: Freight?,
-        site: Site?,
-        type: TaskType?,
-        first: Int?,
-        max: Int?
+        routeId: UUID? = null,
+        assignedToRoute: Boolean? = null,
+        freight: Freight? = null,
+        site: Site? = null,
+        type: TaskType? = null,
+        first: Int? = null,
+        max: Int? = null
     ): Pair<List<Task>, Long> {
         return taskRepository.list(
             routeId = routeId,

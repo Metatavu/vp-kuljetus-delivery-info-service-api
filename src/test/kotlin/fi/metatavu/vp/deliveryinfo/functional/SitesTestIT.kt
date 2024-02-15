@@ -6,8 +6,10 @@ import fi.metatavu.invalid.InvalidValueTestScenarioPath
 import fi.metatavu.invalid.InvalidValues
 import fi.metatavu.vp.deliveryinfo.functional.impl.InvalidTestValues
 import fi.metatavu.vp.deliveryinfo.functional.settings.ApiTestSettings
+import fi.metatavu.vp.deliveryinfo.functional.settings.DefaultTestProfile
 import fi.metatavu.vp.test.client.models.Site
 import io.quarkus.test.junit.QuarkusTest
+import io.quarkus.test.junit.TestProfile
 import io.restassured.http.Method
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertNotNull
@@ -17,7 +19,33 @@ import org.junit.jupiter.api.Test
  * Sites test
  */
 @QuarkusTest
+@TestProfile(DefaultTestProfile::class)
 class SitesTestIT : AbstractFunctionalTest() {
+
+    @Test
+    fun testArchiving() = createTestBuilder().use {
+        val site1 = it.manager.sites.create()
+        val site2 = it.manager.sites.create()
+
+        // Archive site 1
+        val archived = it.manager.sites.updateSite(site1.id!!, site1.copy(archivedAt = site1.createdAt))
+        assertNotNull(archived.archivedAt)
+        val archivedList = it.manager.sites.listSites(archived = true)
+        assertEquals(1, archivedList.size)
+        val unarchivedList = it.manager.sites.listSites(archived = false)
+        assertEquals(1, unarchivedList.size)
+
+        // Cannot update archived sites
+        it.manager.sites.assertUpdateSiteFail(site1.id, 409, archived.copy(name = "Test site 2"))
+
+        // Can un-archive sites
+        val unArachived = it.manager.sites.updateSite(site1.id, archived.copy(archivedAt = null))
+        assertEquals(null, unArachived.archivedAt)
+        val unarchivedList2 = it.manager.sites.listSites(archived = false)
+        assertEquals(2, unarchivedList2.size)
+        val archivedList2 = it.manager.sites.listSites(archived = true)
+        assertEquals(0, archivedList2.size)
+    }
 
     @Test
     fun testCreate() = createTestBuilder().use {
@@ -120,7 +148,7 @@ class SitesTestIT : AbstractFunctionalTest() {
                 InvalidValueTestScenarioPath(
                     name = "siteId",
                     values = InvalidValues.STRING_NOT_NULL,
-                    default = createdSite.id!!,
+                    default = createdSite.id,
                     expectedStatus = 404
                 )
             )
@@ -147,8 +175,8 @@ class SitesTestIT : AbstractFunctionalTest() {
         val createdSite = tb.manager.sites.create()
 
         // access rights
-        tb.driver.sites.assertUpdateSiteFail(createdSite.id!!, 403)
-        tb.user.sites.assertUpdateSiteFail(createdSite.id, 403)
+        tb.driver.sites.assertUpdateSiteFail(createdSite.id!!, 403, createdSite)
+        tb.user.sites.assertUpdateSiteFail(createdSite.id, 403, createdSite)
 
         InvalidValueTestScenarioBuilder(
             path = "v1/sites/{siteId}",
@@ -160,7 +188,7 @@ class SitesTestIT : AbstractFunctionalTest() {
                 InvalidValueTestScenarioPath(
                     name = "siteId",
                     values = InvalidValues.STRING_NOT_NULL,
-                    default = createdSite.id!!,
+                    default = createdSite.id,
                     expectedStatus = 404
                 )
             )
@@ -199,7 +227,7 @@ class SitesTestIT : AbstractFunctionalTest() {
                 InvalidValueTestScenarioPath(
                     name = "siteId",
                     values = InvalidValues.STRING_NOT_NULL,
-                    default = createdSite.id!!,
+                    default = createdSite.id,
                     expectedStatus = 404
                 )
             )

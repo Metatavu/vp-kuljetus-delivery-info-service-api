@@ -22,7 +22,7 @@ class FreightUnitController {
      * @param max max results
      * @return pair of list of freight units and total count
      */
-    suspend fun list(freight: Freight?, first: Int?, max: Int?): Pair<List<FreightUnit>, Long> {
+    suspend fun list(freight: Freight?, first: Int? = null, max: Int? = null): Pair<List<FreightUnit>, Long> {
         return freightUnitRepository.list(freight, first, max)
     }
 

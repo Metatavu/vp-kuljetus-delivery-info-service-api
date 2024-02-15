@@ -6,8 +6,10 @@ import fi.metatavu.invalid.InvalidValueTestScenarioPath
 import fi.metatavu.invalid.InvalidValues
 import fi.metatavu.vp.deliveryinfo.functional.impl.InvalidTestValues
 import fi.metatavu.vp.deliveryinfo.functional.settings.ApiTestSettings
+import fi.metatavu.vp.deliveryinfo.functional.settings.DefaultTestProfile
 import fi.metatavu.vp.test.client.models.Freight
 import io.quarkus.test.junit.QuarkusTest
+import io.quarkus.test.junit.TestProfile
 import io.restassured.http.Method
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertNotNull
@@ -17,6 +19,7 @@ import org.junit.jupiter.api.Test
  * Freights API tests
  */
 @QuarkusTest
+@TestProfile(DefaultTestProfile::class)
 class FreightsTestIT : AbstractFunctionalTest() {
 
     @Test

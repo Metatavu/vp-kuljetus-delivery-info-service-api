@@ -95,13 +95,6 @@ class FreightController {
      * @param freight freight
      */
     suspend fun delete(freight: Freight) {
-        val freightUnits = freightUnitController.list(freight, null, null)
-        freightUnits.first.forEach {
-            freightUnitController.delete(it)
-        }
-        taskRepository.list(freight = freight).first.forEach {
-            taskRepository.deleteSuspending(it)
-        }
         freightRepository.deleteSuspending(freight)
     }
 

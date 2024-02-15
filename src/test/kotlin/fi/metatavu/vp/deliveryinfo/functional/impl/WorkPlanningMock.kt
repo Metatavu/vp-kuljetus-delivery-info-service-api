@@ -43,7 +43,7 @@ class WorkPlanningMock : QuarkusTestResourceLifecycleManager {
                             objectMapper.writeValueAsString(
                                 Route(
                                     id = routeId,
-                                    vehicleId = vehicleId,
+                                    truckId = truckId,
                                     driverId = driverId,
                                     departureTime = OffsetDateTime.now(),
                                     name = "standard route"
@@ -68,7 +68,7 @@ class WorkPlanningMock : QuarkusTestResourceLifecycleManager {
 
     companion object {
         val routeId: UUID = UUID.randomUUID()
-        val vehicleId: UUID = UUID.randomUUID()
+        val truckId: UUID = UUID.randomUUID()
         val driverId: UUID = UUID.randomUUID()
     }
 }

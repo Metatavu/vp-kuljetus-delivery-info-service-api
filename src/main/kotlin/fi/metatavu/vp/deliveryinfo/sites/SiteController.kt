@@ -38,12 +38,13 @@ class SiteController {
     /**
      * Lists sites
      *
+     * @param archived archived status
      * @param first first result
      * @param max max results
      * @return list of sites
      */
-    suspend fun listSites(first: Int?, max: Int?): Pair<List<Site>, Long> {
-        return siteRepository.list(first, max)
+    suspend fun listSites(archived: Boolean?, first: Int?, max: Int?): Pair<List<Site>, Long> {
+        return siteRepository.list(archived, first, max)
     }
 
     /**
@@ -89,6 +90,7 @@ class SiteController {
         val ( lat, lon ) = getLatLon(newLocation)
         existingSite.latitude = lat
         existingSite.longitude = lon
+        existingSite.archivedAt = site.archivedAt
         existingSite.lastModifierId = userId
         return siteRepository.persistSuspending(existingSite)
     }
@@ -99,9 +101,6 @@ class SiteController {
      * @param site site
      */
     suspend fun deleteSite(site: Site) {
-        tasksRepository.list(site = site).first.forEach {
-            tasksRepository.deleteSuspending(it)
-        }
         siteRepository.deleteSuspending(site)
     }
 

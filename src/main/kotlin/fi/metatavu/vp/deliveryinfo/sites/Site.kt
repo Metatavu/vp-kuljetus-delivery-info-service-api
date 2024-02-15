@@ -6,6 +6,7 @@ import jakarta.persistence.Entity
 import jakarta.persistence.Id
 import jakarta.persistence.Table
 import jakarta.validation.constraints.NotEmpty
+import java.time.OffsetDateTime
 import java.util.*
 
 /**
@@ -27,6 +28,9 @@ class Site: Metadata() {
 
     @Column(nullable = false)
     var longitude: Double = 0.0
+
+    @Column
+    var archivedAt: OffsetDateTime? = null
 
     override lateinit var creatorId: UUID
 

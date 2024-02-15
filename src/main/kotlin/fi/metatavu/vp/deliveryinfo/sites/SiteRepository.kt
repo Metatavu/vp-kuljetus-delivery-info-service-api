@@ -35,12 +35,23 @@ class SiteRepository: AbstractRepository<Site, UUID>() {
     /**
      * Lists sites
      *
+     * @param archived archived
      * @param first first result
      * @param max max results
      * @return list of sites
      */
-    suspend fun list(first: Int?, max: Int?): Pair<List<Site>, Long> {
-        return applyFirstMaxToQuery(findAll(Sort.descending("modifiedAt")), first, max)
+    suspend fun list(archived: Boolean?, first: Int?, max: Int?): Pair<List<Site>, Long> {
+        val query = if (archived == null || archived == false) {
+            "archivedAt IS NULL"
+        } else {
+            "archivedAt IS NOT NULL"
+        }
+
+        return applyFirstMaxToQuery(
+            query = find(query, Sort.by("modifiedAt").descending()),
+            firstIndex = first,
+            maxResults = max
+        )
     }
 
 }

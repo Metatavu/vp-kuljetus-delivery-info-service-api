@@ -6,8 +6,10 @@ import fi.metatavu.invalid.InvalidValueTestScenarioPath
 import fi.metatavu.invalid.InvalidValues
 import fi.metatavu.vp.deliveryinfo.functional.impl.InvalidTestValues
 import fi.metatavu.vp.deliveryinfo.functional.settings.ApiTestSettings
+import fi.metatavu.vp.deliveryinfo.functional.settings.DefaultTestProfile
 import fi.metatavu.vp.test.client.models.FreightUnit
 import io.quarkus.test.junit.QuarkusTest
+import io.quarkus.test.junit.TestProfile
 import io.restassured.http.Method
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertNotNull
@@ -17,6 +19,7 @@ import org.junit.jupiter.api.Test
  * Freight units API tests
  */
 @QuarkusTest
+@TestProfile(DefaultTestProfile::class)
 class FreightUnitsTestIT : AbstractFunctionalTest() {
 
     @Test
@@ -47,7 +50,6 @@ class FreightUnitsTestIT : AbstractFunctionalTest() {
         //Access rights checks
         val freight = tb.manager.freights.create()
         tb.user.freightUnits.assertCreateFail(403, freight.id!!)
-        tb.driver.freightUnits.create(freight.id)
 
         // Invalid values checks
         InvalidValueTestScenarioBuilder(
@@ -77,9 +79,9 @@ class FreightUnitsTestIT : AbstractFunctionalTest() {
         val freight1 = it.manager.freights.create()
         val freight2 = it.manager.freights.create()
 
-        val unit1 = it.manager.freightUnits.create(freight1.id!!)
-        val unit2 = it.manager.freightUnits.create(freight1.id)
-        val unit3 = it.manager.freightUnits.create(freight2.id!!)
+        it.manager.freightUnits.create(freight1.id!!)
+        it.manager.freightUnits.create(freight1.id)
+        it.manager.freightUnits.create(freight2.id!!)
         val totalList = it.manager.freightUnits.listFreightUnits()
         assertEquals(3, totalList.size)
 
@@ -88,6 +90,9 @@ class FreightUnitsTestIT : AbstractFunctionalTest() {
 
         val pagedList2 = it.manager.freightUnits.listFreightUnits(first = 2, max = 5)
         assertEquals(1, pagedList2.size)
+
+        val pagedList3 = it.manager.freightUnits.listFreightUnits(first = 0, max = 5)
+        assertEquals(3, pagedList3.size)
 
         val filtered = it.manager.freightUnits.listFreightUnits(freightId = freight1.id)
         assertEquals(2, filtered.size)
@@ -213,17 +218,15 @@ class FreightUnitsTestIT : AbstractFunctionalTest() {
         it.manager.freightUnits.create(freight.id)
         val oneUnit = it.manager.freightUnits.listFreightUnits()
         assertEquals(1, oneUnit.size)
-
-        // Check that removing freight deletes the freight units as well
-        val unit2 = it.manager.freights.deleteFreight(freight.id)
-        emptyList = it.manager.freightUnits.listFreightUnits()
-        assertEquals(0, emptyList.size)
     }
 
     @Test
     fun testDeleteFail() = createTestBuilder().use {
         val freight = it.manager.freights.create()
         val unit = it.manager.freightUnits.create(freight.id!!)
+
+        //Cannot remove freight which has fregit units
+        it.manager.freights.assertDeleteFreightFail(freight.id, 409)
 
         it.user.freightUnits.assertDeleteFreightUnitFail(unit.id!!, 403)
         it.driver.freightUnits.assertDeleteFreightUnitFail(unit.id, 403)

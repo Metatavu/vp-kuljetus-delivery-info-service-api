@@ -8,10 +8,12 @@ import fi.metatavu.vp.deliveryinfo.functional.impl.InvalidTestValues
 import fi.metatavu.vp.deliveryinfo.functional.impl.WorkPlanningMock
 import fi.metatavu.vp.deliveryinfo.functional.impl.WorkPlanningMock.Companion.routeId
 import fi.metatavu.vp.deliveryinfo.functional.settings.ApiTestSettings
+import fi.metatavu.vp.deliveryinfo.functional.settings.DefaultTestProfile
 import fi.metatavu.vp.test.client.models.Task
 import fi.metatavu.vp.test.client.models.TaskType
 import io.quarkus.test.common.QuarkusTestResource
 import io.quarkus.test.junit.QuarkusTest
+import io.quarkus.test.junit.TestProfile
 import io.restassured.http.Method
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertNotNull
@@ -22,6 +24,7 @@ import org.junit.jupiter.api.Test
  */
 @QuarkusTest
 @QuarkusTestResource(WorkPlanningMock::class)
+@TestProfile(DefaultTestProfile::class)
 class TasksTestIT : AbstractFunctionalTest() {
 
     @Test
@@ -289,6 +292,11 @@ class TasksTestIT : AbstractFunctionalTest() {
             freightId = freight1.id!!,
             routeId = null
         )
+
+        // Cannot delete site with attached tasks
+        it.manager.sites.assertDeleteSiteFail(site1.id, 409)
+        // Cannot delete freight with attached tasks
+        it.manager.freights.assertDeleteFreightFail(freight1.id, 409)
 
         it.user.tasks.assertDeleteTaskFail(403, createdTask.id!!)
         it.driver.tasks.assertDeleteTaskFail(403, createdTask.id)

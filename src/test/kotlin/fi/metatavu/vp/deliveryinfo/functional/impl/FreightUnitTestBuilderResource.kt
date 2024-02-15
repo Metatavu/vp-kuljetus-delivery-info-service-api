@@ -19,11 +19,7 @@ class FreightUnitTestBuilderResource(
     apiClient: ApiClient
 ) : ApiTestBuilderResource<FreightUnit, ApiClient>(testBuilder, apiClient) {
     override fun clean(t: FreightUnit) {
-        try {
-            api.deleteFreightUnit(t.id!!)
-        } catch (_: ClientException) {
-            // Ignore deletion fails for the cases when the freight unit has already been deleted due to other entity's removal
-        }
+        api.deleteFreightUnit(t.id!!)
     }
 
     override fun getApi(): FreightUnitsApi {
