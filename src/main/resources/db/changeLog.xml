@@ -146,4 +146,19 @@
             <column name="archivedat" type="datetime(6)" />
         </addColumn>
     </changeSet>
+    
+    <changeSet id="add_additional_fields_to_site" author="Ville Juutila">
+        <addColumn tableName="site">
+            <column name="address" type="varchar(191)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="postalcode" type="varchar(191)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="locality" type="varchar(191)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="additionalinfo" type="clob"/>
+        </addColumn>
+    </changeSet>
 </databaseChangeLog>

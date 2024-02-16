@@ -18,6 +18,21 @@ import org.skyscreamer.jsonassert.comparator.CustomComparator
 abstract class AbstractFunctionalTest {
 
     /**
+     * Generates random string (A-Za-z) of given length
+     *
+     * Useful in e.g. sites test where we have LONGTEXT type column
+     *
+     * @param length length
+     * @return random string
+     */
+    fun generateRandomString(length: Int): String {
+        val allowedChars = ('A'..'Z') + ('a'..'z')
+        return (1..length)
+            .map { allowedChars.random() }
+            .joinToString("")
+    }
+
+    /**
      * Compares objects as serialized JSONs
      *
      * @param expected expected
