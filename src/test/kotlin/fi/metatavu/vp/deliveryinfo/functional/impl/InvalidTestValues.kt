@@ -16,17 +16,56 @@ class InvalidTestValues: InvalidValues() {
 
     companion object {
         val INVALID_SITES = listOf(
-            Site(name = "Test site 1", location = "qqq"),
-            Site(name = "", location = "POINT (60.16952 24.93545)"),
-            Site(name = "Test site 1", location = "")
+            Site(
+                name = "Test site 1",
+                location = "qqq",
+                address = "address",
+                postalCode = "postalCode",
+                locality = "locality"
+            ),
+            Site(
+                name = "",
+                location = "POINT (60.16952 24.93545)",
+                address = "address",
+                postalCode = "postalCode",
+                locality = "locality"
+            ),
+            Site(
+                name = "Test site 1",
+                location = "",
+                address = "address",
+                postalCode = "postalCode",
+                locality = "locality"
+            ),
+            Site(
+                name = "Test site 1",
+                location = "POINT (60.16952 24.93545)",
+                address = "",
+                postalCode = "postalCode",
+                locality = "locality"
+            ),
+            Site(
+                name = "Test site 1",
+                location = "POINT (60.16952 24.93545)",
+                address = "address",
+                postalCode = "",
+                locality = "locality"
+            ),
+            Site(
+                name = "Test site 1",
+                location = "POINT (60.16952 24.93545)",
+                address = "address",
+                postalCode = "postalCode",
+                locality = ""
+            )
         ).map { jacksonObjectMapper().writeValueAsString(it) }.map { SimpleInvalidValueProvider(it) }
 
         val INVALID_FREIGHTS = listOf(
-            Site(name = "Test site 1", location = "qqq"),
+            Site(name = "Test site 1", location = "qqq", address = "address", postalCode = "postalCode", locality = "locality"),
         ).map { jacksonObjectMapper().writeValueAsString(it) }.map { SimpleInvalidValueProvider(it) }
 
         val INVALID_FREIGHT_UNITS = listOf(
-            Site(name = "Test site 1", location = "qqq"),
+            Site(name = "Test site 1", location = "qqq", address = "address", postalCode = "postalCode", locality = "locality"),
         ).map { jacksonObjectMapper().writeValueAsString(it) }.map { SimpleInvalidValueProvider(it) }
 
         val INVALID_FREIGHT_UNITS_FREIGHT_ID = listOf(
@@ -55,7 +94,7 @@ class InvalidTestValues: InvalidValues() {
                 status = fi.metatavu.vp.test.client.models.TaskStatus.TODO
             )
             return listOf(
-                Site(name = "Test site 1", location = "qqq"),
+                Site(name = "Test site 1", location = "qqq", address = "address", postalCode = "postalCode", locality = "locality"),
                 sampleValidTask.copy(freightId = UUID.randomUUID()),
                 sampleValidTask.copy(customerSiteId = UUID.randomUUID()),
                 sampleValidTask.copy(routeId = UUID.randomUUID())

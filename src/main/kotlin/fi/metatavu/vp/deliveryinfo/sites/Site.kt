@@ -30,12 +30,15 @@ class Site: Metadata() {
     var longitude: Double = 0.0
 
     @Column(nullable = false)
+    @NotEmpty
     lateinit var address: String
 
     @Column(nullable = false)
+    @NotEmpty
     lateinit var postalCode: String
 
     @Column(nullable = false)
+    @NotEmpty
     lateinit var locality: String
 
     @Column(nullable = true)
