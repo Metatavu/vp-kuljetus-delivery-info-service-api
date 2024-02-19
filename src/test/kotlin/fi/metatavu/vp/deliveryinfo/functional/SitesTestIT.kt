@@ -11,8 +11,7 @@ import fi.metatavu.vp.test.client.models.Site
 import io.quarkus.test.junit.QuarkusTest
 import io.quarkus.test.junit.TestProfile
 import io.restassured.http.Method
-import org.junit.jupiter.api.Assertions.assertEquals
-import org.junit.jupiter.api.Assertions.assertNotNull
+import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.Test
 
 /**
@@ -25,7 +24,6 @@ class SitesTestIT : AbstractFunctionalTest() {
     @Test
     fun testArchiving() = createTestBuilder().use {
         val site1 = it.manager.sites.create()
-        val site2 = it.manager.sites.create()
 
         // Archive site 1
         val archived = it.manager.sites.updateSite(site1.id!!, site1.copy(archivedAt = site1.createdAt))
@@ -33,16 +31,16 @@ class SitesTestIT : AbstractFunctionalTest() {
         val archivedList = it.manager.sites.listSites(archived = true)
         assertEquals(1, archivedList.size)
         val unarchivedList = it.manager.sites.listSites(archived = false)
-        assertEquals(1, unarchivedList.size)
+        assertEquals(0, unarchivedList.size)
 
         // Cannot update archived sites
         it.manager.sites.assertUpdateSiteFail(site1.id, 409, archived.copy(name = "Test site 2"))
 
         // Can un-archive sites
-        val unArachived = it.manager.sites.updateSite(site1.id, archived.copy(archivedAt = null))
-        assertEquals(null, unArachived.archivedAt)
-        val unarchivedList2 = it.manager.sites.listSites(archived = false)
-        assertEquals(2, unarchivedList2.size)
+        val unArchived = it.manager.sites.updateSite(site1.id, archived.copy(archivedAt = null))
+        assertEquals(null, unArchived.archivedAt)
+        val unArchivedList2 = it.manager.sites.listSites(archived = false)
+        assertEquals(1, unArchivedList2.size)
         val archivedList2 = it.manager.sites.listSites(archived = true)
         assertEquals(0, archivedList2.size)
     }
@@ -51,14 +49,32 @@ class SitesTestIT : AbstractFunctionalTest() {
     fun testCreate() = createTestBuilder().use {
         val site1 = Site(
             name = "Test site 1",
-            location = "POINT (60.16952 24.93545)"
+            location = "POINT (60.16952 24.93545)",
+            address = "Test address",
+            postalCode = "00100",
+            locality = "Helsinki"
+        )
+        val site2 = Site(
+            name = "Test site 1",
+            location = "POINT (60.16952 24.93545)",
+            address = "Test address",
+            postalCode = "00100",
+            locality = "Helsinki",
+            additionalInfo = generateRandomString(1000)
         )
 
-        val result = it.manager.sites.create(site1)
-        assertNotNull(result)
-        assertNotNull(result.id)
-        assertEquals(site1.name, result.name)
-        assertEquals(site1.location, result.location)
+        val result1 = it.manager.sites.create(site1)
+        val result2 = it.manager.sites.create(site2)
+        assertNotNull(result1)
+        assertNotNull(result1.id)
+        assertEquals(site1.name, result1.name)
+        assertEquals(site1.location, result1.location)
+        assertEquals(site1.address, result1.address)
+        assertEquals(site1.postalCode, result1.postalCode)
+        assertEquals(site1.locality, result1.locality)
+        assertNull(result1.additionalInfo)
+        assertNotNull(result2.additionalInfo)
+        assertEquals(result2.additionalInfo, site2.additionalInfo)
     }
 
     @Test
@@ -88,15 +104,24 @@ class SitesTestIT : AbstractFunctionalTest() {
     fun testList() = createTestBuilder().use {
         val site1 = Site(
             name = "Test site 1",
-            location = "POINT (60.16952 24.93545)"
+            location = "POINT (60.16952 24.93545)",
+            address = "Test address",
+            postalCode = "00100",
+            locality = "Helsinki"
         )
         val site2 = Site(
             name = "Test site 2",
-            location = "POINT (60.16952 24.93545)"
+            location = "POINT (60.16952 24.93545)",
+            address = "Test address",
+            postalCode = "00100",
+            locality = "Helsinki"
         )
         val site3 = Site(
             name = "Test site 3",
-            location = "POINT (60.16952 24.93545)"
+            location = "POINT (60.16952 24.93545)",
+            address = "Test address",
+            postalCode = "00100",
+            locality = "Helsinki"
         )
         it.manager.sites.create(site1)
         it.manager.sites.create(site2)
@@ -161,13 +186,29 @@ class SitesTestIT : AbstractFunctionalTest() {
         val createdSite = it.manager.sites.create()
         val updateData = Site(
             name = "Test site 2",
-            location = "POINT (100 100)"
+            location = "POINT (100 100)",
+            address = "Test address",
+            postalCode = "00100",
+            locality = "Helsinki"
         )
-        val result = it.manager.sites.updateSite(createdSite.id!!, updateData)
-        assertNotNull(result)
-        assertEquals(createdSite.id, result.id)
-        assertEquals(updateData.name, result.name)
-        assertEquals(updateData.location, result.location)
+        val result1 = it.manager.sites.updateSite(createdSite.id!!, updateData)
+        assertNotNull(result1)
+        assertEquals(createdSite.id, result1.id)
+        assertEquals(updateData.name, result1.name)
+        assertEquals(updateData.location, result1.location)
+        assertEquals(updateData.address, result1.address)
+        assertEquals(updateData.postalCode, result1.postalCode)
+        assertEquals(updateData.locality, result1.locality)
+        assertNull(result1.additionalInfo)
+
+        val updateData2 = updateData.copy(additionalInfo = generateRandomString(10000))
+
+        val result2 = it.manager.sites.updateSite(
+            id = createdSite.id,
+            site = updateData2
+        )
+        assertNotNull(result2.additionalInfo)
+        assertEquals(result2.additionalInfo, updateData2.additionalInfo)
     }
 
     @Test

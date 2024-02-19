@@ -29,6 +29,21 @@ class Site: Metadata() {
     @Column(nullable = false)
     var longitude: Double = 0.0
 
+    @Column(nullable = false)
+    @NotEmpty
+    lateinit var address: String
+
+    @Column(nullable = false)
+    @NotEmpty
+    lateinit var postalCode: String
+
+    @Column(nullable = false)
+    @NotEmpty
+    lateinit var locality: String
+
+    @Column(nullable = true)
+    var additionalInfo: String? = null
+
     @Column
     var archivedAt: OffsetDateTime? = null
 

@@ -34,7 +34,15 @@ class SiteTestBuilderResource(
      * @return created site
      */
     fun create() :Site {
-        return create(Site(name = "Test site", location = "POINT (60.16952 24.93545)"))
+        return create(
+            Site(
+                name = "Test site",
+                location = "POINT (60.16952 24.93545)",
+                address = "Test address",
+                postalCode = "00100",
+                locality = "Helsinki"
+            )
+        )
     }
 
     /**

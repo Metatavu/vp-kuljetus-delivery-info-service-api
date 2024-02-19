@@ -1,6 +1,5 @@
 package fi.metatavu.vp.deliveryinfo.sites
 
-import fi.metatavu.vp.deliveryinfo.tasks.TaskRepository
 import jakarta.enterprise.context.ApplicationScoped
 import jakarta.inject.Inject
 import org.locationtech.jts.geom.Geometry
@@ -16,10 +15,7 @@ class SiteController {
     @Inject
     lateinit var siteRepository: SiteRepository
 
-    @Inject
-    lateinit var tasksRepository: TaskRepository
-
-    private val reader = WKTReader();
+    private val reader = WKTReader()
 
     /**
      * Checks if the given location is a valid point
@@ -55,7 +51,11 @@ class SiteController {
      * @param userId user id
      * @return created site
      */
-    suspend fun createSite(site: fi.metatavu.vp.api.model.Site, parsedPoint: Geometry, userId: UUID): Site {
+    suspend fun createSite(
+        site: fi.metatavu.vp.api.model.Site,
+        parsedPoint: Geometry,
+        userId: UUID
+    ): Site {
         val ( lat, lon ) = getLatLon(parsedPoint)
 
         return siteRepository.create(
@@ -63,6 +63,10 @@ class SiteController {
             name = site.name,
             latitude = lat,
             longitude = lon,
+            address = site.address,
+            postalCode = site.postalCode,
+            locality = site.locality,
+            additionalInfo = site.additionalInfo,
             creatorId = userId
         )
     }
@@ -91,6 +95,10 @@ class SiteController {
         existingSite.latitude = lat
         existingSite.longitude = lon
         existingSite.archivedAt = site.archivedAt
+        existingSite.address = site.address
+        existingSite.postalCode = site.postalCode
+        existingSite.locality = site.locality
+        existingSite.additionalInfo = site.additionalInfo
         existingSite.lastModifierId = userId
         return siteRepository.persistSuspending(existingSite)
     }
@@ -102,6 +110,20 @@ class SiteController {
      */
     suspend fun deleteSite(site: Site) {
         siteRepository.deleteSuspending(site)
+    }
+
+    /**
+     * Validates that Site has all required fields
+     *
+     * @param site site
+     * @return true if site has all required fields, false otherwise
+     */
+    fun validateSite(site: fi.metatavu.vp.api.model.Site, parsedPoint: Geometry?): Boolean {
+        return parsedPoint != null &&
+                site.name.isNotBlank() &&
+                site.address.isNotBlank() &&
+                site.postalCode.isNotBlank() &&
+                site.locality.isNotBlank()
     }
 
     /**
