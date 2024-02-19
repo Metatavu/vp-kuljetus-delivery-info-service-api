@@ -49,6 +49,9 @@ class Freight: Metadata() {
     @Column
     var reservations: String? = null
 
+    @Column(unique = true)
+    var freightNumber: Long? = null
+
     override lateinit var creatorId: UUID
 
     override lateinit var lastModifierId: UUID

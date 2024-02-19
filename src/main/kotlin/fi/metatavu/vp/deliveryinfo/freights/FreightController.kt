@@ -16,10 +16,7 @@ class FreightController {
     lateinit var freightRepository: FreightRepository
 
     @Inject
-    lateinit var freightUnitController: FreightUnitController
-
-    @Inject
-    lateinit var taskRepository: TaskRepository
+    lateinit var maxFreightNumberRepository: MaxFreightNumberRepository
 
     /**
      * Lists freights
@@ -43,6 +40,12 @@ class FreightController {
         freight: fi.metatavu.vp.api.model.Freight,
         userId: UUID,
     ): Freight {
+        // Get latest number and update it
+        val max = maxFreightNumberRepository.findMaxNumber()
+        val maxNumber = max!!.maxFreightNumber!!
+        max.maxFreightNumber = maxNumber + 1
+        maxFreightNumberRepository.persistSuspending(max)
+
         return freightRepository.create(
             id = UUID.randomUUID(),
             pointOfDeparture = freight.pointOfDeparture,
@@ -54,6 +57,7 @@ class FreightController {
             temperatureMin = freight.temperatureMin,
             temperatureMax = freight.temperatureMax,
             reservations = freight.reservations,
+            freightNumber = maxNumber,
             creatorId = userId,
             lastModifierId = userId
         )

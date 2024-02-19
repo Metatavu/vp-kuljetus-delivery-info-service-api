@@ -24,6 +24,7 @@ class FreightRepository: AbstractRepository<Freight, UUID>() {
      * @param temperatureMin minimum temperature
      * @param temperatureMax maximum temperature
      * @param reservations reservations
+     * @param freightNumber freight number
      * @param creatorId creator id
      * @param lastModifierId last modifier id
      * @return created freight
@@ -39,6 +40,7 @@ class FreightRepository: AbstractRepository<Freight, UUID>() {
         temperatureMin: Double?,
         temperatureMax: Double?,
         reservations: String?,
+        freightNumber: Long?,
         creatorId: UUID,
         lastModifierId: UUID
     ): Freight {
@@ -53,6 +55,7 @@ class FreightRepository: AbstractRepository<Freight, UUID>() {
         freight.temperatureMin = temperatureMin
         freight.temperatureMax = temperatureMax
         freight.reservations = reservations
+        freight.freightNumber = freightNumber
         freight.creatorId = creatorId
         freight.lastModifierId = lastModifierId
         return persistSuspending(freight)

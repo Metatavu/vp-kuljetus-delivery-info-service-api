@@ -21,6 +21,7 @@ class FreightTranslator: AbstractTranslator<Freight, fi.metatavu.vp.api.model.Fr
             temperatureMin = entity.temperatureMin,
             temperatureMax = entity.temperatureMax,
             reservations = entity.reservations,
+            freightNumber = entity.freightNumber?.toInt(),
             creatorId = entity.creatorId,
             lastModifierId = entity.lastModifierId,
             createdAt = entity.createdAt,

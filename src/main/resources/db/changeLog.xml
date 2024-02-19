@@ -146,4 +146,24 @@
             <column name="archivedat" type="datetime(6)" />
         </addColumn>
     </changeSet>
+
+    <changeSet id="freight-number" author="katja danilova">
+        <createTable tableName="maxfreightnumber">
+            <column name="id" type="binary(16)">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="maxfreightnumber" type="bigint">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+        <sql>
+            INSERT INTO maxfreightnumber ( id, maxfreightnumber)
+            SELECT (unhex(replace(uuid(), _utf8'-', _utf8''))), 0
+        </sql>
+
+        <addColumn tableName="freight">
+            <column name="freightnumber" type="bigint" />
+        </addColumn>
+
+    </changeSet>
 </databaseChangeLog>

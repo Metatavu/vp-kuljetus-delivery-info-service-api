@@ -11,8 +11,7 @@ import fi.metatavu.vp.test.client.models.Freight
 import io.quarkus.test.junit.QuarkusTest
 import io.quarkus.test.junit.TestProfile
 import io.restassured.http.Method
-import org.junit.jupiter.api.Assertions.assertEquals
-import org.junit.jupiter.api.Assertions.assertNotNull
+import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.Test
 
 /**
@@ -81,13 +80,28 @@ class FreightsTestIT : AbstractFunctionalTest() {
         it.manager.freights.create()
         it.manager.freights.create()
         val totalList = it.manager.freights.listFreights()
+        totalList.sortBy { f -> f.freightNumber}
         assertEquals(3, totalList.size)
+        assertTrue(totalList.any { f -> f.freightNumber == 0 })
+        assertTrue(totalList.any { f -> f.freightNumber == 1 })
+        assertTrue(totalList.any { f -> f.freightNumber == 2 })
 
         val pagedList1 = it.manager.freights.listFreights(first = 1, max = 1)
         assertEquals(1, pagedList1.size)
 
         val pagedList2 = it.manager.freights.listFreights(first = 2, max = 5)
         assertEquals(1, pagedList2.size)
+
+        // Remove 2 freights and re-create them to test freight numbers
+        it.manager.freights.deleteFreight(totalList[1].id!!)
+        it.manager.freights.deleteFreight(totalList[2].id!!)
+        it.manager.freights.create()
+        it.manager.freights.create()
+        val totalList2 = it.manager.freights.listFreights()
+        assertEquals(3, totalList2.size)
+        assertTrue(totalList2.any { f -> f.freightNumber == 0 })
+        assertTrue(totalList2.any { f -> f.freightNumber == 3 })
+        assertTrue(totalList2.any { f -> f.freightNumber == 4 })
     }
 
     @Test
