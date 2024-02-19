@@ -163,22 +163,10 @@
     </changeSet>
 
     <changeSet id="freight-number" author="katja danilova">
-        <createTable tableName="maxfreightnumber">
-            <column name="id" type="binary(16)">
-                <constraints primaryKey="true" nullable="false"/>
-            </column>
-            <column name="maxfreightnumber" type="bigint">
-                <constraints nullable="false"/>
-            </column>
-        </createTable>
-        <sql>
-            INSERT INTO maxfreightnumber ( id, maxfreightnumber)
-            SELECT (unhex(replace(uuid(), _utf8'-', _utf8''))), 0
-        </sql>
-
         <addColumn tableName="freight">
-            <column name="freightnumber" type="bigint" />
+            <column name="freightnumber" type="int" />
         </addColumn>
-
+        <addUniqueConstraint tableName="freight" columnNames="freightnumber"/>
+        <addAutoIncrement tableName="freight" columnName="freightnumber" columnDataType="int"/>
     </changeSet>
 </databaseChangeLog>

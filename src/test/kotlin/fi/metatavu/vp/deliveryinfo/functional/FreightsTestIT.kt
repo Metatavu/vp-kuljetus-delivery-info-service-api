@@ -40,6 +40,7 @@ class FreightsTestIT : AbstractFunctionalTest() {
         assertNotNull(result.id)
         assertNotNull(result.createdAt)
         assertNotNull(result.creatorId)
+        assertNotNull(result.freightNumber)
         assertEquals(freightData.pointOfDeparture, result.pointOfDeparture)
         assertEquals(freightData.sender, result.sender)
         assertEquals(freightData.recipient, result.recipient)

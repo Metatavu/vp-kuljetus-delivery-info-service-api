@@ -2,8 +2,9 @@ package fi.metatavu.vp.deliveryinfo.freights
 
 import fi.metatavu.vp.deliveryinfo.persistence.AbstractRepository
 import io.quarkus.panache.common.Sort
+import io.smallrye.mutiny.coroutines.awaitSuspending
 import jakarta.enterprise.context.ApplicationScoped
-import java.util.UUID
+import java.util.*
 
 /**
  * Repository for freights
@@ -12,7 +13,7 @@ import java.util.UUID
 class FreightRepository: AbstractRepository<Freight, UUID>() {
 
     /**
-     * Creates a new freight
+     * Creates a new freight and flushes the changes (so that refresh() method in FreightController has some data)
      *
      * @param id id
      * @param pointOfDeparture point of departure
@@ -24,7 +25,6 @@ class FreightRepository: AbstractRepository<Freight, UUID>() {
      * @param temperatureMin minimum temperature
      * @param temperatureMax maximum temperature
      * @param reservations reservations
-     * @param freightNumber freight number
      * @param creatorId creator id
      * @param lastModifierId last modifier id
      * @return created freight
@@ -40,7 +40,6 @@ class FreightRepository: AbstractRepository<Freight, UUID>() {
         temperatureMin: Double?,
         temperatureMax: Double?,
         reservations: String?,
-        freightNumber: Long?,
         creatorId: UUID,
         lastModifierId: UUID
     ): Freight {
@@ -55,10 +54,9 @@ class FreightRepository: AbstractRepository<Freight, UUID>() {
         freight.temperatureMin = temperatureMin
         freight.temperatureMax = temperatureMax
         freight.reservations = reservations
-        freight.freightNumber = freightNumber
         freight.creatorId = creatorId
         freight.lastModifierId = lastModifierId
-        return persistSuspending(freight)
+        return persistAndFlush(freight).awaitSuspending()
     }
 
     /**
