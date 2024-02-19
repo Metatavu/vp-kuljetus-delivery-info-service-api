@@ -31,16 +31,16 @@ class SitesTestIT : AbstractFunctionalTest() {
         val archivedList = it.manager.sites.listSites(archived = true)
         assertEquals(1, archivedList.size)
         val unarchivedList = it.manager.sites.listSites(archived = false)
-        assertEquals(1, unarchivedList.size)
+        assertEquals(0, unarchivedList.size)
 
         // Cannot update archived sites
         it.manager.sites.assertUpdateSiteFail(site1.id, 409, archived.copy(name = "Test site 2"))
 
         // Can un-archive sites
-        val unArachived = it.manager.sites.updateSite(site1.id, archived.copy(archivedAt = null))
-        assertEquals(null, unArachived.archivedAt)
-        val unarchivedList2 = it.manager.sites.listSites(archived = false)
-        assertEquals(2, unarchivedList2.size)
+        val unArchived = it.manager.sites.updateSite(site1.id, archived.copy(archivedAt = null))
+        assertEquals(null, unArchived.archivedAt)
+        val unArchivedList2 = it.manager.sites.listSites(archived = false)
+        assertEquals(1, unArchivedList2.size)
         val archivedList2 = it.manager.sites.listSites(archived = true)
         assertEquals(0, archivedList2.size)
     }
@@ -73,7 +73,7 @@ class SitesTestIT : AbstractFunctionalTest() {
         assertEquals(site1.postalCode, result1.postalCode)
         assertEquals(site1.locality, result1.locality)
         assertNull(result1.additionalInfo)
-        assertNotNull(result1.additionalInfo)
+        assertNotNull(result2.additionalInfo)
         assertEquals(result2.additionalInfo, site2.additionalInfo)
     }
 
@@ -201,12 +201,14 @@ class SitesTestIT : AbstractFunctionalTest() {
         assertEquals(updateData.locality, result1.locality)
         assertNull(result1.additionalInfo)
 
+        val updateData2 = updateData.copy(additionalInfo = generateRandomString(10000))
+
         val result2 = it.manager.sites.updateSite(
             id = createdSite.id,
-            site = updateData.copy(additionalInfo = generateRandomString(10000))
+            site = updateData2
         )
         assertNotNull(result2.additionalInfo)
-        assertEquals(result2.additionalInfo, updateData.additionalInfo)
+        assertEquals(result2.additionalInfo, updateData2.additionalInfo)
     }
 
     @Test

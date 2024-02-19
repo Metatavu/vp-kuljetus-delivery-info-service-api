@@ -113,6 +113,20 @@ class SiteController {
     }
 
     /**
+     * Validates that Site has all required fields
+     *
+     * @param site site
+     * @return true if site has all required fields, false otherwise
+     */
+    fun validateSite(site: fi.metatavu.vp.api.model.Site, parsedPoint: Geometry?): Boolean {
+        return parsedPoint != null &&
+                site.name.isNotBlank() &&
+                site.address.isNotBlank() &&
+                site.postalCode.isNotBlank() &&
+                site.locality.isNotBlank()
+    }
+
+    /**
      * Parses lat lon from geography object
      *
      * @param point geography object
