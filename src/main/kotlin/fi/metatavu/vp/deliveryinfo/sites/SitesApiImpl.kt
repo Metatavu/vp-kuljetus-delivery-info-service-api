@@ -25,6 +25,7 @@ import java.util.*
 @RequestScoped
 @WithSession
 @OptIn(ExperimentalCoroutinesApi::class)
+@Suppress("unused")
 class SitesApiImpl: SitesApi, AbstractApi() {
 
     @Inject
@@ -50,10 +51,10 @@ class SitesApiImpl: SitesApi, AbstractApi() {
     override fun createSite(site: Site): Uni<Response> = CoroutineScope(vertx.dispatcher()).async {
         val userId = loggedUserId ?: return@async createUnauthorized(UNAUTHORIZED)
         val parsedPoint = siteController.parsePoint(site.location)
-        if (parsedPoint == null || site.name.isEmpty()) {
+        if (!siteController.validateSite(site, parsedPoint)) {
             return@async createBadRequest(INVALID_REQUEST_BODY)
         }
-        val createdSite = siteController.createSite(site, parsedPoint, userId)
+        val createdSite = siteController.createSite(site, parsedPoint!!, userId)
         createOk(siteTranslator.translate(createdSite))
     }.asUni()
 
@@ -69,7 +70,7 @@ class SitesApiImpl: SitesApi, AbstractApi() {
     override fun updateSite(siteId: UUID, site: Site): Uni<Response> = CoroutineScope(vertx.dispatcher()).async {
         val userId = loggedUserId ?: return@async createUnauthorized(UNAUTHORIZED)
         val parsedPoint = siteController.parsePoint(site.location)
-        if (parsedPoint == null || site.name.isEmpty()) {
+        if (!siteController.validateSite(site, parsedPoint)) {
             return@async createBadRequest(INVALID_REQUEST_BODY)
         }
         val existingSite = siteController.findSite(siteId) ?: return@async createNotFound(createNotFoundMessage(SITE, siteId))
@@ -78,7 +79,7 @@ class SitesApiImpl: SitesApi, AbstractApi() {
             return@async createConflict("Cannot update archived site")
         }
 
-        val updatedSite = siteController.updateSite(existingSite, site, parsedPoint, userId)
+        val updatedSite = siteController.updateSite(existingSite, site, parsedPoint!!, userId)
         createOk(siteTranslator.translate(updatedSite))
     }.asUni()
 

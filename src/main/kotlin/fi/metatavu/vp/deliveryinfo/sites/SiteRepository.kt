@@ -18,15 +18,33 @@ class SiteRepository: AbstractRepository<Site, UUID>() {
      * @param name name
      * @param latitude latitude
      * @param longitude longitude
+     * @param address address
+     * @param postalCode postal code
+     * @param locality locality
+     * @param additionalInfo additional info
      * @param creatorId creator id
      * @return created site
      */
-    suspend fun create(id: UUID?, name: String, latitude: Double, longitude: Double, creatorId: UUID): Site {
+    suspend fun create(
+        id: UUID?,
+        name: String,
+        latitude: Double,
+        longitude: Double,
+        address: String,
+        postalCode: String,
+        locality: String,
+        additionalInfo: String?,
+        creatorId: UUID
+    ): Site {
         val site = Site()
         site.id = id
         site.name = name
         site.latitude = latitude
         site.longitude = longitude
+        site.address = address
+        site.postalCode = postalCode
+        site.locality = locality
+        site.additionalInfo = additionalInfo
         site.creatorId = creatorId
         site.lastModifierId = creatorId
         return persistSuspending(site)
