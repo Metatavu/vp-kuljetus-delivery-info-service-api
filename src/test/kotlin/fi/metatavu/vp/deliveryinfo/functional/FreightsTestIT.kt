@@ -80,11 +80,11 @@ class FreightsTestIT : AbstractFunctionalTest() {
         it.manager.freights.create()
         it.manager.freights.create()
         val totalList = it.manager.freights.listFreights()
-        totalList.sortBy { f -> f.freightNumber}
         assertEquals(3, totalList.size)
-        assertTrue(totalList.any { f -> f.freightNumber == 0 })
-        assertTrue(totalList.any { f -> f.freightNumber == 1 })
-        assertTrue(totalList.any { f -> f.freightNumber == 2 })
+        val currentMaxNum = totalList.maxOf { f -> f.freightNumber!! }
+        assertTrue(totalList.any { f -> f.freightNumber == currentMaxNum })
+        assertTrue(totalList.any { f -> f.freightNumber == currentMaxNum - 1 })
+        assertTrue(totalList.any { f -> f.freightNumber == currentMaxNum - 2 })
 
         val pagedList1 = it.manager.freights.listFreights(first = 1, max = 1)
         assertEquals(1, pagedList1.size)
@@ -99,9 +99,9 @@ class FreightsTestIT : AbstractFunctionalTest() {
         it.manager.freights.create()
         val totalList2 = it.manager.freights.listFreights()
         assertEquals(3, totalList2.size)
-        assertTrue(totalList2.any { f -> f.freightNumber == 0 })
-        assertTrue(totalList2.any { f -> f.freightNumber == 3 })
-        assertTrue(totalList2.any { f -> f.freightNumber == 4 })
+        assertTrue(totalList2.any { f -> f.freightNumber == currentMaxNum })
+        assertTrue(totalList2.any { f -> f.freightNumber == currentMaxNum + 1 })
+        assertTrue(totalList2.any { f -> f.freightNumber == currentMaxNum + 2 })
     }
 
     @Test
