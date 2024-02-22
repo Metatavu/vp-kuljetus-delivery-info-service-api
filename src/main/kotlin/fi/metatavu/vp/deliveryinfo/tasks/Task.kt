@@ -6,6 +6,7 @@ import fi.metatavu.vp.deliveryinfo.freights.Freight
 import fi.metatavu.vp.deliveryinfo.persistence.Metadata
 import fi.metatavu.vp.deliveryinfo.sites.Site
 import jakarta.persistence.*
+import java.time.OffsetDateTime
 import java.util.*
 
 /**
@@ -32,11 +33,20 @@ class Task: Metadata() {
     @Enumerated(EnumType.STRING)
     lateinit var status: TaskStatus
 
+    @Column(nullable=false)
+    var groupNumber: Int = 0
+
     @Column
     var remarks: String? = null
 
     @Column
     var routeId: UUID? = null
+
+    @Column
+    var startedAt: OffsetDateTime? = null
+
+    @Column
+    var finishedAt: OffsetDateTime? = null
 
     override lateinit var creatorId: UUID
 

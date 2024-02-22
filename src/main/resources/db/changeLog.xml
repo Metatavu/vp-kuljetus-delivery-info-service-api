@@ -201,4 +201,24 @@
             </column>
         </addColumn>
     </changeSet>
+    
+    <changeSet id="task_additional_fields" author="katja danilova">
+        <addColumn tableName="task">
+            <column name="startedat" type="datetime(6)"/>
+            <column name="finishedat" type="datetime(6)"/>
+            <column name="groupnumber" type="integer">
+                <constraints nullable="false"/>
+            </column>
+        </addColumn>
+
+        <sql>
+            UPDATE task SET groupnumber = 0;
+        </sql>
+    </changeSet>
+
+    <changeSet id="add_content_field" author="katja danilova">
+        <addColumn tableName="freight_unit">
+            <column name="contents" type="varchar(255)"/>
+        </addColumn>
+    </changeSet>
 </databaseChangeLog>

@@ -23,6 +23,7 @@ class TaskRepository : AbstractRepository<Task, UUID>() {
      * @param site site
      * @param type type
      * @param status status
+     * @param groupNumber group number
      * @param remarks remarks
      * @param routeId route id
      * @param creatorId creator id
@@ -35,7 +36,10 @@ class TaskRepository : AbstractRepository<Task, UUID>() {
         site: Site,
         type: TaskType,
         status: TaskStatus,
+        groupNumber: Int,
         remarks: String?,
+        startedAt: java.time.OffsetDateTime?,
+        finishedAt: java.time.OffsetDateTime?,
         routeId: UUID?,
         creatorId: UUID,
         lastModifierId: UUID
@@ -46,8 +50,11 @@ class TaskRepository : AbstractRepository<Task, UUID>() {
         task.site = site
         task.taskType = type
         task.status = status
+        task.groupNumber = groupNumber
         task.remarks = remarks
         task.routeId = routeId
+        task.startedAt = startedAt
+        task.finishedAt = finishedAt
         task.creatorId = creatorId
         task.lastModifierId = lastModifierId
         return persistSuspending(task)
