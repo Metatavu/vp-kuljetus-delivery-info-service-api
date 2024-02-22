@@ -146,7 +146,7 @@
             <column name="archivedat" type="datetime(6)" />
         </addColumn>
     </changeSet>
-    
+
     <changeSet id="add_additional_fields_to_site" author="Ville Juutila">
         <addColumn tableName="site">
             <column name="address" type="varchar(191)">
@@ -161,6 +161,15 @@
             <column name="additionalinfo" type="clob"/>
         </addColumn>
     </changeSet>
+
+    <changeSet id="freight-number" author="katja danilova">
+        <addColumn tableName="freight">
+            <column name="freightnumber" type="int" />
+        </addColumn>
+        <addUniqueConstraint tableName="freight" columnNames="freightnumber"/>
+        <addAutoIncrement tableName="freight" columnName="freightnumber" columnDataType="int"/>
+    </changeSet>
+
     <changeSet id="change_freight_unit_quantity_to_double_and_remove_quantity_unit" author="Ville Juutila">
         <dropNotNullConstraint tableName="freight_unit" columnName="quantity" columnDataType="varchar(191)"/>
         <modifyDataType tableName="freight_unit" columnName="quantity" newDataType="double"/>

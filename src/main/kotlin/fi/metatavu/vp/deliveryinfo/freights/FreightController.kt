@@ -1,7 +1,6 @@
 package fi.metatavu.vp.deliveryinfo.freights
 
-import fi.metatavu.vp.deliveryinfo.freights.freightunits.FreightUnitController
-import fi.metatavu.vp.deliveryinfo.tasks.TaskRepository
+import io.smallrye.mutiny.coroutines.awaitSuspending
 import jakarta.enterprise.context.ApplicationScoped
 import jakarta.inject.Inject
 import java.util.*
@@ -14,12 +13,6 @@ class FreightController {
 
     @Inject
     lateinit var freightRepository: FreightRepository
-
-    @Inject
-    lateinit var freightUnitController: FreightUnitController
-
-    @Inject
-    lateinit var taskRepository: TaskRepository
 
     /**
      * Lists freights
@@ -43,7 +36,7 @@ class FreightController {
         freight: fi.metatavu.vp.api.model.Freight,
         userId: UUID,
     ): Freight {
-        return freightRepository.create(
+        val created = freightRepository.create(
             id = UUID.randomUUID(),
             pointOfDeparture = freight.pointOfDeparture,
             destination = freight.destination,
@@ -57,6 +50,10 @@ class FreightController {
             creatorId = userId,
             lastModifierId = userId
         )
+
+        // Refresh so that auto-increment field gets filled
+        freightRepository.session.awaitSuspending().refresh(created).awaitSuspending()
+        return created
     }
 
     /**
