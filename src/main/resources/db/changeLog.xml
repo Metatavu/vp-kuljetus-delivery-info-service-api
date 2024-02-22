@@ -217,7 +217,7 @@
     </changeSet>
 
     <changeSet id="add_content_field" author="katja danilova">
-        <addColumn tableName="freightunit">
+        <addColumn tableName="freight_unit">
             <column name="contents" type="varchar(255)"/>
         </addColumn>
     </changeSet>
