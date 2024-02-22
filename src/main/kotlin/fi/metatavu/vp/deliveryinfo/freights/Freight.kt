@@ -1,11 +1,12 @@
 package fi.metatavu.vp.deliveryinfo.freights
 
 import fi.metatavu.vp.deliveryinfo.persistence.Metadata
+import fi.metatavu.vp.deliveryinfo.sites.Site
 import jakarta.persistence.Column
 import jakarta.persistence.Entity
 import jakarta.persistence.Id
+import jakarta.persistence.ManyToOne
 import jakarta.persistence.Table
-import jakarta.validation.constraints.NotEmpty
 import java.util.*
 
 /**
@@ -18,36 +19,17 @@ class Freight: Metadata() {
     @Id
     lateinit var id: UUID
 
-    @Column(nullable = false)
-    @NotEmpty
-    lateinit var pointOfDeparture: String
+    @ManyToOne
+    lateinit var pointOfDepartureSite: Site
 
-    @Column(nullable = false)
-    @NotEmpty
-    lateinit var destination: String
+    @ManyToOne
+    lateinit var destinationSite: Site
 
-    @Column(nullable = false)
-    @NotEmpty
-    lateinit var sender: String
+    @ManyToOne
+    lateinit var senderSite: Site
 
-    @Column(nullable = false)
-    @NotEmpty
-    lateinit var recipient: String
-
-    @Column
-    var payer: String? = null
-
-    @Column
-    var shipmentInfo: String? = null
-
-    @Column
-    var temperatureMin: Double? = null
-
-    @Column
-    var temperatureMax: Double? = null
-
-    @Column
-    var reservations: String? = null
+    @ManyToOne
+    lateinit var recipientSite: Site
 
     @Column(insertable = false, updatable = false)
     var freightNumber: Int? = null

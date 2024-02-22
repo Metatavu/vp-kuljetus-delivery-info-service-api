@@ -1,5 +1,6 @@
 package fi.metatavu.vp.deliveryinfo.freights
 
+import fi.metatavu.vp.deliveryinfo.sites.Site
 import io.smallrye.mutiny.coroutines.awaitSuspending
 import jakarta.enterprise.context.ApplicationScoped
 import jakarta.inject.Inject
@@ -28,25 +29,26 @@ class FreightController {
     /**
      * Creates a new freight
      *
-     * @param freight freight rest data
+     * @param pointOfDepartureSite point of departure site
+     * @param destinationSite destination site
+     * @param senderSite sender site
+     * @param recipientSite recipient site
      * @param userId user id
      * @return created freight
      */
     suspend fun create(
-        freight: fi.metatavu.vp.api.model.Freight,
+        pointOfDepartureSite: Site,
+        destinationSite: Site,
+        senderSite: Site,
+        recipientSite: Site,
         userId: UUID,
     ): Freight {
         val created = freightRepository.create(
             id = UUID.randomUUID(),
-            pointOfDeparture = freight.pointOfDeparture,
-            destination = freight.destination,
-            sender = freight.sender,
-            recipient = freight.recipient,
-            shipmentInfo = freight.shipmentInfo,
-            payer = freight.payer,
-            temperatureMin = freight.temperatureMin,
-            temperatureMax = freight.temperatureMax,
-            reservations = freight.reservations,
+            pointOfDepartureSite = pointOfDepartureSite,
+            destinationSite = destinationSite,
+            senderSite = senderSite,
+            recipientSite = recipientSite,
             creatorId = userId,
             lastModifierId = userId
         )
@@ -70,18 +72,21 @@ class FreightController {
      * Updates a freight
      *
      * @param existingFreight existing freight
-     * @param freight freight rest data
      * @param userId user id
      * @return updated freight
      */
-    suspend fun updateFreight(existingFreight: Freight, freight: fi.metatavu.vp.api.model.Freight, userId: UUID): Freight {
-        existingFreight.sender = freight.sender
-        existingFreight.recipient = freight.recipient
-        existingFreight.payer = freight.payer
-        existingFreight.shipmentInfo = freight.shipmentInfo
-        existingFreight.temperatureMin = freight.temperatureMin
-        existingFreight.temperatureMax = freight.temperatureMax
-        existingFreight.reservations = freight.reservations
+    suspend fun updateFreight(
+        existingFreight: Freight,
+        pointOfDepartureSite: Site,
+        destinationSite: Site,
+        senderSite: Site,
+        recipientSite: Site,
+        userId: UUID
+    ): Freight {
+        existingFreight.pointOfDepartureSite = pointOfDepartureSite
+        existingFreight.destinationSite = destinationSite
+        existingFreight.senderSite = senderSite
+        existingFreight.recipientSite = recipientSite
         existingFreight.lastModifierId = userId
         return freightRepository.persistSuspending(existingFreight)
     }

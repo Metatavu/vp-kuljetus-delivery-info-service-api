@@ -31,8 +31,8 @@ class TasksTestIT : AbstractFunctionalTest() {
     @Test
     fun testList() = createTestBuilder().use {
         val site1 = it.manager.sites.create()
-        val freight1 = it.manager.freights.create()
-        val freight2 = it.manager.freights.create()
+        val freight1 = it.manager.freights.create(site1, site1)
+        val freight2 = it.manager.freights.create(site1, site1)
         val routeId = WorkPlanningMock.routeId
         it.manager.tasks.create(
             customerSiteId = site1.id!!,
@@ -78,7 +78,7 @@ class TasksTestIT : AbstractFunctionalTest() {
     @Test
     fun testCreate() = createTestBuilder().use {
         val site1 = it.manager.sites.create()
-        val freight1 = it.manager.freights.create()
+        val freight1 = it.manager.freights.create(site1, site1)
         val routeId = WorkPlanningMock.routeId
         val taskData = Task(
             freightId = freight1.id!!,
@@ -103,7 +103,7 @@ class TasksTestIT : AbstractFunctionalTest() {
     @Test
     fun testCreateFail() = createTestBuilder().use {
         val site1 = it.manager.sites.create()
-        val freight1 = it.manager.freights.create()
+        val freight1 = it.manager.freights.create(site1, site1)
         val routeId = WorkPlanningMock.routeId
         val taskData = Task(
             freightId = freight1.id!!,
@@ -142,7 +142,7 @@ class TasksTestIT : AbstractFunctionalTest() {
     @Test
     fun testFind() = createTestBuilder().use {
         val site1 = it.manager.sites.create()
-        val freight1 = it.manager.freights.create()
+        val freight1 = it.manager.freights.create(site1, site1)
         val routeId = WorkPlanningMock.routeId
         val taskData = Task(
             freightId = freight1.id!!,
@@ -169,7 +169,7 @@ class TasksTestIT : AbstractFunctionalTest() {
     @Test
     fun testFindFail() = createTestBuilder().use {
         val site1 = it.manager.sites.create()
-        val freight1 = it.manager.freights.create()
+        val freight1 = it.manager.freights.create(site1, site1)
 
         val createdTask = it.manager.tasks.create(
             customerSiteId = site1.id!!,
@@ -200,10 +200,10 @@ class TasksTestIT : AbstractFunctionalTest() {
     @Test
     fun testUpdate() = createTestBuilder().use {
         val site1 = it.manager.sites.create()
-        val freight1 = it.manager.freights.create()
+        val freight1 = it.manager.freights.create(site1, site1)
 
         val site2 = it.manager.sites.create()
-        val freight2 = it.manager.freights.create()
+        val freight2 = it.manager.freights.create(site2, site2)
 
         val routeId = WorkPlanningMock.routeId
         val taskData = Task(
@@ -237,7 +237,7 @@ class TasksTestIT : AbstractFunctionalTest() {
     @Test
     fun testUpdateFail() = createTestBuilder().use {
         val site1 = it.manager.sites.create()
-        val freight1 = it.manager.freights.create()
+        val freight1 = it.manager.freights.create(site1, site1)
         val createdTask = it.manager.tasks.create(
             customerSiteId = site1.id!!,
             freightId = freight1.id!!,
@@ -279,7 +279,7 @@ class TasksTestIT : AbstractFunctionalTest() {
     @Test
     fun testDelete() = createTestBuilder().use {
         val site1 = it.manager.sites.create()
-        val freight1 = it.manager.freights.create()
+        val freight1 = it.manager.freights.create(site1, site1)
 
         val createdTask = it.manager.tasks.create(
             customerSiteId = site1.id!!,
@@ -294,7 +294,7 @@ class TasksTestIT : AbstractFunctionalTest() {
     @Test
     fun testDeleteFail() = createTestBuilder().use {
         val site1 = it.manager.sites.create()
-        val freight1 = it.manager.freights.create()
+        val freight1 = it.manager.freights.create(site1, site1)
 
         val createdTask = it.manager.tasks.create(
             customerSiteId = site1.id!!,

@@ -59,7 +59,6 @@ class SiteController {
         val ( lat, lon ) = getLatLon(parsedPoint)
 
         return siteRepository.create(
-            id = UUID.randomUUID(),
             name = site.name,
             latitude = lat,
             longitude = lon,

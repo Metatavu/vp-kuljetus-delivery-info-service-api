@@ -1,6 +1,7 @@
 package fi.metatavu.vp.deliveryinfo.freights
 
 import fi.metatavu.vp.deliveryinfo.persistence.AbstractRepository
+import fi.metatavu.vp.deliveryinfo.sites.Site
 import io.quarkus.panache.common.Sort
 import io.smallrye.mutiny.coroutines.awaitSuspending
 import jakarta.enterprise.context.ApplicationScoped
@@ -16,44 +17,29 @@ class FreightRepository: AbstractRepository<Freight, UUID>() {
      * Creates a new freight and flushes the changes (so that refresh() method in FreightController has some data)
      *
      * @param id id
-     * @param pointOfDeparture point of departure
-     * @param destination destination
-     * @param sender sender
-     * @param recipient recipient
-     * @param payer payer
-     * @param shipmentInfo shipment info
-     * @param temperatureMin minimum temperature
-     * @param temperatureMax maximum temperature
-     * @param reservations reservations
+     * @param pointOfDepartureSite point of departure site
+     * @param destinationSite destination site
+     * @param senderSite sender site
+     * @param recipientSite recipient site
      * @param creatorId creator id
      * @param lastModifierId last modifier id
      * @return created freight
      */
     suspend fun create(
         id: UUID,
-        pointOfDeparture: String,
-        destination: String,
-        sender: String,
-        recipient: String,
-        payer: String?,
-        shipmentInfo: String?,
-        temperatureMin: Double?,
-        temperatureMax: Double?,
-        reservations: String?,
+        pointOfDepartureSite: Site,
+        destinationSite: Site,
+        senderSite: Site,
+        recipientSite: Site,
         creatorId: UUID,
         lastModifierId: UUID
     ): Freight {
         val freight = Freight()
         freight.id = id
-        freight.pointOfDeparture = pointOfDeparture
-        freight.destination = destination
-        freight.sender = sender
-        freight.recipient = recipient
-        freight.payer = payer
-        freight.shipmentInfo = shipmentInfo
-        freight.temperatureMin = temperatureMin
-        freight.temperatureMax = temperatureMax
-        freight.reservations = reservations
+        freight.pointOfDepartureSite = pointOfDepartureSite
+        freight.destinationSite = destinationSite
+        freight.senderSite = senderSite
+        freight.recipientSite = recipientSite
         freight.creatorId = creatorId
         freight.lastModifierId = lastModifierId
         return persistAndFlush(freight).awaitSuspending()

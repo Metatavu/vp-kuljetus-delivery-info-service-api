@@ -60,17 +60,31 @@ class InvalidTestValues: InvalidValues() {
             )
         ).map { jacksonObjectMapper().writeValueAsString(it) }.map { SimpleInvalidValueProvider(it) }
 
-        val INVALID_FREIGHTS = listOf(
-            Site(name = "Test site 1", location = "qqq", address = "address", postalCode = "postalCode", locality = "locality"),
-        ).map { jacksonObjectMapper().writeValueAsString(it) }.map { SimpleInvalidValueProvider(it) }
-
-        val INVALID_FREIGHT_UNITS = listOf(
-            Site(name = "Test site 1", location = "qqq", address = "address", postalCode = "postalCode", locality = "locality"),
-        ).map { jacksonObjectMapper().writeValueAsString(it) }.map { SimpleInvalidValueProvider(it) }
-
         val INVALID_FREIGHT_UNITS_FREIGHT_ID = listOf(
             FreightUnit(freightId = UUID.randomUUID(), type = "type", quantity = 1.0, reservations = "reservations")
         ).map { jacksonObjectMapper().writeValueAsString(it) }.map { SimpleInvalidValueProvider(it) }
+
+        /**
+         * Builds invalid freights
+         *
+         * @param validSiteId valid site id example
+         * @return list of invalid body options
+         */
+        fun getInvalidFreights(validSiteId: UUID): List<SimpleInvalidValueProvider> {
+            val sampleValidFreight = fi.metatavu.vp.test.client.models.Freight(
+                pointOfDepartureSiteId = validSiteId,
+                destinationSiteId = validSiteId,
+                senderSiteId = validSiteId,
+                recipientSiteId = validSiteId
+            )
+            return listOf(
+                sampleValidFreight.copy(pointOfDepartureSiteId = UUID.randomUUID()),
+                sampleValidFreight.copy(destinationSiteId = UUID.randomUUID()),
+                sampleValidFreight.copy(senderSiteId = UUID.randomUUID()),
+                sampleValidFreight.copy(recipientSiteId = UUID.randomUUID())
+            ).map { jacksonObjectMapper().writeValueAsString(it) }
+                .map { SimpleInvalidValueProvider(it) }
+        }
 
         /**
          * Builds invalid tasks

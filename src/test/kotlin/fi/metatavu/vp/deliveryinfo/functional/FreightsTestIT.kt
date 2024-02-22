@@ -23,16 +23,13 @@ class FreightsTestIT : AbstractFunctionalTest() {
 
     @Test
     fun testCreate() = createTestBuilder().use {
+        val site1 = it.manager.sites.create()
+        val site2 = it.manager.sites.create()
         val freightData = Freight(
-            pointOfDeparture = "departure",
-            sender = "sender",
-            recipient = "recipient",
-            payer = "payer",
-            temperatureMin = 1.0,
-            temperatureMax = 2.0,
-            reservations = "reservations",
-            destination = "destination",
-            shipmentInfo = "shipmentInfo"
+            pointOfDepartureSiteId = site1.id!!,
+            senderSiteId = site1.id,
+            recipientSiteId = site2.id!!,
+            destinationSiteId = site2.id,
         )
 
         val result = it.manager.freights.create(freightData)
@@ -41,22 +38,24 @@ class FreightsTestIT : AbstractFunctionalTest() {
         assertNotNull(result.createdAt)
         assertNotNull(result.creatorId)
         assertNotNull(result.freightNumber)
-        assertEquals(freightData.pointOfDeparture, result.pointOfDeparture)
-        assertEquals(freightData.sender, result.sender)
-        assertEquals(freightData.recipient, result.recipient)
-        assertEquals(freightData.payer, result.payer)
-        assertEquals(freightData.temperatureMin, result.temperatureMin)
-        assertEquals(freightData.temperatureMax, result.temperatureMax)
-        assertEquals(freightData.reservations, result.reservations)
-        assertEquals(freightData.destination, result.destination)
-        assertEquals(freightData.shipmentInfo, result.shipmentInfo)
+        assertEquals(freightData.pointOfDepartureSiteId, result.pointOfDepartureSiteId)
+        assertEquals(freightData.senderSiteId, result.senderSiteId)
+        assertEquals(freightData.recipientSiteId, result.recipientSiteId)
+        assertEquals(freightData.destinationSiteId, result.destinationSiteId)
     }
 
     @Test
     fun testCreateFail() = createTestBuilder().use { tb ->
+        val site = tb.manager.sites.create()
+        val freightData = Freight(
+            pointOfDepartureSiteId = site.id!!,
+            senderSiteId = site.id,
+            recipientSiteId = site.id,
+            destinationSiteId = site.id,
+        )
         //Access rights checks
-        tb.user.freights.assertCreateFail(403)
-        tb.driver.freights.assertCreateFail(403)
+        tb.user.freights.assertCreateFail(expectedStatus = 403, freight = freightData)
+        tb.driver.freights.assertCreateFail(expectedStatus = 403, freight = freightData)
 
         // Invalid values checks
         InvalidValueTestScenarioBuilder(
@@ -67,7 +66,7 @@ class FreightsTestIT : AbstractFunctionalTest() {
         )
             .body(
                 InvalidValueTestScenarioBody(
-                    values = InvalidTestValues.INVALID_FREIGHTS,
+                    values = InvalidTestValues.getInvalidFreights(site.id),
                     expectedStatus = 400
                 )
             )
@@ -77,9 +76,9 @@ class FreightsTestIT : AbstractFunctionalTest() {
 
     @Test
     fun testList() = createTestBuilder().use {
-        it.manager.freights.create()
-        it.manager.freights.create()
-        it.manager.freights.create()
+        it.manager.freights.createDefaultSimpleFreight()
+        it.manager.freights.createDefaultSimpleFreight()
+        it.manager.freights.createDefaultSimpleFreight()
         val totalList = it.manager.freights.listFreights()
         assertEquals(3, totalList.size)
         val currentMaxNum = totalList.maxOf { f -> f.freightNumber!! }
@@ -96,8 +95,8 @@ class FreightsTestIT : AbstractFunctionalTest() {
         // Remove 2 freights and re-create them to test freight numbers
         it.manager.freights.deleteFreight(totalList[1].id!!)
         it.manager.freights.deleteFreight(totalList[2].id!!)
-        it.manager.freights.create()
-        it.manager.freights.create()
+        it.manager.freights.createDefaultSimpleFreight()
+        it.manager.freights.createDefaultSimpleFreight()
         val totalList2 = it.manager.freights.listFreights()
         assertEquals(3, totalList2.size)
         assertTrue(totalList2.any { f -> f.freightNumber == currentMaxNum })
@@ -116,23 +115,19 @@ class FreightsTestIT : AbstractFunctionalTest() {
 
     @Test
     fun testFind() = createTestBuilder().use {
-        val createdFreight = it.manager.freights.create()
+        val createdFreight = it.manager.freights.createDefaultSimpleFreight()
         val foundFreight = it.manager.freights.findFreight(createdFreight.id!!)
         assertNotNull(foundFreight)
         assertEquals(createdFreight.id, foundFreight.id)
-        assertEquals(createdFreight.pointOfDeparture, foundFreight.pointOfDeparture)
-        assertEquals(createdFreight.sender, foundFreight.sender)
-        assertEquals(createdFreight.recipient, foundFreight.recipient)
-        assertEquals(createdFreight.payer, foundFreight.payer)
-        assertEquals(createdFreight.temperatureMin, foundFreight.temperatureMin)
-        assertEquals(createdFreight.temperatureMax, foundFreight.temperatureMax)
-        assertEquals(createdFreight.reservations, foundFreight.reservations)
-        assertEquals(createdFreight.destination, foundFreight.destination)
+        assertEquals(createdFreight.pointOfDepartureSiteId, foundFreight.pointOfDepartureSiteId)
+        assertEquals(createdFreight.senderSiteId, foundFreight.senderSiteId)
+        assertEquals(createdFreight.recipientSiteId, foundFreight.recipientSiteId)
+        assertEquals(createdFreight.destinationSiteId, foundFreight.destinationSiteId)
     }
 
     @Test
     fun testFindFail() = createTestBuilder().use { tb ->
-        val freight = tb.manager.freights.create()
+        val freight = tb.manager.freights.createDefaultSimpleFreight()
 
         // access rights
         tb.user.freights.assertFindFreightFail(freight.id!!, 403)
@@ -158,31 +153,25 @@ class FreightsTestIT : AbstractFunctionalTest() {
 
     @Test
     fun testUpdate() = createTestBuilder().use {
-        val createdFreight = it.manager.freights.create()
-        val updateData = createdFreight.copy(
-            sender = "new sender",
-            recipient = "new recipient",
-            payer = "new payer",
-            temperatureMin = null,
-            temperatureMax = null
-        )
+        val site = it.manager.sites.create()
+        val createdFreight = it.manager.freights.createDefaultSimpleFreight()
+        val updateData = createdFreight.copy(destinationSiteId = site.id!!, pointOfDepartureSiteId = site.id)
         val result = it.manager.freights.updateFreight(createdFreight.id!!, updateData)
         assertNotNull(result)
         assertEquals(createdFreight.id, result.id)
-        assertEquals(updateData.sender, result.sender)
-        assertEquals(updateData.recipient, result.recipient)
-        assertEquals(updateData.payer, result.payer)
-        assertEquals(updateData.temperatureMin, result.temperatureMin)
-        assertEquals(updateData.temperatureMax, result.temperatureMax)
+        assertNotEquals(createdFreight.destinationSiteId, result.destinationSiteId)
+        assertNotEquals(createdFreight.pointOfDepartureSiteId, result.pointOfDepartureSiteId)
+        assertEquals(updateData.destinationSiteId, result.destinationSiteId)
+        assertEquals(updateData.pointOfDepartureSiteId, result.pointOfDepartureSiteId)
     }
 
     @Test
     fun testUpdateFail() = createTestBuilder().use { tb ->
-        val freight = tb.manager.freights.create()
+        val freight = tb.manager.freights.createDefaultSimpleFreight()
 
         // access rights
-        tb.driver.freights.assertUpdateFreightFail(freight.id!!, 403)
-        tb.user.freights.assertUpdateFreightFail(freight.id, 403)
+        tb.driver.freights.assertUpdateFreightFail(expectedStatus = 403, id = freight.id!!, freight = freight)
+        tb.user.freights.assertUpdateFreightFail(expectedStatus = 403, id = freight.id, freight = freight)
 
         InvalidValueTestScenarioBuilder(
             path = "v1/sites/{siteId}",
@@ -200,7 +189,7 @@ class FreightsTestIT : AbstractFunctionalTest() {
             )
             .body(
                 InvalidValueTestScenarioBody(
-                    values = InvalidTestValues.INVALID_FREIGHTS,
+                    values = InvalidTestValues.getInvalidFreights(freight.destinationSiteId),
                     expectedStatus = 400
                 )
             )
@@ -210,7 +199,7 @@ class FreightsTestIT : AbstractFunctionalTest() {
 
     @Test
     fun testDelete() = createTestBuilder().use {
-        val freight = it.manager.freights.create()
+        val freight = it.manager.freights.createDefaultSimpleFreight()
         it.manager.freights.deleteFreight(freight.id!!)
         val emptyList = it.manager.freights.listFreights()
         assertEquals(0, emptyList.size)
@@ -218,7 +207,7 @@ class FreightsTestIT : AbstractFunctionalTest() {
 
     @Test
     fun testDeleteFail() = createTestBuilder().use {
-        val freight = it.manager.freights.create()
+        val freight = it.manager.freights.createDefaultSimpleFreight()
 
         it.user.freights.assertDeleteFreightFail(freight.id!!, 403)
         it.driver.freights.assertDeleteFreightFail(freight.id, 403)
