@@ -146,7 +146,7 @@
             <column name="archivedat" type="datetime(6)" />
         </addColumn>
     </changeSet>
-    
+
     <changeSet id="add_additional_fields_to_site" author="Ville Juutila">
         <addColumn tableName="site">
             <column name="address" type="varchar(191)">
@@ -160,5 +160,13 @@
             </column>
             <column name="additionalinfo" type="clob"/>
         </addColumn>
+    </changeSet>
+
+    <changeSet id="freight-number" author="katja danilova">
+        <addColumn tableName="freight">
+            <column name="freightnumber" type="int" />
+        </addColumn>
+        <addUniqueConstraint tableName="freight" columnNames="freightnumber"/>
+        <addAutoIncrement tableName="freight" columnName="freightnumber" columnDataType="int"/>
     </changeSet>
 </databaseChangeLog>
