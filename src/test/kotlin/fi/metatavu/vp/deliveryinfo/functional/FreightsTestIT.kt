@@ -66,7 +66,7 @@ class FreightsTestIT : AbstractFunctionalTest() {
         )
             .body(
                 InvalidValueTestScenarioBody(
-                    values = InvalidTestValues.INVALID_FREIGHTS,
+                    values = InvalidTestValues.getInvalidFreights(site.id),
                     expectedStatus = 400
                 )
             )
@@ -189,7 +189,7 @@ class FreightsTestIT : AbstractFunctionalTest() {
             )
             .body(
                 InvalidValueTestScenarioBody(
-                    values = InvalidTestValues.INVALID_FREIGHTS,
+                    values = InvalidTestValues.getInvalidFreights(freight.destinationSiteId),
                     expectedStatus = 400
                 )
             )

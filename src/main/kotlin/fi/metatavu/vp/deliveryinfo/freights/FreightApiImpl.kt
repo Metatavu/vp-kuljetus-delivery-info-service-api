@@ -27,6 +27,7 @@ import java.util.*
 @RequestScoped
 @WithSession
 @OptIn(ExperimentalCoroutinesApi::class)
+@Suppress("unused")
 class FreightApiImpl: FreightsApi, AbstractApi() {
 
     @Inject
@@ -58,10 +59,10 @@ class FreightApiImpl: FreightsApi, AbstractApi() {
     override fun createFreight(freight: Freight): Uni<Response> = CoroutineScope(vertx.dispatcher()).async {
         val userId = loggedUserId ?: return@async createUnauthorized(UNAUTHORIZED)
 
-        val pointOfDepartureSite = siteController.findSite(freight.pointOfDepartureSiteId) ?: return@async createNotFound(createNotFoundMessage(SITE, freight.pointOfDepartureSiteId))
-        val destinationSite = siteController.findSite(freight.destinationSiteId) ?: return@async createNotFound(createNotFoundMessage(SITE, freight.destinationSiteId))
-        val senderSite = siteController.findSite(freight.senderSiteId) ?: return@async createNotFound(createNotFoundMessage(SITE, freight.senderSiteId))
-        val recipientSite = siteController.findSite(freight.recipientSiteId) ?: return@async createNotFound(createNotFoundMessage(SITE, freight.recipientSiteId))
+        val pointOfDepartureSite = siteController.findSite(freight.pointOfDepartureSiteId) ?: return@async createBadRequest(createNotFoundMessage(SITE, freight.pointOfDepartureSiteId))
+        val destinationSite = siteController.findSite(freight.destinationSiteId) ?: return@async createBadRequest(createNotFoundMessage(SITE, freight.destinationSiteId))
+        val senderSite = siteController.findSite(freight.senderSiteId) ?: return@async createBadRequest(createNotFoundMessage(SITE, freight.senderSiteId))
+        val recipientSite = siteController.findSite(freight.recipientSiteId) ?: return@async createBadRequest(createNotFoundMessage(SITE, freight.recipientSiteId))
 
         val createdFreight = freightController.create(
             pointOfDepartureSite = pointOfDepartureSite,
@@ -85,10 +86,10 @@ class FreightApiImpl: FreightsApi, AbstractApi() {
         val userId = loggedUserId ?: return@async createUnauthorized(UNAUTHORIZED)
         val existingFreight = freightController.findFreight(freightId) ?: return@async createNotFound(createNotFoundMessage(FREIGHT, freightId))
 
-        val pointOfDepartureSite = siteController.findSite(freight.pointOfDepartureSiteId) ?: return@async createNotFound(createNotFoundMessage(SITE, freight.pointOfDepartureSiteId))
-        val destinationSite = siteController.findSite(freight.destinationSiteId) ?: return@async createNotFound(createNotFoundMessage(SITE, freight.destinationSiteId))
-        val senderSite = siteController.findSite(freight.senderSiteId) ?: return@async createNotFound(createNotFoundMessage(SITE, freight.senderSiteId))
-        val recipientSite = siteController.findSite(freight.recipientSiteId) ?: return@async createNotFound(createNotFoundMessage(SITE, freight.recipientSiteId))
+        val pointOfDepartureSite = siteController.findSite(freight.pointOfDepartureSiteId) ?: return@async createBadRequest(createNotFoundMessage(SITE, freight.pointOfDepartureSiteId))
+        val destinationSite = siteController.findSite(freight.destinationSiteId) ?: return@async createBadRequest(createNotFoundMessage(SITE, freight.destinationSiteId))
+        val senderSite = siteController.findSite(freight.senderSiteId) ?: return@async createBadRequest(createNotFoundMessage(SITE, freight.senderSiteId))
+        val recipientSite = siteController.findSite(freight.recipientSiteId) ?: return@async createBadRequest(createNotFoundMessage(SITE, freight.recipientSiteId))
 
         val updatedSite = freightController.updateFreight(
             existingFreight = existingFreight,

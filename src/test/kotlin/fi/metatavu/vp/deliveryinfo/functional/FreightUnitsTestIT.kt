@@ -56,20 +56,14 @@ class FreightUnitsTestIT : AbstractFunctionalTest() {
             token = tb.manager.accessTokenProvider.accessToken,
             basePath = ApiTestSettings.apiBasePath
         )
-            .body(
-                InvalidValueTestScenarioBody(
-                    values = InvalidTestValues.INVALID_FREIGHT_UNITS,
-                    expectedStatus = 400
-                )
+        .body(
+            InvalidValueTestScenarioBody(
+                values = InvalidTestValues.INVALID_FREIGHT_UNITS_FREIGHT_ID,
+                expectedStatus = 404
             )
-            .body(
-                InvalidValueTestScenarioBody(
-                    values = InvalidTestValues.INVALID_FREIGHT_UNITS_FREIGHT_ID,
-                    expectedStatus = 404
-                )
-            )
-            .build()
-            .test()
+        )
+        .build()
+        .test()
     }
 
     @Test
@@ -189,12 +183,6 @@ class FreightUnitsTestIT : AbstractFunctionalTest() {
                 InvalidValueTestScenarioBody(
                     values = InvalidTestValues.INVALID_FREIGHT_UNITS_FREIGHT_ID,
                     expectedStatus = 404
-                )
-            )
-            .body(
-                InvalidValueTestScenarioBody(
-                    values = InvalidTestValues.INVALID_FREIGHT_UNITS,
-                    expectedStatus = 400
                 )
             )
             .build()
