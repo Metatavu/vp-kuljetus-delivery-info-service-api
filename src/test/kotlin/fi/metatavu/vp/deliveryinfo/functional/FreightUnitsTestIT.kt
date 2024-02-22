@@ -24,7 +24,7 @@ class FreightUnitsTestIT : AbstractFunctionalTest() {
 
     @Test
     fun testCreate() = createTestBuilder().use {
-        val freight = it.manager.freights.create()
+        val freight = it.manager.freights.createDefaultSimpleFreight()
         val freightUnitData = FreightUnit(
             freightId = freight.id!!,
             type = "type",
@@ -46,7 +46,7 @@ class FreightUnitsTestIT : AbstractFunctionalTest() {
     @Test
     fun testCreateFail() = createTestBuilder().use { tb ->
         //Access rights checks
-        val freight = tb.manager.freights.create()
+        val freight = tb.manager.freights.createDefaultSimpleFreight()
         tb.user.freightUnits.assertCreateFail(403, freight.id!!)
 
         // Invalid values checks
@@ -74,8 +74,8 @@ class FreightUnitsTestIT : AbstractFunctionalTest() {
 
     @Test
     fun testList() = createTestBuilder().use {
-        val freight1 = it.manager.freights.create()
-        val freight2 = it.manager.freights.create()
+        val freight1 = it.manager.freights.createDefaultSimpleFreight()
+        val freight2 = it.manager.freights.createDefaultSimpleFreight()
 
         it.manager.freightUnits.create(freight1.id!!)
         it.manager.freightUnits.create(freight1.id)
@@ -107,7 +107,7 @@ class FreightUnitsTestIT : AbstractFunctionalTest() {
 
     @Test
     fun testFind() = createTestBuilder().use {
-        val createdFreight = it.manager.freights.create()
+        val createdFreight = it.manager.freights.createDefaultSimpleFreight()
         val createdUnit = it.manager.freightUnits.create(createdFreight.id!!)
         val foundUnit = it.manager.freightUnits.findFreightUnit(createdUnit.id!!)
         assertNotNull(foundUnit)
@@ -120,7 +120,7 @@ class FreightUnitsTestIT : AbstractFunctionalTest() {
 
     @Test
     fun testFindFail() = createTestBuilder().use { tb ->
-        val freight = tb.manager.freights.create()
+        val freight = tb.manager.freights.createDefaultSimpleFreight()
         val unit = tb.manager.freightUnits.create(freight.id!!)
 
         // access rights
@@ -147,7 +147,7 @@ class FreightUnitsTestIT : AbstractFunctionalTest() {
 
     @Test
     fun testUpdate() = createTestBuilder().use {
-        val createdFreight = it.manager.freights.create()
+        val createdFreight = it.manager.freights.createDefaultSimpleFreight()
         val createdUnit = it.manager.freightUnits.create(createdFreight.id!!)
         val updateData = createdUnit.copy(
             type = "new type",
@@ -164,7 +164,7 @@ class FreightUnitsTestIT : AbstractFunctionalTest() {
 
     @Test
     fun testUpdateFail() = createTestBuilder().use { tb ->
-        val freight = tb.manager.freights.create()
+        val freight = tb.manager.freights.createDefaultSimpleFreight()
         val unit = tb.manager.freightUnits.create(freight.id!!)
 
         // access rights
@@ -203,7 +203,7 @@ class FreightUnitsTestIT : AbstractFunctionalTest() {
 
     @Test
     fun testDelete() = createTestBuilder().use {
-        val freight = it.manager.freights.create()
+        val freight = it.manager.freights.createDefaultSimpleFreight()
         val unit = it.manager.freightUnits.create(freight.id!!)
 
         it.manager.freightUnits.deleteFreightUnit(unit.id!!)
@@ -217,7 +217,7 @@ class FreightUnitsTestIT : AbstractFunctionalTest() {
 
     @Test
     fun testDeleteFail() = createTestBuilder().use {
-        val freight = it.manager.freights.create()
+        val freight = it.manager.freights.createDefaultSimpleFreight()
         val unit = it.manager.freightUnits.create(freight.id!!)
 
         //Cannot remove freight which has fregit units

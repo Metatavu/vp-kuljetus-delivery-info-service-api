@@ -17,7 +17,7 @@ import java.util.*
 class Site: Metadata() {
 
     @Id
-    var id: UUID? = null
+    lateinit var id: UUID
 
     @Column(nullable = false)
     @NotEmpty

@@ -4,6 +4,7 @@ import fi.metatavu.vp.api.model.Freight
 import fi.metatavu.vp.api.spec.FreightsApi
 import fi.metatavu.vp.deliveryinfo.freights.freightunits.FreightUnitController
 import fi.metatavu.vp.deliveryinfo.rest.AbstractApi
+import fi.metatavu.vp.deliveryinfo.sites.SiteController
 import fi.metatavu.vp.deliveryinfo.tasks.TaskController
 import io.quarkus.hibernate.reactive.panache.common.WithSession
 import io.quarkus.hibernate.reactive.panache.common.WithTransaction
@@ -41,6 +42,9 @@ class FreightApiImpl: FreightsApi, AbstractApi() {
     lateinit var taskController: TaskController
 
     @Inject
+    lateinit var siteController: SiteController
+
+    @Inject
     lateinit var vertx: Vertx
 
     @RolesAllowed(DRIVER_ROLE, MANAGER_ROLE)
@@ -53,7 +57,19 @@ class FreightApiImpl: FreightsApi, AbstractApi() {
     @WithTransaction
     override fun createFreight(freight: Freight): Uni<Response> = CoroutineScope(vertx.dispatcher()).async {
         val userId = loggedUserId ?: return@async createUnauthorized(UNAUTHORIZED)
-        val createdFreight = freightController.create(freight, userId)
+
+        val pointOfDepartureSite = siteController.findSite(freight.pointOfDepartureSiteId) ?: return@async createNotFound(createNotFoundMessage(SITE, freight.pointOfDepartureSiteId))
+        val destinationSite = siteController.findSite(freight.destinationSiteId) ?: return@async createNotFound(createNotFoundMessage(SITE, freight.destinationSiteId))
+        val senderSite = siteController.findSite(freight.senderSiteId) ?: return@async createNotFound(createNotFoundMessage(SITE, freight.senderSiteId))
+        val recipientSite = siteController.findSite(freight.recipientSiteId) ?: return@async createNotFound(createNotFoundMessage(SITE, freight.recipientSiteId))
+
+        val createdFreight = freightController.create(
+            pointOfDepartureSite = pointOfDepartureSite,
+            destinationSite = destinationSite,
+            senderSite = senderSite,
+            recipientSite = recipientSite,
+            userId = userId
+        )
         createOk(freightTranslator.translate(createdFreight))
     }.asUni()
 
@@ -68,7 +84,20 @@ class FreightApiImpl: FreightsApi, AbstractApi() {
     override fun updateFreight(freightId: UUID, freight: Freight): Uni<Response> = CoroutineScope(vertx.dispatcher()).async {
         val userId = loggedUserId ?: return@async createUnauthorized(UNAUTHORIZED)
         val existingFreight = freightController.findFreight(freightId) ?: return@async createNotFound(createNotFoundMessage(FREIGHT, freightId))
-        val updatedSite = freightController.updateFreight(existingFreight, freight, userId)
+
+        val pointOfDepartureSite = siteController.findSite(freight.pointOfDepartureSiteId) ?: return@async createNotFound(createNotFoundMessage(SITE, freight.pointOfDepartureSiteId))
+        val destinationSite = siteController.findSite(freight.destinationSiteId) ?: return@async createNotFound(createNotFoundMessage(SITE, freight.destinationSiteId))
+        val senderSite = siteController.findSite(freight.senderSiteId) ?: return@async createNotFound(createNotFoundMessage(SITE, freight.senderSiteId))
+        val recipientSite = siteController.findSite(freight.recipientSiteId) ?: return@async createNotFound(createNotFoundMessage(SITE, freight.recipientSiteId))
+
+        val updatedSite = freightController.updateFreight(
+            existingFreight = existingFreight,
+            pointOfDepartureSite = pointOfDepartureSite,
+            destinationSite = destinationSite,
+            senderSite = senderSite,
+            recipientSite = recipientSite,
+            userId = userId
+        )
         createOk(freightTranslator.translate(updatedSite))
     }.asUni()
 

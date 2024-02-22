@@ -175,4 +175,30 @@
         <modifyDataType tableName="freight_unit" columnName="quantity" newDataType="double"/>
         <dropColumn tableName="freight_unit" columnName="quantityunit"/>
     </changeSet>
+
+    <changeSet id="add_new_relations_to_freight" author="Ville Juutila">
+        <dropColumn tableName="freight" columnName="pointofdeparture"/>
+        <dropColumn tableName="freight" columnName="destination"/>
+        <dropColumn tableName="freight" columnName="sender"/>
+        <dropColumn tableName="freight" columnName="recipient"/>
+        <dropColumn tableName="freight" columnName="payer"/>
+        <dropColumn tableName="freight" columnName="shipmentinfo"/>
+        <dropColumn tableName="freight" columnName="temperaturemin"/>
+        <dropColumn tableName="freight" columnName="temperaturemax"/>
+        <dropColumn tableName="freight" columnName="reservations"/>
+        <addColumn tableName="freight">
+            <column name="pointofdeparturesite_id" type="binary(16)">
+                <constraints nullable="false" foreignKeyName="FK_FREIGHT_POINTOFDEPARTURE_SITE_ID" referencedColumnNames="id" referencedTableName="site"/>
+            </column>
+            <column name="destinationsite_id" type="binary(16)">
+                <constraints nullable="false" foreignKeyName="FK_FREIGHT_DESTINATION_SITE_ID" referencedColumnNames="id" referencedTableName="site"/>
+            </column>
+            <column name="sendersite_id" type="binary(16)">
+                <constraints nullable="false" foreignKeyName="FK_FREIGHT_SENDER_SITE_ID" referencedColumnNames="id" referencedTableName="site"/>
+            </column>
+            <column name="recipientsite_id" type="binary(16)">
+                <constraints nullable="false" foreignKeyName="FK_FREIGHT_RECIPIENT_SITE_ID" referencedColumnNames="id" referencedTableName="site"/>
+            </column>
+        </addColumn>
+    </changeSet>
 </databaseChangeLog>

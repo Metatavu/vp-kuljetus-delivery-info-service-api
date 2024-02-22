@@ -7,6 +7,7 @@ import fi.metatavu.vp.test.client.apis.FreightsApi
 import fi.metatavu.vp.test.client.infrastructure.ApiClient
 import fi.metatavu.vp.test.client.infrastructure.ClientException
 import fi.metatavu.vp.test.client.models.Freight
+import fi.metatavu.vp.test.client.models.Site
 import org.junit.Assert
 import java.util.*
 
@@ -14,7 +15,7 @@ import java.util.*
  * Test builder resource for Freights API
  */
 class FreightTestBuilderResource(
-    testBuilder: TestBuilder,
+    private val testBuilder: TestBuilder,
     private val accessTokenProvider: AccessTokenProvider?,
     apiClient: ApiClient
 ) : ApiTestBuilderResource<Freight, ApiClient>(testBuilder, apiClient) {
@@ -31,19 +32,17 @@ class FreightTestBuilderResource(
     /**
      * Creates new Freight
      *
+     * @param site1 first site
+     * @param site2 second site
      * @return created Freight
      */
-    fun create(): Freight {
+    fun create(site1: Site, site2: Site): Freight {
         return create(
             Freight(
-                pointOfDeparture = "departure",
-                sender = "sender",
-                recipient = "recipient",
-                payer = "payer",
-                temperatureMin = 1.0,
-                temperatureMax = 2.0,
-                reservations = "reservations",
-                destination = "destination"
+                pointOfDepartureSiteId = site1.id!!,
+                senderSiteId = site1.id,
+                recipientSiteId = site2.id!!,
+                destinationSiteId = site2.id
             )
         )
     }
@@ -62,10 +61,11 @@ class FreightTestBuilderResource(
      * Asserts that Freight creation fails with expected status
      *
      * @param expectedStatus expected status
+     * @param freight freight
      */
-    fun assertCreateFail(expectedStatus: Int) {
+    fun assertCreateFail(expectedStatus: Int, freight: Freight) {
         try {
-            create()
+            create(freight)
             Assert.fail(String.format("Expected create to fail with status %d", expectedStatus))
         } catch (ex: ClientException) {
             assertClientExceptionStatus(expectedStatus, ex)
@@ -111,23 +111,13 @@ class FreightTestBuilderResource(
     /**
      * Asserts that Freight update fails with expected status
      *
-     * @param id freight id
      * @param expectedStatus expected status
+     * @param id freight id
+     * @param freight freight
      */
-    fun assertUpdateFreightFail(id: UUID, expectedStatus: Int) {
+    fun assertUpdateFreightFail(expectedStatus: Int, id: UUID, freight: Freight) {
         try {
-            updateFreight(
-                id, Freight(
-                    pointOfDeparture = "departure",
-                    sender = "sender",
-                    recipient = "recipient",
-                    payer = "payer",
-                    temperatureMin = 1.0,
-                    temperatureMax = 2.0,
-                    reservations = "reservations",
-                    destination = "destination"
-                )
-            )
+            updateFreight(id, freight)
             Assert.fail(String.format("Expected update to fail with status %d", expectedStatus))
         } catch (ex: ClientException) {
             assertClientExceptionStatus(expectedStatus, ex)
@@ -188,5 +178,24 @@ class FreightTestBuilderResource(
         } catch (ex: ClientException) {
             assertClientExceptionStatus(expectedStatus, ex)
         }
+    }
+
+    /**
+     * Creates default simple freight
+     *
+     * @return created freight
+     */
+    fun createDefaultSimpleFreight(): Freight {
+        val site1 = testBuilder.manager.sites.create(name = "origin site")
+        val site2 = testBuilder.manager.sites.create(name = "destination site")
+
+        return create(
+            Freight(
+                pointOfDepartureSiteId = site1.id!!,
+                senderSiteId = site1.id,
+                recipientSiteId = site2.id!!,
+                destinationSiteId = site2.id
+            )
+        )
     }
 }

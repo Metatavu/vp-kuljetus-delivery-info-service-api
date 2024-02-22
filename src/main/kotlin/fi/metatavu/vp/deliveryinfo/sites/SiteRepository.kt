@@ -14,7 +14,6 @@ class SiteRepository: AbstractRepository<Site, UUID>() {
     /**
      * Creates a new site
      *
-     * @param id id
      * @param name name
      * @param latitude latitude
      * @param longitude longitude
@@ -26,7 +25,6 @@ class SiteRepository: AbstractRepository<Site, UUID>() {
      * @return created site
      */
     suspend fun create(
-        id: UUID?,
         name: String,
         latitude: Double,
         longitude: Double,
@@ -37,7 +35,7 @@ class SiteRepository: AbstractRepository<Site, UUID>() {
         creatorId: UUID
     ): Site {
         val site = Site()
-        site.id = id
+        site.id = UUID.randomUUID()
         site.name = name
         site.latitude = latitude
         site.longitude = longitude

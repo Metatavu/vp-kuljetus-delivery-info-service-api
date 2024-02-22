@@ -31,12 +31,13 @@ class SiteTestBuilderResource(
     /**
      * Creates new site
      *
+     * @param name optional site name
      * @return created site
      */
-    fun create() :Site {
+    fun create(name: String = "Test site") :Site {
         return create(
             Site(
-                name = "Test site",
+                name = name,
                 location = "POINT (60.16952 24.93545)",
                 address = "Test address",
                 postalCode = "00100",
