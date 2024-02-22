@@ -44,7 +44,6 @@ class FreightUnitController {
             freight = freight,
             type = freightUnit.type,
             quantity = freightUnit.quantity,
-            quantityUnit = freightUnit.quantityUnit,
             reservations = freightUnit.reservations,
             creatorId = userId,
             lastModifierId = userId
@@ -79,7 +78,6 @@ class FreightUnitController {
         freightUnit.freight = newFreight
         freightUnit.type = freightUnitRest.type
         freightUnit.quantity = freightUnitRest.quantity
-        freightUnit.quantityUnit = freightUnitRest.quantityUnit
         freightUnit.reservations = freightUnitRest.reservations
         freightUnit.lastModifierId = userId
         return freightUnitRepository.persistSuspending(freightUnit)

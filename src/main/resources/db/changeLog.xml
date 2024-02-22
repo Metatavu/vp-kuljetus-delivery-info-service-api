@@ -161,4 +161,9 @@
             <column name="additionalinfo" type="clob"/>
         </addColumn>
     </changeSet>
+    <changeSet id="change_freight_unit_quantity_to_double_and_remove_quantity_unit" author="Ville Juutila">
+        <dropNotNullConstraint tableName="freight_unit" columnName="quantity" columnDataType="varchar(191)"/>
+        <modifyDataType tableName="freight_unit" columnName="quantity" newDataType="double"/>
+        <dropColumn tableName="freight_unit" columnName="quantityunit"/>
+    </changeSet>
 </databaseChangeLog>

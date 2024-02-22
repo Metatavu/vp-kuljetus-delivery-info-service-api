@@ -19,7 +19,6 @@ class FreightUnitRepository: AbstractRepository<FreightUnit, UUID>() {
      * @param freight freight
      * @param type type
      * @param quantity quantity
-     * @param quantityUnit quantity unit
      * @param reservations reservations
      * @param creatorId creator id
      * @param lastModifierId last modifier id
@@ -29,8 +28,7 @@ class FreightUnitRepository: AbstractRepository<FreightUnit, UUID>() {
         id: UUID,
         freight: Freight,
         type: String,
-        quantity: String,
-        quantityUnit: String,
+        quantity: Double?,
         reservations: String?,
         creatorId: UUID,
         lastModifierId: UUID
@@ -40,7 +38,6 @@ class FreightUnitRepository: AbstractRepository<FreightUnit, UUID>() {
         freightUnit.freight = freight
         freightUnit.type = type
         freightUnit.quantity = quantity
-        freightUnit.quantityUnit = quantityUnit
         freightUnit.reservations = reservations
         freightUnit.creatorId = creatorId
         freightUnit.lastModifierId = lastModifierId

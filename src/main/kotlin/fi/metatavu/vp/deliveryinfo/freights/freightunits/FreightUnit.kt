@@ -19,17 +19,12 @@ class FreightUnit: Metadata() {
     @ManyToOne
     lateinit var freight: Freight
 
-    @Column(nullable=false)
+    @Column(nullable = false)
     @NotEmpty
     lateinit var type: String
 
-    @Column(nullable=false)
-    @NotEmpty
-    lateinit var quantity: String
-
-    @Column(nullable=false)
-    @NotEmpty
-    lateinit var quantityUnit: String
+    @Column()
+    var quantity: Double? = null
 
     @Column
     var reservations: String? = null

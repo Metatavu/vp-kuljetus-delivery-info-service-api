@@ -69,7 +69,7 @@ class InvalidTestValues: InvalidValues() {
         ).map { jacksonObjectMapper().writeValueAsString(it) }.map { SimpleInvalidValueProvider(it) }
 
         val INVALID_FREIGHT_UNITS_FREIGHT_ID = listOf(
-            FreightUnit(freightId = UUID.randomUUID(), quantityUnit = "pc", type = "type", quantity = "quantity", reservations = "reservations")
+            FreightUnit(freightId = UUID.randomUUID(), type = "type", quantity = 1.0, reservations = "reservations")
         ).map { jacksonObjectMapper().writeValueAsString(it) }.map { SimpleInvalidValueProvider(it) }
 
         /**

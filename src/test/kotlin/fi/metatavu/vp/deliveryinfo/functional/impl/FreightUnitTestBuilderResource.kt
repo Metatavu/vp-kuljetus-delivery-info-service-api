@@ -36,9 +36,8 @@ class FreightUnitTestBuilderResource(
         return create(
             FreightUnit(
                 freightId = freightId,
-                quantityUnit = "pc",
                 type = "type",
-                quantity = "quantity",
+                quantity = 1.0,
                 reservations = "reservations"
             )
         )
@@ -115,9 +114,8 @@ class FreightUnitTestBuilderResource(
             updateFreightUnit(
                 id, FreightUnit(
                     freightId = freightId,
-                    quantityUnit = "pc",
                     type = "type",
-                    quantity = "quantity",
+                    quantity = 2.0,
                     reservations = "reservations"
                 )
             )
