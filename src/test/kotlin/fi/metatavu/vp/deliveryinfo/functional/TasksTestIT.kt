@@ -98,9 +98,7 @@ class TasksTestIT : AbstractFunctionalTest() {
         assertEquals(taskData.freightId, createdTask.freightId)
         assertEquals(taskData.routeId, createdTask.routeId)
         assertEquals(taskData.status, createdTask.status)
-
-        // Check that task has default group number 0
-        assertEquals(0, createdTask.groupNumber)
+        assertEquals(taskData.groupNumber, createdTask.groupNumber)
 
         assertNull(createdTask.startedAt)
         assertNull(createdTask.finishedAt)
@@ -158,7 +156,7 @@ class TasksTestIT : AbstractFunctionalTest() {
             remarks = "remarks",
             routeId = routeId,
             status = TaskStatus.IN_PROGRESS,
-            groupNumber = 0
+            groupNumber = 10
         )
 
         val createdTask = it.manager.tasks.create(taskData)
@@ -172,9 +170,7 @@ class TasksTestIT : AbstractFunctionalTest() {
         assertEquals(createdTask.freightId, foundTask.freightId)
         assertEquals(createdTask.routeId, foundTask.routeId)
         assertEquals(createdTask.status, foundTask.status)
-
-        // Check that task has default group number 0
-        assertEquals(0, createdTask.groupNumber)
+        assertEquals(createdTask.groupNumber, foundTask.groupNumber)
 
         assertNull(foundTask.finishedAt)
         assertNotNull(foundTask.startedAt)

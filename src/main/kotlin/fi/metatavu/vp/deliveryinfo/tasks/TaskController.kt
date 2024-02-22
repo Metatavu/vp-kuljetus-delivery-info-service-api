@@ -80,6 +80,7 @@ class TaskController {
      * @param site site
      * @param type type
      * @param status status
+     * @param groupNumber group number
      * @param remarks remarks
      * @param routeId route id
      * @param creatorId creator id
@@ -91,6 +92,7 @@ class TaskController {
         site: Site,
         type: TaskType,
         status: TaskStatus,
+        groupNumber: Int,
         remarks: String?,
         routeId: UUID?,
         creatorId: UUID,
@@ -110,6 +112,7 @@ class TaskController {
             site = site,
             type = type,
             status = status,
+            groupNumber = groupNumber,
             remarks = remarks,
             routeId = routeId,
             startedAt = startedAt,

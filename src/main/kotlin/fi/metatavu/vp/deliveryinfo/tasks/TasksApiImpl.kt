@@ -96,6 +96,7 @@ class TasksApiImpl : TasksApi, AbstractApi() {
             site = site,
             type = task.type,
             status = task.status,
+            groupNumber = task.groupNumber,
             remarks = task.remarks,
             routeId = task.routeId,
             creatorId = userId,
