@@ -105,7 +105,8 @@ class InvalidTestValues: InvalidValues() {
                 type = TaskType.LOAD,
                 remarks = "remarks",
                 routeId = validRouteId,
-                status = fi.metatavu.vp.test.client.models.TaskStatus.TODO
+                status = fi.metatavu.vp.test.client.models.TaskStatus.TODO,
+                groupNumber = 0
             )
             return listOf(
                 Site(name = "Test site 1", location = "qqq", address = "address", postalCode = "postalCode", locality = "locality"),

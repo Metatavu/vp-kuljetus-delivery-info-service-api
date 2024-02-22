@@ -16,8 +16,7 @@ import io.quarkus.test.common.QuarkusTestResource
 import io.quarkus.test.junit.QuarkusTest
 import io.quarkus.test.junit.TestProfile
 import io.restassured.http.Method
-import org.junit.jupiter.api.Assertions.assertEquals
-import org.junit.jupiter.api.Assertions.assertNotNull
+import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.Test
 
 /**
@@ -86,7 +85,8 @@ class TasksTestIT : AbstractFunctionalTest() {
             type = TaskType.LOAD,
             remarks = "remarks",
             routeId = routeId,
-            status = TaskStatus.TODO
+            status = TaskStatus.TODO,
+            groupNumber = 10
         )
 
         val createdTask = it.manager.tasks.create(taskData)
@@ -98,6 +98,12 @@ class TasksTestIT : AbstractFunctionalTest() {
         assertEquals(taskData.freightId, createdTask.freightId)
         assertEquals(taskData.routeId, createdTask.routeId)
         assertEquals(taskData.status, createdTask.status)
+
+        // Check that task has default group number 0
+        assertEquals(0, createdTask.groupNumber)
+
+        assertNull(createdTask.startedAt)
+        assertNull(createdTask.finishedAt)
     }
 
     @Test
@@ -111,7 +117,8 @@ class TasksTestIT : AbstractFunctionalTest() {
             type = TaskType.LOAD,
             remarks = "remarks",
             routeId = routeId,
-            status = TaskStatus.TODO
+            status = TaskStatus.TODO,
+            groupNumber = 0
         )
 
         //Access rights checks
@@ -150,7 +157,8 @@ class TasksTestIT : AbstractFunctionalTest() {
             type = TaskType.LOAD,
             remarks = "remarks",
             routeId = routeId,
-            status = TaskStatus.TODO
+            status = TaskStatus.IN_PROGRESS,
+            groupNumber = 0
         )
 
         val createdTask = it.manager.tasks.create(taskData)
@@ -164,6 +172,12 @@ class TasksTestIT : AbstractFunctionalTest() {
         assertEquals(createdTask.freightId, foundTask.freightId)
         assertEquals(createdTask.routeId, foundTask.routeId)
         assertEquals(createdTask.status, foundTask.status)
+
+        // Check that task has default group number 0
+        assertEquals(0, createdTask.groupNumber)
+
+        assertNull(foundTask.finishedAt)
+        assertNotNull(foundTask.startedAt)
     }
 
     @Test
@@ -212,7 +226,8 @@ class TasksTestIT : AbstractFunctionalTest() {
             type = TaskType.LOAD,
             remarks = "remarks",
             routeId = routeId,
-            status = TaskStatus.TODO
+            status = TaskStatus.TODO,
+            groupNumber = 0
         )
 
         val createdTask = it.manager.tasks.create(taskData)
@@ -222,7 +237,8 @@ class TasksTestIT : AbstractFunctionalTest() {
             type = TaskType.UNLOAD,
             remarks = "remarks2",
             routeId = null,
-            status = TaskStatus.IN_PROGRESS
+            status = TaskStatus.IN_PROGRESS,
+            groupNumber = 1
         )
 
         val updated = it.manager.tasks.updateTask(createdTask.id!!, updateData)
@@ -232,6 +248,9 @@ class TasksTestIT : AbstractFunctionalTest() {
         assertEquals(updateData.remarks, updated.remarks)
         assertEquals(updateData.routeId, updated.routeId)
         assertEquals(updateData.status, updated.status)
+        assertEquals(updateData.groupNumber, updated.groupNumber)
+        assertNotNull(updated.startedAt)
+        assertNull(updated.finishedAt)
     }
 
     @Test
@@ -292,7 +311,7 @@ class TasksTestIT : AbstractFunctionalTest() {
     }
 
     @Test
-    fun testDeleteFail() = createTestBuilder().use {
+    fun testDeleteFail(): Unit = createTestBuilder().use {
         val site1 = it.manager.sites.create()
         val freight1 = it.manager.freights.create(site1, site1)
 

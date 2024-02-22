@@ -1,5 +1,6 @@
 package fi.metatavu.vp.deliveryinfo.tasks
 
+import fi.metatavu.vp.api.model.TaskStatus
 import fi.metatavu.vp.api.model.TaskType
 import fi.metatavu.vp.deliveryinfo.freights.Freight
 import fi.metatavu.vp.deliveryinfo.sites.Site
@@ -89,12 +90,20 @@ class TaskController {
         freight: Freight,
         site: Site,
         type: TaskType,
-        status: fi.metatavu.vp.api.model.TaskStatus,
+        status: TaskStatus,
         remarks: String?,
         routeId: UUID?,
         creatorId: UUID,
         lastModifierId: UUID
     ): Task {
+        val startedAt = if (status == TaskStatus.IN_PROGRESS) {
+            java.time.OffsetDateTime.now()
+        } else null
+
+        val finishedAt = if (status == TaskStatus.DONE) {
+            java.time.OffsetDateTime.now()
+        } else null
+
         return taskRepository.create(
             id = UUID.randomUUID(),
             freight = freight,
@@ -103,6 +112,8 @@ class TaskController {
             status = status,
             remarks = remarks,
             routeId = routeId,
+            startedAt = startedAt,
+            finishedAt = finishedAt,
             creatorId = creatorId,
             lastModifierId = lastModifierId
         )
@@ -135,10 +146,18 @@ class TaskController {
         restTask: fi.metatavu.vp.api.model.Task,
         modifierId: UUID
     ): Task {
+        if (existingTask.status == TaskStatus.TODO && restTask.status == TaskStatus.IN_PROGRESS) {
+            existingTask.startedAt = java.time.OffsetDateTime.now()
+        }
+        if (existingTask.status == TaskStatus.IN_PROGRESS && restTask.status == TaskStatus.DONE) {
+            existingTask.finishedAt = java.time.OffsetDateTime.now()
+        }
+
         existingTask.freight = freight
         existingTask.site = site
         existingTask.taskType = restTask.type
         existingTask.status = restTask.status
+        existingTask.groupNumber = restTask.groupNumber
         existingTask.remarks = restTask.remarks
         existingTask.routeId = restTask.routeId
         existingTask.lastModifierId = modifierId

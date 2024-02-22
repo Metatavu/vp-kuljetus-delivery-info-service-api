@@ -36,6 +36,8 @@ class TaskRepository : AbstractRepository<Task, UUID>() {
         type: TaskType,
         status: TaskStatus,
         remarks: String?,
+        startedAt: java.time.OffsetDateTime?,
+        finishedAt: java.time.OffsetDateTime?,
         routeId: UUID?,
         creatorId: UUID,
         lastModifierId: UUID
@@ -48,6 +50,8 @@ class TaskRepository : AbstractRepository<Task, UUID>() {
         task.status = status
         task.remarks = remarks
         task.routeId = routeId
+        task.startedAt = startedAt
+        task.finishedAt = finishedAt
         task.creatorId = creatorId
         task.lastModifierId = lastModifierId
         return persistSuspending(task)

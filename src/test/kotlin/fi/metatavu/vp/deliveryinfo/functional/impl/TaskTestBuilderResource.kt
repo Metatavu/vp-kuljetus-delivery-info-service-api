@@ -49,7 +49,8 @@ class TaskTestBuilderResource(
                 type = TaskType.LOAD,
                 remarks = "remarks",
                 routeId = routeId,
-                status = fi.metatavu.vp.test.client.models.TaskStatus.TODO
+                status = fi.metatavu.vp.test.client.models.TaskStatus.TODO,
+                groupNumber = 1
             )
         )
     }
