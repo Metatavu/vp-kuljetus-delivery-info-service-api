@@ -23,7 +23,7 @@ class FreightUnit: Metadata() {
     @NotEmpty
     lateinit var type: String
 
-    @Column()
+    @Column
     var quantity: Double? = null
 
     @Column
