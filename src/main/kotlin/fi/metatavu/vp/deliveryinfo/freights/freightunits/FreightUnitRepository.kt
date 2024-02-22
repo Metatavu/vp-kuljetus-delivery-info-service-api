@@ -30,6 +30,7 @@ class FreightUnitRepository: AbstractRepository<FreightUnit, UUID>() {
         type: String,
         quantity: Double?,
         reservations: String?,
+        contents: String?,
         creatorId: UUID,
         lastModifierId: UUID
     ): FreightUnit {
@@ -39,6 +40,7 @@ class FreightUnitRepository: AbstractRepository<FreightUnit, UUID>() {
         freightUnit.type = type
         freightUnit.quantity = quantity
         freightUnit.reservations = reservations
+        freightUnit.contents = contents
         freightUnit.creatorId = creatorId
         freightUnit.lastModifierId = lastModifierId
         return persistSuspending(freightUnit)

@@ -29,7 +29,8 @@ class FreightUnitsTestIT : AbstractFunctionalTest() {
             freightId = freight.id!!,
             type = "type",
             quantity = 2.0,
-            reservations = "reservations"
+            reservations = "reservations",
+            contents = "contents"
         )
 
         val result = it.manager.freightUnits.create(freightUnitData)
@@ -41,6 +42,7 @@ class FreightUnitsTestIT : AbstractFunctionalTest() {
         assertEquals(freightUnitData.type, result.type)
         assertEquals(freightUnitData.quantity, result.quantity)
         assertEquals(freightUnitData.reservations, result.reservations)
+        assertEquals(freightUnitData.contents, result.contents)
     }
 
     @Test
@@ -146,7 +148,8 @@ class FreightUnitsTestIT : AbstractFunctionalTest() {
         val updateData = createdUnit.copy(
             type = "new type",
             quantity = 1.0,
-            reservations = "new reservations"
+            reservations = "new reservations",
+            contents = "new contents"
         )
         val result = it.manager.freightUnits.updateFreightUnit(createdUnit.id!!, updateData)
         assertNotNull(result)
@@ -154,6 +157,7 @@ class FreightUnitsTestIT : AbstractFunctionalTest() {
         assertEquals(updateData.type, result.type)
         assertEquals(updateData.quantity, result.quantity)
         assertEquals(updateData.reservations, result.reservations)
+        assertEquals(updateData.contents, result.contents)
     }
 
     @Test

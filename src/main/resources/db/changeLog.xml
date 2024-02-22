@@ -215,4 +215,10 @@
             UPDATE task SET groupnumber = 0;
         </sql>
     </changeSet>
+
+    <changeSet id="add_content_field" author="katja danilova">
+        <addColumn tableName="freightunit">
+            <column name="contents" type="varchar(255)"/>
+        </addColumn>
+    </changeSet>
 </databaseChangeLog>

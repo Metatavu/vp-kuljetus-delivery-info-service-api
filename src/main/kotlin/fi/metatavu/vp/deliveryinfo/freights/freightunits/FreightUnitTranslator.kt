@@ -17,6 +17,7 @@ class FreightUnitTranslator: AbstractTranslator<FreightUnit, fi.metatavu.vp.api.
             quantity = entity.quantity,
             reservations = entity.reservations,
             creatorId = entity.creatorId,
+            contents = entity.contents,
             lastModifierId = entity.lastModifierId,
             createdAt = entity.createdAt,
             modifiedAt = entity.modifiedAt
