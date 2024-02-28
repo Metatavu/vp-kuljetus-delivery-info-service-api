@@ -7,6 +7,7 @@ import fi.metatavu.invalid.InvalidValues
 import fi.metatavu.vp.deliveryinfo.functional.impl.InvalidTestValues
 import fi.metatavu.vp.deliveryinfo.functional.impl.WorkPlanningMock
 import fi.metatavu.vp.deliveryinfo.functional.impl.WorkPlanningMock.Companion.routeId
+import fi.metatavu.vp.deliveryinfo.functional.impl.WorkPlanningMock.Companion.routeId2
 import fi.metatavu.vp.deliveryinfo.functional.settings.ApiTestSettings
 import fi.metatavu.vp.deliveryinfo.functional.settings.DefaultTestProfile
 import fi.metatavu.vp.test.client.models.Task
@@ -41,7 +42,8 @@ class TasksTestIT : AbstractFunctionalTest() {
         it.manager.tasks.create(
             customerSiteId = site1.id,
             freightId = freight2.id!!,
-            routeId = routeId
+            routeId = routeId,
+            orderNumber = 0
         )
 
         val totalList = it.manager.tasks.listTasks()
@@ -75,21 +77,22 @@ class TasksTestIT : AbstractFunctionalTest() {
     }
 
     @Test
-    fun testCreate() = createTestBuilder().use {
-        val site1 = it.manager.sites.create()
-        val freight1 = it.manager.freights.create(site1, site1)
-        val routeId = WorkPlanningMock.routeId
+    fun testCreate() = createTestBuilder().use { tb ->
+        val site1 = tb.manager.sites.create()
+        val freight1 = tb.manager.freights.create(site1, site1)
+        val routeId = routeId
         val taskData = Task(
             freightId = freight1.id!!,
             customerSiteId = site1.id!!,
             type = TaskType.LOAD,
-            remarks = "remarks",
+            remarks = "1",
             routeId = routeId,
             status = TaskStatus.TODO,
-            groupNumber = 10
+            groupNumber = 10,
+            orderNumber = 0
         )
 
-        val createdTask = it.manager.tasks.create(taskData)
+        val createdTask = tb.manager.tasks.create(taskData)
 
         assertNotNull(createdTask.freightId)
         assertEquals(taskData.customerSiteId, createdTask.customerSiteId)
@@ -99,22 +102,33 @@ class TasksTestIT : AbstractFunctionalTest() {
         assertEquals(taskData.routeId, createdTask.routeId)
         assertEquals(taskData.status, createdTask.status)
         assertEquals(taskData.groupNumber, createdTask.groupNumber)
-
+        assertEquals(taskData.orderNumber, createdTask.orderNumber)
         assertNull(createdTask.startedAt)
         assertNull(createdTask.finishedAt)
+
+        // add another task to the same route to the end
+        val createdTask2 = tb.manager.tasks.create(taskData.copy(orderNumber = 1, remarks = "2"))
+        val allTasks = tb.manager.tasks.listTasks().sortedBy { it.orderNumber }.map { it.remarks }
+        assertEquals(2, allTasks.size)
+        assertEquals(arrayListOf("1", "2"), allTasks)
+
+        // add another task to the same route and start
+        val createdTask3 = tb.manager.tasks.create(taskData.copy(orderNumber = 0, remarks = "3"))
+        val allTasks2 = tb.manager.tasks.listTasks().sortedBy { it.orderNumber }.map { it.remarks }
+        assertEquals(3, allTasks2.size)
+        assertEquals(arrayListOf("3", "1", "2"), allTasks2)
     }
 
     @Test
     fun testCreateFail() = createTestBuilder().use {
         val site1 = it.manager.sites.create()
         val freight1 = it.manager.freights.create(site1, site1)
-        val routeId = WorkPlanningMock.routeId
+        val routeId = routeId
         val taskData = Task(
             freightId = freight1.id!!,
             customerSiteId = site1.id!!,
             type = TaskType.LOAD,
             remarks = "remarks",
-            routeId = routeId,
             status = TaskStatus.TODO,
             groupNumber = 0
         )
@@ -148,13 +162,14 @@ class TasksTestIT : AbstractFunctionalTest() {
     fun testFind() = createTestBuilder().use {
         val site1 = it.manager.sites.create()
         val freight1 = it.manager.freights.create(site1, site1)
-        val routeId = WorkPlanningMock.routeId
+        val routeId = routeId
         val taskData = Task(
             freightId = freight1.id!!,
             customerSiteId = site1.id!!,
             type = TaskType.LOAD,
             remarks = "remarks",
             routeId = routeId,
+            orderNumber = 0,
             status = TaskStatus.IN_PROGRESS,
             groupNumber = 10
         )
@@ -171,7 +186,7 @@ class TasksTestIT : AbstractFunctionalTest() {
         assertEquals(createdTask.routeId, foundTask.routeId)
         assertEquals(createdTask.status, foundTask.status)
         assertEquals(createdTask.groupNumber, foundTask.groupNumber)
-
+        assertEquals(createdTask.orderNumber, foundTask.orderNumber)
         assertNull(foundTask.finishedAt)
         assertNotNull(foundTask.startedAt)
     }
@@ -215,13 +230,14 @@ class TasksTestIT : AbstractFunctionalTest() {
         val site2 = it.manager.sites.create()
         val freight2 = it.manager.freights.create(site2, site2)
 
-        val routeId = WorkPlanningMock.routeId
+        val routeId = routeId
         val taskData = Task(
             freightId = freight1.id!!,
             customerSiteId = site1.id!!,
             type = TaskType.LOAD,
             remarks = "remarks",
             routeId = routeId,
+            orderNumber = 0,
             status = TaskStatus.TODO,
             groupNumber = 0
         )
@@ -232,6 +248,7 @@ class TasksTestIT : AbstractFunctionalTest() {
             customerSiteId = site2.id!!,
             type = TaskType.UNLOAD,
             remarks = "remarks2",
+            orderNumber = null,
             routeId = null,
             status = TaskStatus.IN_PROGRESS,
             groupNumber = 1
@@ -243,10 +260,127 @@ class TasksTestIT : AbstractFunctionalTest() {
         assertEquals(updateData.type, updated.type)
         assertEquals(updateData.remarks, updated.remarks)
         assertEquals(updateData.routeId, updated.routeId)
+        assertEquals(updateData.orderNumber, updated.orderNumber)
+
         assertEquals(updateData.status, updated.status)
         assertEquals(updateData.groupNumber, updated.groupNumber)
         assertNotNull(updated.startedAt)
         assertNull(updated.finishedAt)
+    }
+
+    /**
+     * Tests that order numbers are updated correctly within the same route
+     */
+    @Test
+    fun testOrderNumberUpdates() = createTestBuilder().use { tb ->
+        val site1 = tb.manager.sites.create()
+        val freight1 = tb.manager.freights.create(site1, site1)
+        val routeId = routeId
+        val taskData = Task(
+            freightId = freight1.id!!,
+            customerSiteId = site1.id!!,
+            type = TaskType.LOAD,
+            routeId = routeId,
+            status = TaskStatus.TODO,
+            groupNumber = 0
+        )
+
+        val task1 = tb.manager.tasks.create(taskData.copy(orderNumber = 0, remarks = "1"))
+        val task2 = tb.manager.tasks.create(taskData.copy(orderNumber = 1, remarks = "2"))
+        val task3 = tb.manager.tasks.create(taskData.copy(orderNumber = 2, remarks = "3"))
+
+        val allTasks = tb.manager.tasks.listTasks()
+        assertEquals(3, allTasks.size)
+        // Move T1 to position 1 (second one), expected result T2 T1 T3
+        val updated = tb.manager.tasks.updateTask(task1.id!!, task1.copy(orderNumber = 1))
+        assertEquals(1, updated.orderNumber)
+        val reorderedTasks1 = tb.manager.tasks.listTasks().sortedBy { it.orderNumber }.map { it.remarks }
+        assertEquals(3, reorderedTasks1.size)
+        assertEquals(arrayListOf("2", "1", "3"), reorderedTasks1)
+
+
+        // Move T3 to position 1, expecting to get T3 T2 T1
+        tb.manager.tasks.updateTask(task3.id!!, task3.copy(orderNumber = 0))
+        val reorderedTasks2 = tb.manager.tasks.listTasks().sortedBy { it.orderNumber }.map { it.remarks }
+        assertEquals(3, reorderedTasks2.size)
+        assertEquals(arrayListOf("3", "2", "1"), reorderedTasks2)
+
+        //Move T3 to lask position, expecting T2 T1 T3
+        tb.manager.tasks.updateTask(task3.id, task3.copy(orderNumber = 2))
+        val reorderedTasks3 = tb.manager.tasks.listTasks().sortedBy { it.orderNumber }.map { it.remarks }
+        assertEquals(3, reorderedTasks3.size)
+        assertEquals(arrayListOf("2", "1", "3"), reorderedTasks3)
+
+        //Move T3 to first position, expecting T3 T2 T1
+        tb.manager.tasks.updateTask(task3.id, task3.copy(orderNumber = 0))
+        val reorderedTasks4 = tb.manager.tasks.listTasks().sortedBy { it.orderNumber }.map { it.remarks }
+        assertEquals(3, reorderedTasks4.size)
+        assertEquals(arrayListOf("3", "2", "1"), reorderedTasks4)
+    }
+
+    /**
+     * Tests that order numbers are updated correctly when moving tasks between routes
+     */
+    @Test
+    fun testRouteUpdates() = createTestBuilder().use { tb ->
+        val site1 = tb.manager.sites.create()
+        val freight1 = tb.manager.freights.create(site1, site1)
+        val routeId = routeId
+        val taskData = Task(
+            freightId = freight1.id!!,
+            customerSiteId = site1.id!!,
+            type = TaskType.LOAD,
+            routeId = routeId,
+            status = TaskStatus.TODO,
+            groupNumber = 0
+        )
+
+        // Create 3 tasks for route 1
+        val task1 = tb.manager.tasks.create(taskData.copy(orderNumber = 0, remarks = "1"))
+        val task2 = tb.manager.tasks.create(taskData.copy(orderNumber = 1, remarks = "2"))
+        val task3 = tb.manager.tasks.create(taskData.copy(orderNumber = 2, remarks = "3"))
+
+        // Create 2 tasks for route 2
+        tb.manager.tasks.create(taskData.copy(routeId = routeId2, orderNumber = 0, remarks = "r2t1"))
+        tb.manager.tasks.create(taskData.copy(routeId = routeId2, orderNumber = 1, remarks = "r2t2"))
+
+        // Move task 1 from route 1 to route 2 position 2
+        tb.manager.tasks.updateTask(task1.id!!, task1.copy(routeId = routeId2, orderNumber = 2))
+
+        // Verify tasks in route 2
+        val allRoute2Tasks1 = tb.manager.tasks.listTasks(routeId = routeId2)
+        assertEquals(3, allRoute2Tasks1.size)
+        assertEquals(0, allRoute2Tasks1[0].orderNumber)
+        assertEquals(1, allRoute2Tasks1[1].orderNumber)
+        assertEquals(2, allRoute2Tasks1[2].orderNumber)
+        val allRoute2TasksRemarks = allRoute2Tasks1.sortedBy { it.orderNumber }.map { it.remarks }
+        assertEquals(3, allRoute2TasksRemarks.size)
+        assertEquals(arrayListOf("r2t1", "r2t2", "1"), allRoute2TasksRemarks)
+
+        // Verify tasks in route 1
+        val allRoute1Tasks = tb.manager.tasks.listTasks(routeId = routeId)
+        assertEquals(2, allRoute1Tasks.size)
+        assertEquals(0, allRoute1Tasks[0].orderNumber)
+        assertEquals(1, allRoute1Tasks[1].orderNumber)
+        val allRoute1TasksRemarks = allRoute1Tasks.sortedBy { it.orderNumber }.map { it.remarks }
+        assertEquals(arrayListOf("2", "3"), allRoute1TasksRemarks)
+
+        //Move task 2 from route 1 to route 2 position 0
+        tb.manager.tasks.updateTask(task3.id!!, task3.copy(routeId = routeId2, orderNumber = 0))
+        // Verify tasks in route 2
+        val allRoute2Tasks2 = tb.manager.tasks.listTasks(routeId = routeId2)
+        assertEquals(4, allRoute2Tasks2.size)
+        assertEquals(0, allRoute2Tasks2[0].orderNumber)
+        assertEquals(1, allRoute2Tasks2[1].orderNumber)
+        assertEquals(2, allRoute2Tasks2[2].orderNumber)
+        assertEquals(3, allRoute2Tasks2[3].orderNumber)
+        val allRoute2TasksRemarks2 = allRoute2Tasks2.sortedBy { it.orderNumber }.map { it.remarks }
+        assertEquals(4, allRoute2TasksRemarks2.size)
+        assertEquals(arrayListOf("3", "r2t1", "r2t2", "1"), allRoute2TasksRemarks2)
+
+        val allRoute1Tasks1 = tb.manager.tasks.listTasks(routeId = routeId)
+        assertEquals(1, allRoute1Tasks1.size)
+        assertEquals(0, allRoute1Tasks1[0].orderNumber)
     }
 
     @Test
@@ -256,7 +390,8 @@ class TasksTestIT : AbstractFunctionalTest() {
         val createdTask = it.manager.tasks.create(
             customerSiteId = site1.id!!,
             freightId = freight1.id!!,
-            routeId = null
+            routeId = routeId,
+            orderNumber = 0
         )
 
         it.driver.tasks.assertUpdateTaskFail(403, createdTask.id!!, createdTask)
@@ -299,11 +434,23 @@ class TasksTestIT : AbstractFunctionalTest() {
         val createdTask = it.manager.tasks.create(
             customerSiteId = site1.id!!,
             freightId = freight1.id!!,
-            routeId = null
+            routeId = routeId,
+            orderNumber = 0
+        )
+        it.manager.tasks.create(
+            customerSiteId = site1.id!!,
+            freightId = freight1.id!!,
+            routeId = routeId,
+            orderNumber = 1
         )
 
         it.manager.tasks.deleteTask(createdTask.id!!)
         it.manager.tasks.assertFindTaskFail(createdTask.id, 404)
+
+        // verify that order numbers for the left tasks did not change
+        val remainingTasks = it.manager.tasks.listTasks()
+        assertEquals(1, remainingTasks.size)
+        assertEquals(0, remainingTasks[0].orderNumber)
     }
 
     @Test

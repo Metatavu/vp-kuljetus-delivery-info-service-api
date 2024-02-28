@@ -53,6 +53,26 @@ class WorkPlanningMock : QuarkusTestResourceLifecycleManager {
                 )
         )
 
+        wireMockServer!!.stubFor(
+            WireMock.get(WireMock.urlEqualTo("/v1/routes/$routeId2"))
+                .withHeader(authHeader, bearerPattern)
+                .willReturn(
+                    WireMock.aResponse()
+                        .withHeader("Content-Type", "application/json")
+                        .withBody(
+                            objectMapper.writeValueAsString(
+                                Route(
+                                    id = routeId2,
+                                    truckId = truckId,
+                                    driverId = driverId,
+                                    departureTime = OffsetDateTime.now(),
+                                    name = "standard route 2"
+                                )
+                            )
+                        )
+                )
+        )
+
 
         return java.util.Map.of(
             "quarkus.rest-client.\"fi.metatavu.vp.workplanning.spec.RoutesApi\".url",
@@ -68,6 +88,8 @@ class WorkPlanningMock : QuarkusTestResourceLifecycleManager {
 
     companion object {
         val routeId: UUID = UUID.randomUUID()
+        val routeId2: UUID = UUID.randomUUID()
+
         val truckId: UUID = UUID.randomUUID()
         val driverId: UUID = UUID.randomUUID()
     }

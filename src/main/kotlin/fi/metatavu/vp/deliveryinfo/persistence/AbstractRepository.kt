@@ -108,8 +108,8 @@ abstract class AbstractRepository<Entity, Id> : PanacheRepositoryBase<Entity, Id
      */
     open suspend fun applyFirstMaxToQuery(
         query: PanacheQuery<Entity>,
-        firstIndex: Int?,
-        maxResults: Int?
+        firstIndex: Int? = null,
+        maxResults: Int? = null
     ): Pair<List<Entity>, Long> {
         val count = query.count().awaitSuspending()
         return if (firstIndex != null && maxResults != null) {

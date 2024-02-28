@@ -105,14 +105,18 @@ class InvalidTestValues: InvalidValues() {
                 type = TaskType.LOAD,
                 remarks = "remarks",
                 routeId = validRouteId,
+                orderNumber = 0,
                 status = fi.metatavu.vp.test.client.models.TaskStatus.TODO,
                 groupNumber = 0
             )
             return listOf(
                 Site(name = "Test site 1", location = "qqq", address = "address", postalCode = "postalCode", locality = "locality"),
-                sampleValidTask.copy(freightId = UUID.randomUUID()),
-                sampleValidTask.copy(customerSiteId = UUID.randomUUID()),
-                sampleValidTask.copy(routeId = UUID.randomUUID())
+                sampleValidTask.copy(freightId = UUID.randomUUID()), //not found freight
+                sampleValidTask.copy(customerSiteId = UUID.randomUUID()), //not found site
+                sampleValidTask.copy(routeId = UUID.randomUUID()), //not found route
+                sampleValidTask.copy(orderNumber = -1), // negative order number
+                sampleValidTask.copy(orderNumber = null), // null order number while having route id
+                sampleValidTask.copy(routeId = null)  // null route id while having order number
             ).map { jacksonObjectMapper().writeValueAsString(it) }
                 .map { SimpleInvalidValueProvider(it) }
         }

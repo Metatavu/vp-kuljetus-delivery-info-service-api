@@ -40,7 +40,8 @@ class TaskTestBuilderResource(
     fun create(
         freightId: UUID,
         customerSiteId: UUID,
-        routeId: UUID? = null
+        routeId: UUID? = null,
+        orderNumber: Int? = null
     ): Task {
         return create(
             Task(
@@ -49,6 +50,7 @@ class TaskTestBuilderResource(
                 type = TaskType.LOAD,
                 remarks = "remarks",
                 routeId = routeId,
+                orderNumber = orderNumber,
                 status = fi.metatavu.vp.test.client.models.TaskStatus.TODO,
                 groupNumber = 1
             )

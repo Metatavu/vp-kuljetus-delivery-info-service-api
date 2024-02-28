@@ -26,6 +26,7 @@ class TaskRepository : AbstractRepository<Task, UUID>() {
      * @param groupNumber group number
      * @param remarks remarks
      * @param routeId route id
+     * @param orderNumber order number
      * @param creatorId creator id
      * @param lastModifierId last modifier id
      * @return created task
@@ -41,6 +42,7 @@ class TaskRepository : AbstractRepository<Task, UUID>() {
         startedAt: java.time.OffsetDateTime?,
         finishedAt: java.time.OffsetDateTime?,
         routeId: UUID?,
+        orderNumber: Int?,
         creatorId: UUID,
         lastModifierId: UUID
     ): Task {
@@ -55,6 +57,7 @@ class TaskRepository : AbstractRepository<Task, UUID>() {
         task.routeId = routeId
         task.startedAt = startedAt
         task.finishedAt = finishedAt
+        task.orderNumber = orderNumber
         task.creatorId = creatorId
         task.lastModifierId = lastModifierId
         return persistSuspending(task)
@@ -112,7 +115,7 @@ class TaskRepository : AbstractRepository<Task, UUID>() {
             parameters.and("type", type)
         }
 
-        queryBuilder.append(" order by modifiedAt desc")
+        queryBuilder.append(" order by routeId, orderNumber")
         return applyFirstMaxToQuery(find(queryBuilder.toString(), parameters), first, max)
     }
 

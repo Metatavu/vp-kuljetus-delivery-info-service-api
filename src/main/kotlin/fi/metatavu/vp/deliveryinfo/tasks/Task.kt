@@ -48,6 +48,9 @@ class Task: Metadata() {
     @Column
     var finishedAt: OffsetDateTime? = null
 
+    @Column
+    var orderNumber: Int? = null
+
     override lateinit var creatorId: UUID
 
     override lateinit var lastModifierId: UUID

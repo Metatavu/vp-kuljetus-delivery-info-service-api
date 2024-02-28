@@ -83,9 +83,11 @@ class TaskController {
      * @param groupNumber group number
      * @param remarks remarks
      * @param routeId route id
+     * @param orderNumber order number
      * @param creatorId creator id
      * @param lastModifierId last modifier id
      * @return created task
+     * @throws IllegalArgumentException if new order number is higher than max allowed order number in route
      */
     suspend fun createTask(
         freight: Freight,
@@ -95,6 +97,7 @@ class TaskController {
         groupNumber: Int,
         remarks: String?,
         routeId: UUID?,
+        orderNumber: Int?,
         creatorId: UUID,
         lastModifierId: UUID
     ): Task {
@@ -105,6 +108,11 @@ class TaskController {
         val finishedAt = if (status == TaskStatus.DONE) {
             java.time.OffsetDateTime.now()
         } else null
+
+        // If we assign it to the route then manage order numbers of other tasks in the route
+        if (routeId != null && orderNumber != null) {
+            updateOrderNumbers(null, orderNumber, routeId)
+        }
 
         return taskRepository.create(
             id = UUID.randomUUID(),
@@ -117,6 +125,7 @@ class TaskController {
             routeId = routeId,
             startedAt = startedAt,
             finishedAt = finishedAt,
+            orderNumber = orderNumber,
             creatorId = creatorId,
             lastModifierId = lastModifierId
         )
@@ -156,6 +165,20 @@ class TaskController {
             existingTask.finishedAt = java.time.OffsetDateTime.now()
         }
 
+        if (restTask.routeId == null && restTask.orderNumber == null && existingTask.routeId != null) {
+            //route was unasigned, update order numbers in the route
+            existingTask.orderNumber = null
+            reorderTasksInRoute(existingTask.routeId!!, existingTask)
+        } else if (restTask.routeId != existingTask.routeId) {
+            // route changed, update order numbers in the new and old routes
+            val newNumber = updateOrderNumbers(null, restTask.orderNumber!!, restTask.routeId!!)
+            existingTask.orderNumber = newNumber
+            reorderTasksInRoute(existingTask.routeId!!, existingTask)
+        } else if (restTask.orderNumber != existingTask.orderNumber ) {
+            // order number changed, update order numbers in the route
+            existingTask.orderNumber = updateOrderNumbers(existingTask.orderNumber, restTask.orderNumber!!, restTask.routeId!!)
+        }
+
         existingTask.freight = freight
         existingTask.site = site
         existingTask.taskType = restTask.type
@@ -168,12 +191,61 @@ class TaskController {
     }
 
     /**
-     * Deletes a task
+     * Updates order numbers of tasks in route
+     *
+     * @param currentOrderNumber current order number
+     * @param newOrderNumber new order number
+     * @param routeId route id
+     */
+    private suspend fun updateOrderNumbers(currentOrderNumber: Int?, newOrderNumber: Int, routeId: UUID): Int {
+        val allTasksInRoute = taskRepository.list(routeId = routeId).first
+        val tasksSize = allTasksInRoute.size
+        val newNumber = if (newOrderNumber > tasksSize) tasksSize else newOrderNumber
+
+        // Re-arrange the order numbers of the tasks in the route based on the new order number
+        val updatableTasks = if (currentOrderNumber == null) {
+            allTasksInRoute.filter { it.orderNumber in newNumber until allTasksInRoute.size }
+                .map { it.orderNumber = it.orderNumber!! + 1; it }
+        } else {
+            if (currentOrderNumber < newNumber) {
+                allTasksInRoute.filter { it.orderNumber in (currentOrderNumber + 1)..newNumber }
+                    .map { it.orderNumber = it.orderNumber!! - 1; it }
+            } else if (currentOrderNumber > newNumber) {
+                allTasksInRoute.filter { it.orderNumber in newNumber until currentOrderNumber }
+                    .map { it.orderNumber = it.orderNumber!! + 1; it }
+            }
+            else emptyList()
+        }
+
+        updatableTasks.forEach { taskRepository.persistSuspending(it) }
+        return newOrderNumber
+    }
+
+    /**
+     * Deletes a task, also updates the order numbers of other tasks that belong to the same route
      *
      * @param foundTask found task
      */
     suspend fun deleteTask(foundTask: Task) {
         taskRepository.deleteSuspending(foundTask)
+
+        if (foundTask.orderNumber != null && foundTask.routeId != null) {
+            reorderTasksInRoute(foundTask.routeId!!, foundTask)
+        }
+    }
+
+    /**
+     * Reorders the tasks in the route based on their index
+     *
+     * @param routeId route id
+     * @param taskToExclude task to exclude from the reordering
+     */
+    private suspend fun reorderTasksInRoute(routeId: UUID, taskToExclude: Task) {
+        val allTasksInRoute = taskRepository.list(routeId = routeId).first.filter { it.id != taskToExclude.id}
+        allTasksInRoute.sortedBy { it.orderNumber }.forEachIndexed { index, task ->
+            task.orderNumber = index
+            taskRepository.persistSuspending(task)
+        }
     }
 
 }

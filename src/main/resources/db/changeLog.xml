@@ -221,4 +221,10 @@
             <column name="contents" type="varchar(255)"/>
         </addColumn>
     </changeSet>
+
+    <changeSet id="order_number" author="katja danilova">
+        <addColumn tableName="task">
+            <column name="ordernumber" type="int" />
+        </addColumn>
+    </changeSet>
 </databaseChangeLog>
