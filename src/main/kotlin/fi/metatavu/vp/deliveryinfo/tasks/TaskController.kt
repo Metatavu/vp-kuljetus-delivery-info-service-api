@@ -200,25 +200,29 @@ class TaskController {
     private suspend fun updateOrderNumbers(currentOrderNumber: Int?, newOrderNumber: Int, routeId: UUID): Int {
         val allTasksInRoute = taskRepository.list(routeId = routeId).first
         val tasksSize = allTasksInRoute.size
-        val newNumber = if (newOrderNumber > tasksSize) tasksSize else newOrderNumber
+        val newSelectedOrderNumber = if (currentOrderNumber == null && newOrderNumber > tasksSize) {
+            tasksSize
+        } else if (currentOrderNumber != null && newOrderNumber >= tasksSize) {
+            tasksSize - 1
+        } else newOrderNumber
 
         // Re-arrange the order numbers of the tasks in the route based on the new order number
         val updatableTasks = if (currentOrderNumber == null) {
-            allTasksInRoute.filter { it.orderNumber in newNumber until allTasksInRoute.size }
+            allTasksInRoute.filter { it.orderNumber in newSelectedOrderNumber until allTasksInRoute.size }
                 .map { it.orderNumber = it.orderNumber!! + 1; it }
         } else {
-            if (currentOrderNumber < newNumber) {
-                allTasksInRoute.filter { it.orderNumber in (currentOrderNumber + 1)..newNumber }
+            if (currentOrderNumber < newSelectedOrderNumber) {
+                allTasksInRoute.filter { it.orderNumber in (currentOrderNumber + 1)..newSelectedOrderNumber }
                     .map { it.orderNumber = it.orderNumber!! - 1; it }
-            } else if (currentOrderNumber > newNumber) {
-                allTasksInRoute.filter { it.orderNumber in newNumber until currentOrderNumber }
+            } else if (currentOrderNumber > newSelectedOrderNumber) {
+                allTasksInRoute.filter { it.orderNumber in newSelectedOrderNumber until currentOrderNumber }
                     .map { it.orderNumber = it.orderNumber!! + 1; it }
             }
             else emptyList()
         }
 
         updatableTasks.forEach { taskRepository.persistSuspending(it) }
-        return newOrderNumber
+        return newSelectedOrderNumber
     }
 
     /**
@@ -243,8 +247,10 @@ class TaskController {
     private suspend fun reorderTasksInRoute(routeId: UUID, taskToExclude: Task) {
         val allTasksInRoute = taskRepository.list(routeId = routeId).first.filter { it.id != taskToExclude.id}
         allTasksInRoute.sortedBy { it.orderNumber }.forEachIndexed { index, task ->
-            task.orderNumber = index
-            taskRepository.persistSuspending(task)
+            if (task.orderNumber != null && task.orderNumber!! > index) {
+                task.orderNumber = index
+                taskRepository.persistSuspending(task)
+            }
         }
     }
 

@@ -294,28 +294,35 @@ class TasksTestIT : AbstractFunctionalTest() {
         // Move T1 to position 1 (second one), expected result T2 T1 T3
         val updated = tb.manager.tasks.updateTask(task1.id!!, task1.copy(orderNumber = 1))
         assertEquals(1, updated.orderNumber)
-        val reorderedTasks1 = tb.manager.tasks.listTasks().sortedBy { it.orderNumber }.map { it.remarks }
+        val reorderedTasks1 = tb.manager.tasks.listTasks()
         assertEquals(3, reorderedTasks1.size)
-        assertEquals(arrayListOf("2", "1", "3"), reorderedTasks1)
-
+        assertEquals(arrayListOf("2", "1", "3"), reorderedTasks1.map { it.remarks })
 
         // Move T3 to position 1, expecting to get T3 T2 T1
         tb.manager.tasks.updateTask(task3.id!!, task3.copy(orderNumber = 0))
-        val reorderedTasks2 = tb.manager.tasks.listTasks().sortedBy { it.orderNumber }.map { it.remarks }
+        val reorderedTasks2 = tb.manager.tasks.listTasks()
         assertEquals(3, reorderedTasks2.size)
-        assertEquals(arrayListOf("3", "2", "1"), reorderedTasks2)
+        assertEquals(arrayListOf("3", "2", "1"), reorderedTasks2.map { it.remarks })
 
-        //Move T3 to lask position, expecting T2 T1 T3
+        //Move T3 to last position, expecting T2 T1 T3
         tb.manager.tasks.updateTask(task3.id, task3.copy(orderNumber = 2))
-        val reorderedTasks3 = tb.manager.tasks.listTasks().sortedBy { it.orderNumber }.map { it.remarks }
+        val reorderedTasks3 = tb.manager.tasks.listTasks()
         assertEquals(3, reorderedTasks3.size)
-        assertEquals(arrayListOf("2", "1", "3"), reorderedTasks3)
+        assertEquals(arrayListOf("2", "1", "3"), reorderedTasks3.map { it.remarks })
 
         //Move T3 to first position, expecting T3 T2 T1
         tb.manager.tasks.updateTask(task3.id, task3.copy(orderNumber = 0))
-        val reorderedTasks4 = tb.manager.tasks.listTasks().sortedBy { it.orderNumber }.map { it.remarks }
+        val reorderedTasks4 = tb.manager.tasks.listTasks()
         assertEquals(3, reorderedTasks4.size)
-        assertEquals(arrayListOf("3", "2", "1"), reorderedTasks4)
+        assertEquals(arrayListOf(0, 1, 2), reorderedTasks4.map { it.orderNumber })
+        assertEquals(arrayListOf("3", "2", "1"), reorderedTasks4.map { it.remarks })
+
+        // Move T3 to position 10, xepecting T2 T1 T3
+        tb.manager.tasks.updateTask(task3.id, task3.copy(orderNumber = 3))
+        val reorderedTasks5 = tb.manager.tasks.listTasks()
+        assertEquals(3, reorderedTasks5.size)
+        assertEquals(arrayListOf(0, 1, 2), reorderedTasks5.map { it.orderNumber })
+        assertEquals(arrayListOf("2", "1", "3"), reorderedTasks5.map { it.remarks })
     }
 
     /**
@@ -350,9 +357,7 @@ class TasksTestIT : AbstractFunctionalTest() {
         // Verify tasks in route 2
         val allRoute2Tasks1 = tb.manager.tasks.listTasks(routeId = routeId2)
         assertEquals(3, allRoute2Tasks1.size)
-        assertEquals(0, allRoute2Tasks1[0].orderNumber)
-        assertEquals(1, allRoute2Tasks1[1].orderNumber)
-        assertEquals(2, allRoute2Tasks1[2].orderNumber)
+        assertEquals(arrayListOf(0, 1, 2), allRoute2Tasks1.map { it.orderNumber })
         val allRoute2TasksRemarks = allRoute2Tasks1.sortedBy { it.orderNumber }.map { it.remarks }
         assertEquals(3, allRoute2TasksRemarks.size)
         assertEquals(arrayListOf("r2t1", "r2t2", "1"), allRoute2TasksRemarks)
@@ -360,8 +365,7 @@ class TasksTestIT : AbstractFunctionalTest() {
         // Verify tasks in route 1
         val allRoute1Tasks = tb.manager.tasks.listTasks(routeId = routeId)
         assertEquals(2, allRoute1Tasks.size)
-        assertEquals(0, allRoute1Tasks[0].orderNumber)
-        assertEquals(1, allRoute1Tasks[1].orderNumber)
+        assertEquals(arrayListOf(0, 1), allRoute1Tasks.map { it.orderNumber })
         val allRoute1TasksRemarks = allRoute1Tasks.sortedBy { it.orderNumber }.map { it.remarks }
         assertEquals(arrayListOf("2", "3"), allRoute1TasksRemarks)
 
@@ -370,10 +374,7 @@ class TasksTestIT : AbstractFunctionalTest() {
         // Verify tasks in route 2
         val allRoute2Tasks2 = tb.manager.tasks.listTasks(routeId = routeId2)
         assertEquals(4, allRoute2Tasks2.size)
-        assertEquals(0, allRoute2Tasks2[0].orderNumber)
-        assertEquals(1, allRoute2Tasks2[1].orderNumber)
-        assertEquals(2, allRoute2Tasks2[2].orderNumber)
-        assertEquals(3, allRoute2Tasks2[3].orderNumber)
+        assertEquals(arrayListOf(0, 1, 2, 3), allRoute2Tasks2.map { it.orderNumber })
         val allRoute2TasksRemarks2 = allRoute2Tasks2.sortedBy { it.orderNumber }.map { it.remarks }
         assertEquals(4, allRoute2TasksRemarks2.size)
         assertEquals(arrayListOf("3", "r2t1", "r2t2", "1"), allRoute2TasksRemarks2)
@@ -381,6 +382,16 @@ class TasksTestIT : AbstractFunctionalTest() {
         val allRoute1Tasks1 = tb.manager.tasks.listTasks(routeId = routeId)
         assertEquals(1, allRoute1Tasks1.size)
         assertEquals(0, allRoute1Tasks1[0].orderNumber)
+
+        // Move task 2 from route 1 to route 2 position 10
+        tb.manager.tasks.updateTask(task2.id!!, task2.copy(routeId = routeId2, orderNumber = 10))
+        // Verify tasks in route 2
+        val allRoute2Tasks3 = tb.manager.tasks.listTasks(routeId = routeId2)
+        assertEquals(5, allRoute2Tasks3.size)
+        assertEquals(arrayListOf(0, 1, 2, 3, 4), allRoute2Tasks3.map { it.orderNumber })
+        val allRoute2TasksRemarks3 = allRoute2Tasks3.sortedBy { it.orderNumber }.map { it.remarks }
+        assertEquals(5, allRoute2TasksRemarks3.size)
+        assertEquals(arrayListOf("3", "r2t1", "r2t2", "1", "2"), allRoute2TasksRemarks3)
     }
 
     @Test
