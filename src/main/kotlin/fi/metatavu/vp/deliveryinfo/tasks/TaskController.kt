@@ -166,7 +166,7 @@ class TaskController {
         }
 
         if (restTask.routeId == null && restTask.orderNumber == null && existingTask.routeId != null) {
-            //route was unasigned, update order numbers in the route
+            // task was removed from route, update order numbers of the other tasks of the route
             existingTask.orderNumber = null
             reorderTasksInRoute(existingTask.routeId!!, existingTask)
         } else if (restTask.routeId != existingTask.routeId) {
