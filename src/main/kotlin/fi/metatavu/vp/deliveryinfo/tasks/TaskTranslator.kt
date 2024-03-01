@@ -20,6 +20,7 @@ class TaskTranslator: AbstractTranslator<Task, fi.metatavu.vp.api.model.Task>() 
             routeId = entity.routeId,
             startedAt = entity.startedAt,
             finishedAt = entity.finishedAt,
+            orderNumber = entity.orderNumber,
             creatorId = entity.creatorId,
             lastModifierId = entity.lastModifierId,
             createdAt = entity.createdAt,

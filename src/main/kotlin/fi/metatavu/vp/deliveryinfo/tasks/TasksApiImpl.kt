@@ -90,6 +90,7 @@ class TasksApiImpl : TasksApi, AbstractApi() {
         if (task.routeId != null && !taskController.routeExists(task.routeId)) {
             return@async createBadRequest("Route does not exist")
         }
+        verifyRouteIdOrderNumberCombination(task)?.let { return@async it }
 
         val createdTask = taskController.createTask(
             freight = freight,
@@ -99,6 +100,7 @@ class TasksApiImpl : TasksApi, AbstractApi() {
             groupNumber = task.groupNumber,
             remarks = task.remarks,
             routeId = task.routeId,
+            orderNumber = task.orderNumber,
             creatorId = userId,
             lastModifierId = userId
         )
@@ -139,6 +141,8 @@ class TasksApiImpl : TasksApi, AbstractApi() {
             return@async createBadRequest("Bad request")
         }
 
+        verifyRouteIdOrderNumberCombination(task)?.let { return@async it }
+
         val updated = taskController.update(
             existingTask = foundTask,
             freight = freight,
@@ -161,4 +165,22 @@ class TasksApiImpl : TasksApi, AbstractApi() {
         taskController.deleteTask(foundTask)
         createNoContent()
     }.asUni()
+
+    /**
+     * Verifies that routeId and orderNumber are either both null or both set
+     *
+     * @param task task
+     * @return response if invalid, null if valid
+     */
+    private suspend fun verifyRouteIdOrderNumberCombination(task: Task): Response? {
+        if ((task.routeId == null && task.orderNumber != null) || (task.routeId != null && task.orderNumber == null)) {
+            return createBadRequest("Either both routeId and orderNumber must be null or both must be set")
+        }
+
+        if (task.orderNumber != null && task.orderNumber < 0){
+            return createBadRequest("Order number must be positive")
+        }
+
+        return null
+    }
 }
