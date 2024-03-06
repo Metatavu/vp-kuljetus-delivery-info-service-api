@@ -169,7 +169,7 @@ class TaskController {
             //route was unasigned, update order numbers in the route
             existingTask.orderNumber = null
             reorderTasksInRoute(existingTask.routeId!!, existingTask)
-        } else if (restTask.routeId != existingTask.routeId) {
+        } else if (restTask.routeId != existingTask.routeId && existingTask.routeId != null) {
             // route changed, update order numbers in the new and old routes
             val newNumber = updateOrderNumbers(null, restTask.orderNumber!!, restTask.routeId!!)
             existingTask.orderNumber = newNumber

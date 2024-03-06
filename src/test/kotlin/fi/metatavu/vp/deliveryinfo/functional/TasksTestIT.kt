@@ -343,6 +343,8 @@ class TasksTestIT : AbstractFunctionalTest() {
             status = TaskStatus.TODO,
             groupNumber = 0
         )
+        // create unassinged task 0
+        val task0 = tb.manager.tasks.create(taskData.copy(routeId = null, remarks = "0"))
 
         // Create 3 tasks for route 1
         val task1 = tb.manager.tasks.create(taskData.copy(orderNumber = 0, remarks = "1"))
@@ -386,6 +388,11 @@ class TasksTestIT : AbstractFunctionalTest() {
         assertEquals(5, allRoute2Tasks3.size)
         assertEquals(arrayListOf(0, 1, 2, 3, 4), allRoute2Tasks3.map { it.orderNumber })
         assertEquals(arrayListOf("3", "r2t1", "r2t2", "1", "2"), allRoute2Tasks3.map { it.remarks })
+
+        //Move unassigned task 0 to route 2
+        tb.manager.tasks.updateTask(task0.id!!, task0.copy(routeId = routeId2, orderNumber = 10))
+        val allRoute2Tasks4 = tb.manager.tasks.listTasks(routeId = routeId2)
+        assertEquals(arrayListOf("3", "r2t1", "r2t2", "1", "2", "0"), allRoute2Tasks4.map { it.remarks })
     }
 
     @Test
