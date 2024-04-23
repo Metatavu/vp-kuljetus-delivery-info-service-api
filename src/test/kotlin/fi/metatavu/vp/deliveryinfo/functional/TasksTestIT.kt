@@ -69,6 +69,12 @@ class TasksTestIT : AbstractFunctionalTest() {
 
         val paging = it.manager.tasks.listTasks(first = 1, max = 1)
         assertEquals(1, paging.size)
+
+        val paging2 = it.manager.tasks.listTasks(first = 2)
+        assertEquals(0, paging2.size)
+
+        val paging3 = it.manager.tasks.listTasks(max = 1)
+        assertEquals(1, paging3.size)
     }
 
     @Test
