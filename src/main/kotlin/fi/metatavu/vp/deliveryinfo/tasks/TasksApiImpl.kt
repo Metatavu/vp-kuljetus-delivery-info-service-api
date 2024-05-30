@@ -115,7 +115,7 @@ class TasksApiImpl : TasksApi, AbstractApi() {
     }.asUni()
 
     @WithTransaction
-    @RolesAllowed(MANAGER_ROLE)
+    @RolesAllowed(DRIVER_ROLE, MANAGER_ROLE)
     override fun updateTask(taskId: UUID, task: Task): Uni<Response> = CoroutineScope(vertx.dispatcher()).async {
         val userId = loggedUserId ?: return@async createUnauthorized(UNAUTHORIZED)
         val foundTask = taskController.findTask(taskId) ?: return@async createNotFound(createNotFoundMessage(TASK, taskId))

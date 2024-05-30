@@ -69,6 +69,12 @@ class TasksTestIT : AbstractFunctionalTest() {
 
         val paging = it.manager.tasks.listTasks(first = 1, max = 1)
         assertEquals(1, paging.size)
+
+        val paging2 = it.manager.tasks.listTasks(first = 2)
+        assertEquals(0, paging2.size)
+
+        val paging3 = it.manager.tasks.listTasks(max = 1)
+        assertEquals(1, paging3.size)
     }
 
     @Test
@@ -268,6 +274,8 @@ class TasksTestIT : AbstractFunctionalTest() {
         assertEquals(updateData.groupNumber, updated.groupNumber)
         assertNotNull(updated.startedAt)
         assertNull(updated.finishedAt)
+
+        assertNotNull(it.driver.tasks.updateTask(createdTask.id, updateData))
     }
 
     /**
@@ -288,7 +296,7 @@ class TasksTestIT : AbstractFunctionalTest() {
         )
 
         val task1 = tb.manager.tasks.create(taskData.copy(orderNumber = 0, remarks = "1"))
-        val task2 = tb.manager.tasks.create(taskData.copy(orderNumber = 1, remarks = "2"))
+        tb.manager.tasks.create(taskData.copy(orderNumber = 1, remarks = "2"))
         val task3 = tb.manager.tasks.create(taskData.copy(orderNumber = 2, remarks = "3"))
 
         val allTasks = tb.manager.tasks.listTasks()
@@ -343,7 +351,7 @@ class TasksTestIT : AbstractFunctionalTest() {
             status = TaskStatus.TODO,
             groupNumber = 0
         )
-        // create unassinged task 0
+        // create unassigned task 0
         val task0 = tb.manager.tasks.create(taskData.copy(routeId = null, remarks = "0"))
 
         // Create 3 tasks for route 1
@@ -406,8 +414,7 @@ class TasksTestIT : AbstractFunctionalTest() {
             orderNumber = 0
         )
 
-        it.driver.tasks.assertUpdateTaskFail(403, createdTask.id!!, createdTask)
-        it.user.tasks.assertUpdateTaskFail(403, createdTask.id, createdTask)
+        it.user.tasks.assertUpdateTaskFail(403, createdTask.id!!, createdTask)
 
         // Invalid values checks
         InvalidValueTestScenarioBuilder(
@@ -450,8 +457,8 @@ class TasksTestIT : AbstractFunctionalTest() {
             orderNumber = 0
         )
         it.manager.tasks.create(
-            customerSiteId = site1.id!!,
-            freightId = freight1.id!!,
+            customerSiteId = site1.id,
+            freightId = freight1.id,
             routeId = routeId,
             orderNumber = 1
         )
