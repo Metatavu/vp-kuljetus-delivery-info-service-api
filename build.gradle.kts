@@ -34,6 +34,7 @@ dependencies {
     implementation("io.quarkus:quarkus-resteasy-reactive-jackson")
     implementation("io.quarkus:quarkus-oidc")
     implementation("io.quarkus:quarkus-kotlin")
+    implementation("io.quarkus:quarkus-smallrye-health")
     implementation("org.locationtech.jts:jts-core:$jtsVersion")
 
     implementation("io.vertx:vertx-core")
