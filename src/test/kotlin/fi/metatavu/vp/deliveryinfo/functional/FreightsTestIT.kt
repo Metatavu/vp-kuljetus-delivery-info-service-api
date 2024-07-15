@@ -42,6 +42,10 @@ class FreightsTestIT : AbstractFunctionalTest() {
         assertEquals(freightData.senderSiteId, result.senderSiteId)
         assertEquals(freightData.recipientSiteId, result.recipientSiteId)
         assertEquals(freightData.destinationSiteId, result.destinationSiteId)
+
+        // Customer wants their freight numbers to start incrementing from 100000001
+        // It is impossible to tell what test will be ran first so it is simply asserted that freightNumber is at least 100000001
+        assertTrue(result.freightNumber!! >= 100000001)
     }
 
     @Test
