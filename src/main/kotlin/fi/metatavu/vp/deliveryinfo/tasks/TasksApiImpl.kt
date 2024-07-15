@@ -7,17 +7,16 @@ import fi.metatavu.vp.api.spec.TasksApi
 import fi.metatavu.vp.deliveryinfo.freights.FreightController
 import fi.metatavu.vp.deliveryinfo.rest.AbstractApi
 import fi.metatavu.vp.deliveryinfo.sites.SiteController
-import io.quarkus.hibernate.reactive.panache.common.WithSession
-import io.quarkus.hibernate.reactive.panache.common.WithTransaction
 import io.smallrye.mutiny.Uni
 import jakarta.annotation.security.RolesAllowed
 import jakarta.enterprise.context.RequestScoped
 import jakarta.inject.Inject
 import jakarta.ws.rs.core.Response
 import java.util.*
+import fi.metatavu.coroutine.CoroutineUtils.withCoroutineScope
 
 @RequestScoped
-@WithSession
+@Suppress("unused")
 class TasksApiImpl : TasksApi, AbstractApi() {
 
     @Inject
@@ -41,7 +40,7 @@ class TasksApiImpl : TasksApi, AbstractApi() {
         type: TaskType?,
         first: Int?,
         max: Int?
-    ): Uni<Response> = withCoroutineScope({
+    ): Uni<Response> = withCoroutineScope {
         val freightFilter = freightId?.let {
             freightController.findFreight(it) ?: return@withCoroutineScope createNotFound(createNotFoundMessage(FREIGHT, it))
         }
@@ -60,11 +59,10 @@ class TasksApiImpl : TasksApi, AbstractApi() {
             max = max
         )
         createOk(tasks.map { taskTranslator.translate(it) }, count)
-    })
+    }
 
-    @WithTransaction
     @RolesAllowed(MANAGER_ROLE)
-    override fun createTask(task: Task): Uni<Response> = withCoroutineScope({
+    override fun createTask(task: Task): Uni<Response> = withCoroutineScope(transaction = true) {
         val userId = loggedUserId ?: return@withCoroutineScope createUnauthorized(UNAUTHORIZED)
         val freight = task.freightId.let {
             val foundFreight =
@@ -96,17 +94,16 @@ class TasksApiImpl : TasksApi, AbstractApi() {
         )
 
         createOk(taskTranslator.translate(createdTask))
-    })
+    }
 
     @RolesAllowed(DRIVER_ROLE, MANAGER_ROLE)
-    override fun findTask(taskId: UUID): Uni<Response> = withCoroutineScope({
+    override fun findTask(taskId: UUID): Uni<Response> = withCoroutineScope {
         val task = taskController.findTask(taskId) ?: return@withCoroutineScope createNotFound(createNotFoundMessage(TASK, taskId))
         createOk(taskTranslator.translate(task))
-    })
+    }
 
-    @WithTransaction
     @RolesAllowed(DRIVER_ROLE, MANAGER_ROLE)
-    override fun updateTask(taskId: UUID, task: Task): Uni<Response> = withCoroutineScope({
+    override fun updateTask(taskId: UUID, task: Task): Uni<Response> = withCoroutineScope(transaction = true) {
         val userId = loggedUserId ?: return@withCoroutineScope createUnauthorized(UNAUTHORIZED)
         val foundTask = taskController.findTask(taskId) ?: return@withCoroutineScope createNotFound(createNotFoundMessage(TASK, taskId))
 
@@ -142,11 +139,10 @@ class TasksApiImpl : TasksApi, AbstractApi() {
         )
 
         createOk(taskTranslator.translate(updated))
-    })
+    }
 
-    @WithTransaction
     @RolesAllowed(MANAGER_ROLE)
-    override fun deleteTask(taskId: UUID): Uni<Response> = withCoroutineScope({
+    override fun deleteTask(taskId: UUID): Uni<Response> = withCoroutineScope(transaction = true) {
         loggedUserId ?: return@withCoroutineScope createUnauthorized(UNAUTHORIZED)
         val foundTask = taskController.findTask(taskId) ?: return@withCoroutineScope createNotFound(createNotFoundMessage(TASK, taskId))
         if (foundTask.status == TaskStatus.DONE) {
@@ -154,7 +150,7 @@ class TasksApiImpl : TasksApi, AbstractApi() {
         }
         taskController.deleteTask(foundTask)
         createNoContent()
-    })
+    }
 
     /**
      * Verifies that routeId and orderNumber are either both null or both set

@@ -1,15 +1,7 @@
 package fi.metatavu.vp.deliveryinfo.rest
 
-import io.smallrye.mutiny.Uni
-import io.smallrye.mutiny.coroutines.asUni
-import io.vertx.core.Vertx
-import io.vertx.kotlin.coroutines.dispatcher
 import jakarta.inject.Inject
 import jakarta.ws.rs.core.Response
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.async
-import kotlinx.coroutines.withTimeout
 import org.eclipse.microprofile.config.inject.ConfigProperty
 import org.eclipse.microprofile.jwt.JsonWebToken
 import java.util.*
@@ -21,28 +13,11 @@ import java.util.*
  */
 abstract class AbstractApi {
 
-    @Inject
-    lateinit var vertx: Vertx
-
     @ConfigProperty(name = "vp.env")
     private lateinit var environment: String
 
     @Inject
     private lateinit var jsonWebToken: JsonWebToken
-
-    /**
-     * Wraps a block of code in a coroutine scope using a vertx dispatcher and a timeout
-     *
-     * @param block block of code to run
-     * @param requestTimeOut request timeout in milliseconds. Defaults to 10 seconds
-     * @return Uni
-     */
-    @OptIn(ExperimentalCoroutinesApi::class)
-    protected fun <T> withCoroutineScope(block: suspend () -> T, requestTimeOut: Long = 10000L): Uni<T> {
-        return CoroutineScope(vertx.dispatcher())
-            .async { withTimeout(requestTimeOut) { block() } }
-            .asUni()
-    }
 
     /**
      * Returns if production environment

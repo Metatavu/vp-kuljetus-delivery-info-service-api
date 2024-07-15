@@ -6,20 +6,18 @@ import fi.metatavu.vp.deliveryinfo.freights.freightunits.FreightUnitController
 import fi.metatavu.vp.deliveryinfo.rest.AbstractApi
 import fi.metatavu.vp.deliveryinfo.sites.SiteController
 import fi.metatavu.vp.deliveryinfo.tasks.TaskController
-import io.quarkus.hibernate.reactive.panache.common.WithSession
-import io.quarkus.hibernate.reactive.panache.common.WithTransaction
 import io.smallrye.mutiny.Uni
 import jakarta.annotation.security.RolesAllowed
 import jakarta.enterprise.context.RequestScoped
 import jakarta.inject.Inject
 import jakarta.ws.rs.core.Response
 import java.util.*
+import fi.metatavu.coroutine.CoroutineUtils.withCoroutineScope
 
 /**
  * Freight API implementation
  */
 @RequestScoped
-@WithSession
 @Suppress("unused")
 class FreightApiImpl: FreightsApi, AbstractApi() {
 
@@ -39,14 +37,13 @@ class FreightApiImpl: FreightsApi, AbstractApi() {
     lateinit var siteController: SiteController
 
     @RolesAllowed(DRIVER_ROLE, MANAGER_ROLE)
-    override fun listFreights(first: Int?, max: Int?): Uni<Response> = withCoroutineScope({
+    override fun listFreights(first: Int?, max: Int?): Uni<Response> = withCoroutineScope {
         val ( freights, count ) = freightController.list(first, max)
         createOk(freights.map { freightTranslator.translate(it) }, count)
-    })
+    }
 
     @RolesAllowed(MANAGER_ROLE)
-    @WithTransaction
-    override fun createFreight(freight: Freight): Uni<Response> = withCoroutineScope({
+    override fun createFreight(freight: Freight): Uni<Response> = withCoroutineScope(transaction = true) {
         val userId = loggedUserId ?: return@withCoroutineScope createUnauthorized(UNAUTHORIZED)
 
         val pointOfDepartureSite = siteController.findSite(freight.pointOfDepartureSiteId) ?: return@withCoroutineScope createBadRequest(createNotFoundMessage(SITE, freight.pointOfDepartureSiteId))
@@ -62,17 +59,16 @@ class FreightApiImpl: FreightsApi, AbstractApi() {
             userId = userId
         )
         createOk(freightTranslator.translate(createdFreight))
-    })
+    }
 
     @RolesAllowed(DRIVER_ROLE, MANAGER_ROLE)
-    override fun findFreight(freightId: UUID): Uni<Response> = withCoroutineScope({
+    override fun findFreight(freightId: UUID): Uni<Response> = withCoroutineScope {
         val site = freightController.findFreight(freightId) ?: return@withCoroutineScope createNotFound(createNotFoundMessage(FREIGHT, freightId))
         createOk(freightTranslator.translate(site))
-    })
+    }
 
     @RolesAllowed(MANAGER_ROLE)
-    @WithTransaction
-    override fun updateFreight(freightId: UUID, freight: Freight): Uni<Response> = withCoroutineScope({
+    override fun updateFreight(freightId: UUID, freight: Freight): Uni<Response> = withCoroutineScope(transaction = true) {
         val userId = loggedUserId ?: return@withCoroutineScope createUnauthorized(UNAUTHORIZED)
         val existingFreight = freightController.findFreight(freightId) ?: return@withCoroutineScope createNotFound(createNotFoundMessage(FREIGHT, freightId))
 
@@ -90,11 +86,10 @@ class FreightApiImpl: FreightsApi, AbstractApi() {
             userId = userId
         )
         createOk(freightTranslator.translate(updatedSite))
-    })
+    }
 
     @RolesAllowed(MANAGER_ROLE)
-    @WithTransaction
-    override fun deleteFreight(freightId: UUID): Uni<Response> = withCoroutineScope({
+    override fun deleteFreight(freightId: UUID): Uni<Response> = withCoroutineScope(transaction = true) {
         val freight = freightController.findFreight(freightId) ?: return@withCoroutineScope createNotFound(createNotFoundMessage(FREIGHT, freightId))
 
         val freightUnits = freightUnitController.list(freight = freight)
@@ -109,5 +104,6 @@ class FreightApiImpl: FreightsApi, AbstractApi() {
 
         freightController.delete(freight)
         createNoContent()
-    })
+    }
+
 }
