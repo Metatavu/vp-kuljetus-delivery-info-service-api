@@ -6,27 +6,18 @@ import fi.metatavu.vp.deliveryinfo.freights.freightunits.FreightUnitController
 import fi.metatavu.vp.deliveryinfo.rest.AbstractApi
 import fi.metatavu.vp.deliveryinfo.sites.SiteController
 import fi.metatavu.vp.deliveryinfo.tasks.TaskController
-import io.quarkus.hibernate.reactive.panache.common.WithSession
-import io.quarkus.hibernate.reactive.panache.common.WithTransaction
 import io.smallrye.mutiny.Uni
-import io.smallrye.mutiny.coroutines.asUni
-import io.vertx.core.Vertx
-import io.vertx.kotlin.coroutines.dispatcher
 import jakarta.annotation.security.RolesAllowed
 import jakarta.enterprise.context.RequestScoped
 import jakarta.inject.Inject
 import jakarta.ws.rs.core.Response
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.async
 import java.util.*
+import fi.metatavu.coroutine.CoroutineUtils.withCoroutineScope
 
 /**
  * Freight API implementation
  */
 @RequestScoped
-@WithSession
-@OptIn(ExperimentalCoroutinesApi::class)
 @Suppress("unused")
 class FreightApiImpl: FreightsApi, AbstractApi() {
 
@@ -45,24 +36,20 @@ class FreightApiImpl: FreightsApi, AbstractApi() {
     @Inject
     lateinit var siteController: SiteController
 
-    @Inject
-    lateinit var vertx: Vertx
-
     @RolesAllowed(DRIVER_ROLE, MANAGER_ROLE)
-    override fun listFreights(first: Int?, max: Int?): Uni<Response> = CoroutineScope(vertx.dispatcher()).async {
+    override fun listFreights(first: Int?, max: Int?): Uni<Response> = withCoroutineScope {
         val ( freights, count ) = freightController.list(first, max)
         createOk(freights.map { freightTranslator.translate(it) }, count)
-    }.asUni()
+    }
 
     @RolesAllowed(MANAGER_ROLE)
-    @WithTransaction
-    override fun createFreight(freight: Freight): Uni<Response> = CoroutineScope(vertx.dispatcher()).async {
-        val userId = loggedUserId ?: return@async createUnauthorized(UNAUTHORIZED)
+    override fun createFreight(freight: Freight): Uni<Response> = withCoroutineScope(transaction = true) {
+        val userId = loggedUserId ?: return@withCoroutineScope createUnauthorized(UNAUTHORIZED)
 
-        val pointOfDepartureSite = siteController.findSite(freight.pointOfDepartureSiteId) ?: return@async createBadRequest(createNotFoundMessage(SITE, freight.pointOfDepartureSiteId))
-        val destinationSite = siteController.findSite(freight.destinationSiteId) ?: return@async createBadRequest(createNotFoundMessage(SITE, freight.destinationSiteId))
-        val senderSite = siteController.findSite(freight.senderSiteId) ?: return@async createBadRequest(createNotFoundMessage(SITE, freight.senderSiteId))
-        val recipientSite = siteController.findSite(freight.recipientSiteId) ?: return@async createBadRequest(createNotFoundMessage(SITE, freight.recipientSiteId))
+        val pointOfDepartureSite = siteController.findSite(freight.pointOfDepartureSiteId) ?: return@withCoroutineScope createBadRequest(createNotFoundMessage(SITE, freight.pointOfDepartureSiteId))
+        val destinationSite = siteController.findSite(freight.destinationSiteId) ?: return@withCoroutineScope createBadRequest(createNotFoundMessage(SITE, freight.destinationSiteId))
+        val senderSite = siteController.findSite(freight.senderSiteId) ?: return@withCoroutineScope createBadRequest(createNotFoundMessage(SITE, freight.senderSiteId))
+        val recipientSite = siteController.findSite(freight.recipientSiteId) ?: return@withCoroutineScope createBadRequest(createNotFoundMessage(SITE, freight.recipientSiteId))
 
         val createdFreight = freightController.create(
             pointOfDepartureSite = pointOfDepartureSite,
@@ -72,24 +59,23 @@ class FreightApiImpl: FreightsApi, AbstractApi() {
             userId = userId
         )
         createOk(freightTranslator.translate(createdFreight))
-    }.asUni()
+    }
 
     @RolesAllowed(DRIVER_ROLE, MANAGER_ROLE)
-    override fun findFreight(freightId: UUID): Uni<Response> = CoroutineScope(vertx.dispatcher()).async {
-        val site = freightController.findFreight(freightId) ?: return@async createNotFound(createNotFoundMessage(FREIGHT, freightId))
+    override fun findFreight(freightId: UUID): Uni<Response> = withCoroutineScope {
+        val site = freightController.findFreight(freightId) ?: return@withCoroutineScope createNotFound(createNotFoundMessage(FREIGHT, freightId))
         createOk(freightTranslator.translate(site))
-    }.asUni()
+    }
 
     @RolesAllowed(MANAGER_ROLE)
-    @WithTransaction
-    override fun updateFreight(freightId: UUID, freight: Freight): Uni<Response> = CoroutineScope(vertx.dispatcher()).async {
-        val userId = loggedUserId ?: return@async createUnauthorized(UNAUTHORIZED)
-        val existingFreight = freightController.findFreight(freightId) ?: return@async createNotFound(createNotFoundMessage(FREIGHT, freightId))
+    override fun updateFreight(freightId: UUID, freight: Freight): Uni<Response> = withCoroutineScope(transaction = true) {
+        val userId = loggedUserId ?: return@withCoroutineScope createUnauthorized(UNAUTHORIZED)
+        val existingFreight = freightController.findFreight(freightId) ?: return@withCoroutineScope createNotFound(createNotFoundMessage(FREIGHT, freightId))
 
-        val pointOfDepartureSite = siteController.findSite(freight.pointOfDepartureSiteId) ?: return@async createBadRequest(createNotFoundMessage(SITE, freight.pointOfDepartureSiteId))
-        val destinationSite = siteController.findSite(freight.destinationSiteId) ?: return@async createBadRequest(createNotFoundMessage(SITE, freight.destinationSiteId))
-        val senderSite = siteController.findSite(freight.senderSiteId) ?: return@async createBadRequest(createNotFoundMessage(SITE, freight.senderSiteId))
-        val recipientSite = siteController.findSite(freight.recipientSiteId) ?: return@async createBadRequest(createNotFoundMessage(SITE, freight.recipientSiteId))
+        val pointOfDepartureSite = siteController.findSite(freight.pointOfDepartureSiteId) ?: return@withCoroutineScope createBadRequest(createNotFoundMessage(SITE, freight.pointOfDepartureSiteId))
+        val destinationSite = siteController.findSite(freight.destinationSiteId) ?: return@withCoroutineScope createBadRequest(createNotFoundMessage(SITE, freight.destinationSiteId))
+        val senderSite = siteController.findSite(freight.senderSiteId) ?: return@withCoroutineScope createBadRequest(createNotFoundMessage(SITE, freight.senderSiteId))
+        val recipientSite = siteController.findSite(freight.recipientSiteId) ?: return@withCoroutineScope createBadRequest(createNotFoundMessage(SITE, freight.recipientSiteId))
 
         val updatedSite = freightController.updateFreight(
             existingFreight = existingFreight,
@@ -100,24 +86,24 @@ class FreightApiImpl: FreightsApi, AbstractApi() {
             userId = userId
         )
         createOk(freightTranslator.translate(updatedSite))
-    }.asUni()
+    }
 
     @RolesAllowed(MANAGER_ROLE)
-    @WithTransaction
-    override fun deleteFreight(freightId: UUID): Uni<Response> = CoroutineScope(vertx.dispatcher()).async {
-        val freight = freightController.findFreight(freightId) ?: return@async createNotFound(createNotFoundMessage(FREIGHT, freightId))
+    override fun deleteFreight(freightId: UUID): Uni<Response> = withCoroutineScope(transaction = true) {
+        val freight = freightController.findFreight(freightId) ?: return@withCoroutineScope createNotFound(createNotFoundMessage(FREIGHT, freightId))
 
         val freightUnits = freightUnitController.list(freight = freight)
         if (freightUnits.first.isNotEmpty()) {
-            return@async createConflict("Freight has freight units")
+            return@withCoroutineScope createConflict("Freight has freight units")
         }
 
         val tasks = taskController.listTasks(freight = freight)
         if (tasks.first.isNotEmpty()) {
-            return@async createConflict("Freight has tasks")
+            return@withCoroutineScope createConflict("Freight has tasks")
         }
 
         freightController.delete(freight)
         createNoContent()
-    }.asUni()
+    }
+
 }
