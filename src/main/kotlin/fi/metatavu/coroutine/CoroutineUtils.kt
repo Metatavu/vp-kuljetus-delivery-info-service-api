@@ -56,6 +56,24 @@ object CoroutineUtils {
     }
 
     /**
+     * Logs current session details
+     */
+    fun logSessionDetails(context: Context = Vertx.currentContext()) {
+        val session = getCurrentSession(context)
+        if (session != null && session.isOpen) {
+            log.info("Session is not null and open")
+        } else {
+            if (session == null) {
+                log.info("Session is null")
+            } else {
+                log.info("Session is closed")
+            }
+        }
+
+        log.info("Context: $context")
+    }
+
+    /**
      * Executes a block with coroutine scope
      *
      * @param session if true, opens a new session. Default is true
@@ -93,6 +111,7 @@ object CoroutineUtils {
                                         block()
                                     } catch (e: Exception) {
                                         logError("Transaction failed: ${e.message}")
+                                        logSessionDetails(context)
                                         throw e
                                     }
                                 }.asUni()
@@ -102,6 +121,7 @@ object CoroutineUtils {
                                 block()
                             } catch (e: Exception) {
                                 logError("Read-only session failed: ${e.message}")
+                                logSessionDetails(context)
                                 throw e
                             }
                         }

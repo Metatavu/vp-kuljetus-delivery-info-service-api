@@ -4,8 +4,8 @@ import fi.metatavu.coroutine.CoroutineUtils
 import io.quarkus.hibernate.reactive.panache.PanacheQuery
 import io.quarkus.hibernate.reactive.panache.PanacheRepositoryBase
 import io.smallrye.mutiny.coroutines.awaitSuspending
-import io.vertx.core.Vertx
 import org.jboss.logging.Logger
+import fi.metatavu.coroutine.CoroutineUtils.logSessionDetails
 
 /**
  * Abstract base class for all Repository classes
@@ -111,22 +111,6 @@ abstract class AbstractRepository<Entity, Id> : PanacheRepositoryBase<Entity, Id
         } catch (e: Exception) {
             logSessionDetails()
             throw e
-        }
-    }
-
-    /**
-     * Logs current session details
-     */
-    private fun logSessionDetails() {
-        val session = CoroutineUtils.getCurrentSession(Vertx.currentContext())
-        if (session != null && session.isOpen) {
-            log.info("Session is not null and open")
-        } else {
-            if (session == null) {
-                log.info("Session is null")
-            } else {
-                log.info("Session is closed")
-            }
         }
     }
 }
