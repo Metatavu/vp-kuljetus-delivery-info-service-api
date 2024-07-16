@@ -5,7 +5,6 @@ import io.quarkus.hibernate.reactive.panache.PanacheQuery
 import io.quarkus.hibernate.reactive.panache.PanacheRepositoryBase
 import io.smallrye.mutiny.coroutines.awaitSuspending
 import org.jboss.logging.Logger
-import fi.metatavu.coroutine.CoroutineUtils.logSessionDetails
 
 /**
  * Abstract base class for all Repository classes
@@ -54,12 +53,7 @@ abstract class AbstractRepository<Entity, Id> : PanacheRepositoryBase<Entity, Id
      * @return saved entity
      */
     open suspend fun persistSuspending(entity: Entity): Entity {
-        return try {
-            persist(entity).awaitSuspending()
-        } catch (e: Exception) {
-            logSessionDetails()
-            throw e
-        }
+        return persist(entity).awaitSuspending()
     }
 
     /**
@@ -69,12 +63,7 @@ abstract class AbstractRepository<Entity, Id> : PanacheRepositoryBase<Entity, Id
      * @return void
      */
     open suspend fun deleteSuspending(entity: Entity) {
-        try {
-            delete(entity).awaitSuspending()
-        } catch (e: Exception) {
-            logSessionDetails()
-            throw e
-        }
+        delete(entity).awaitSuspending()
     }
 
     /**
@@ -106,11 +95,6 @@ abstract class AbstractRepository<Entity, Id> : PanacheRepositoryBase<Entity, Id
      * @return entity if found
      */
     open suspend fun findByIdSuspending(id: Id): Entity? {
-        return try {
-            findById(id).awaitSuspending()
-        } catch (e: Exception) {
-            logSessionDetails()
-            throw e
-        }
+        return findById(id).awaitSuspending()
     }
 }

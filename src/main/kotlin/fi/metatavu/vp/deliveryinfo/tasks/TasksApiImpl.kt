@@ -14,9 +14,12 @@ import jakarta.inject.Inject
 import jakarta.ws.rs.core.Response
 import java.util.*
 import fi.metatavu.coroutine.CoroutineUtils.withCoroutineScope
+import io.quarkus.hibernate.reactive.panache.common.WithSession
+import io.quarkus.hibernate.reactive.panache.common.WithTransaction
 
 @RequestScoped
 @Suppress("unused")
+@WithSession
 class TasksApiImpl : TasksApi, AbstractApi() {
 
     @Inject
@@ -62,7 +65,8 @@ class TasksApiImpl : TasksApi, AbstractApi() {
     }
 
     @RolesAllowed(MANAGER_ROLE)
-    override fun createTask(task: Task): Uni<Response> = withCoroutineScope(transaction = true) {
+    @WithTransaction
+    override fun createTask(task: Task): Uni<Response> = withCoroutineScope {
         val userId = loggedUserId ?: return@withCoroutineScope createUnauthorized(UNAUTHORIZED)
         val freight = task.freightId.let {
             val foundFreight =
@@ -103,7 +107,8 @@ class TasksApiImpl : TasksApi, AbstractApi() {
     }
 
     @RolesAllowed(DRIVER_ROLE, MANAGER_ROLE)
-    override fun updateTask(taskId: UUID, task: Task): Uni<Response> = withCoroutineScope(transaction = true) {
+    @WithTransaction
+    override fun updateTask(taskId: UUID, task: Task): Uni<Response> = withCoroutineScope {
         val userId = loggedUserId ?: return@withCoroutineScope createUnauthorized(UNAUTHORIZED)
         val foundTask = taskController.findTask(taskId) ?: return@withCoroutineScope createNotFound(createNotFoundMessage(TASK, taskId))
 
@@ -142,7 +147,8 @@ class TasksApiImpl : TasksApi, AbstractApi() {
     }
 
     @RolesAllowed(MANAGER_ROLE)
-    override fun deleteTask(taskId: UUID): Uni<Response> = withCoroutineScope(transaction = true) {
+    @WithTransaction
+    override fun deleteTask(taskId: UUID): Uni<Response> = withCoroutineScope {
         loggedUserId ?: return@withCoroutineScope createUnauthorized(UNAUTHORIZED)
         val foundTask = taskController.findTask(taskId) ?: return@withCoroutineScope createNotFound(createNotFoundMessage(TASK, taskId))
         if (foundTask.status == TaskStatus.DONE) {

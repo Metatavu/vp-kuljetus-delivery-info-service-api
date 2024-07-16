@@ -11,12 +11,15 @@ import jakarta.inject.Inject
 import jakarta.ws.rs.core.Response
 import java.util.*
 import fi.metatavu.coroutine.CoroutineUtils.withCoroutineScope
+import io.quarkus.hibernate.reactive.panache.common.WithSession
+import io.quarkus.hibernate.reactive.panache.common.WithTransaction
 
 /**
  * Sites API implementation
  */
 @RequestScoped
 @Suppress("unused")
+@WithSession
 class SitesApiImpl: SitesApi, AbstractApi() {
 
     @Inject
@@ -35,7 +38,8 @@ class SitesApiImpl: SitesApi, AbstractApi() {
     }
 
     @RolesAllowed(MANAGER_ROLE)
-    override fun createSite(site: Site): Uni<Response> = withCoroutineScope(transaction = true) {
+    @WithTransaction
+    override fun createSite(site: Site): Uni<Response> = withCoroutineScope {
         val userId = loggedUserId ?: return@withCoroutineScope createUnauthorized(UNAUTHORIZED)
         val parsedPoint = siteController.parsePoint(site.location)
         if (!siteController.validateSite(site, parsedPoint)) {
@@ -52,7 +56,8 @@ class SitesApiImpl: SitesApi, AbstractApi() {
     }
 
     @RolesAllowed(MANAGER_ROLE)
-    override fun updateSite(siteId: UUID, site: Site): Uni<Response> = withCoroutineScope(transaction = true) {
+    @WithTransaction
+    override fun updateSite(siteId: UUID, site: Site): Uni<Response> = withCoroutineScope {
         val userId = loggedUserId ?: return@withCoroutineScope createUnauthorized(UNAUTHORIZED)
         val parsedPoint = siteController.parsePoint(site.location)
         if (!siteController.validateSite(site, parsedPoint)) {
@@ -69,7 +74,8 @@ class SitesApiImpl: SitesApi, AbstractApi() {
     }
 
     @RolesAllowed(MANAGER_ROLE)
-    override fun deleteSite(siteId: UUID): Uni<Response> = withCoroutineScope(transaction = true) {
+    @WithTransaction
+    override fun deleteSite(siteId: UUID): Uni<Response> = withCoroutineScope {
         if (isProduction) return@withCoroutineScope createForbidden(FORBIDDEN)
 
         val site = siteController.findSite(siteId) ?: return@withCoroutineScope createNotFound(createNotFoundMessage(SITE, siteId))
