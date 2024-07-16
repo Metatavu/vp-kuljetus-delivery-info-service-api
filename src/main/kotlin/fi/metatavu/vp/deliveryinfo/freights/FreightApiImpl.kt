@@ -13,12 +13,15 @@ import jakarta.inject.Inject
 import jakarta.ws.rs.core.Response
 import java.util.*
 import fi.metatavu.coroutine.CoroutineUtils.withCoroutineScope
+import io.quarkus.hibernate.reactive.panache.common.WithSession
+import io.quarkus.hibernate.reactive.panache.common.WithTransaction
 
 /**
  * Freight API implementation
  */
 @RequestScoped
 @Suppress("unused")
+@WithSession
 class FreightApiImpl: FreightsApi, AbstractApi() {
 
     @Inject
@@ -43,7 +46,8 @@ class FreightApiImpl: FreightsApi, AbstractApi() {
     }
 
     @RolesAllowed(MANAGER_ROLE)
-    override fun createFreight(freight: Freight): Uni<Response> = withCoroutineScope(transaction = true) {
+    @WithTransaction
+    override fun createFreight(freight: Freight): Uni<Response> = withCoroutineScope {
         val userId = loggedUserId ?: return@withCoroutineScope createUnauthorized(UNAUTHORIZED)
 
         val pointOfDepartureSite = siteController.findSite(freight.pointOfDepartureSiteId) ?: return@withCoroutineScope createBadRequest(createNotFoundMessage(SITE, freight.pointOfDepartureSiteId))
@@ -68,7 +72,8 @@ class FreightApiImpl: FreightsApi, AbstractApi() {
     }
 
     @RolesAllowed(MANAGER_ROLE)
-    override fun updateFreight(freightId: UUID, freight: Freight): Uni<Response> = withCoroutineScope(transaction = true) {
+    @WithTransaction
+    override fun updateFreight(freightId: UUID, freight: Freight): Uni<Response> = withCoroutineScope {
         val userId = loggedUserId ?: return@withCoroutineScope createUnauthorized(UNAUTHORIZED)
         val existingFreight = freightController.findFreight(freightId) ?: return@withCoroutineScope createNotFound(createNotFoundMessage(FREIGHT, freightId))
 
@@ -89,7 +94,8 @@ class FreightApiImpl: FreightsApi, AbstractApi() {
     }
 
     @RolesAllowed(MANAGER_ROLE)
-    override fun deleteFreight(freightId: UUID): Uni<Response> = withCoroutineScope(transaction = true) {
+    @WithTransaction
+    override fun deleteFreight(freightId: UUID): Uni<Response> = withCoroutineScope {
         val freight = freightController.findFreight(freightId) ?: return@withCoroutineScope createNotFound(createNotFoundMessage(FREIGHT, freightId))
 
         val freightUnits = freightUnitController.list(freight = freight)
