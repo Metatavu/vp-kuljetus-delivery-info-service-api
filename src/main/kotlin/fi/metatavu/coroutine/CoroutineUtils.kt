@@ -41,6 +41,20 @@ object CoroutineUtils {
     private val openSessionCount
         get() = sessionFactoryStatistics.sessionOpenCount - sessionFactoryStatistics.sessionCloseCount
 
+    private var requestId: String?
+        get() = Vertx.currentContext()?.getLocal<String>("fi.metatavu.coroutine.requestId")
+        set(value) = Vertx.currentContext()?.putLocal("fi.metatavu.coroutine.requestId", value)!!
+
+    /**
+     * Returns the current session
+     *
+     * @param context context to use. Default is Vertx.currentContext()
+     * @return Current session
+     */
+    fun getCurrentSession(context: Context = Vertx.currentContext()): Session? {
+        return context.getLocal(sessionKey)
+    }
+
     /**
      * Executes a block with coroutine scope
      *
@@ -52,6 +66,8 @@ object CoroutineUtils {
      */
     @OptIn(ExperimentalCoroutinesApi::class)
     fun <T> withCoroutineScope(session: Boolean = true, transaction: Boolean = false, requestTimeOut: Long = 10000L, block: suspend () -> T): Uni<T> {
+        requestId = java.util.UUID.randomUUID().toString()
+
         val context = Vertx.currentContext()
         return CoroutineScope(context.dispatcher())
             .async {
@@ -60,30 +76,40 @@ object CoroutineUtils {
                         var currentSession: Session? = null
                         if (session || transaction) {
                             if (transaction) {
-                                log.info("Opening session with transaction")
+                                logInfo("Opening session with transaction")
                             } else {
-                                log.info("Opening session for reading")
+                                logInfo("Opening session for reading")
                             }
 
                             currentSession = openSession(context)
                         } else {
-                            log.info("Running without session")
+                            logInfo("Running without session")
                         }
 
                         if (transaction) {
                             currentSession?.withTransaction {
                                 CoroutineScope(context.dispatcher()).async {
-                                    block()
+                                    try {
+                                        block()
+                                    } catch (e: Exception) {
+                                        logError("Transaction failed: ${e.message}")
+                                        throw e
+                                    }
                                 }.asUni()
                             }?.awaitSuspending() ?: throw IllegalStateException("Using transaction without session open")
                         } else {
-                            block()
+                            try {
+                                block()
+                            } catch (e: Exception) {
+                                logError("Read-only session failed: ${e.message}")
+                                throw e
+                            }
                         }
                     }
                 } finally {
                     if (session || transaction) {
                         closeSession(context)
-                        log.info("Closed session. Current open session count: $openSessionCount")
+                        logInfo("Closed session. Current open session count: $openSessionCount")
                     }
                 }
             }
@@ -98,11 +124,18 @@ object CoroutineUtils {
 
         val current = context.getLocal<Session?>(key)
         if (current != null && current.isOpen) {
-            log.warn("Reusing existing session")
+            logWarn("Reusing existing session")
             return current
         }
 
         val session = sessionFactory.openSession().awaitSuspending()
+
+        if (session.isOpen) {
+            logInfo("Opened new session. Current open session count: $openSessionCount")
+        } else {
+            logError("Failed to open session. Session is not open")
+        }
+
         context.putLocal(key, session)
 
         return session
@@ -118,8 +151,29 @@ object CoroutineUtils {
             current.close().awaitSuspending()
             context.removeLocal(key)
         } else {
-            log.warn("Session already closed")
+            logWarn("Session already closed")
         }
     }
+
+    /**
+     * Logs an info message
+     *
+     * @param message message
+     */
+    private fun logInfo(message: String) = log.info("$requestId: $message")
+
+    /**
+     * Logs a warning message
+     *
+     * @param message message
+     */
+    private fun logWarn(message: String) = log.warn("$requestId: $message")
+
+    /**
+     * Logs an error message
+     *
+     * @param message message
+     */
+    private fun logError(message: String) = log.error("$requestId: $message")
 
 }
