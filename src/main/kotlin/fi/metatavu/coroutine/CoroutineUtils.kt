@@ -7,16 +7,15 @@ import io.smallrye.mutiny.coroutines.awaitSuspending
 import io.vertx.core.Context
 import io.vertx.core.Vertx
 import io.vertx.kotlin.coroutines.dispatcher
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.async
-import kotlinx.coroutines.withTimeout
+import kotlinx.coroutines.*
 import org.hibernate.reactive.common.spi.Implementor
 import org.hibernate.reactive.context.Context.Key
 import org.hibernate.reactive.context.impl.BaseKey
 import org.hibernate.reactive.mutiny.Mutiny
 import org.hibernate.reactive.mutiny.Mutiny.Session
 import org.jboss.logging.Logger
+import java.lang.Runnable
+import kotlin.coroutines.CoroutineContext
 
 /**
  * Coroutine utilities
@@ -42,7 +41,13 @@ object CoroutineUtils {
         get() = sessionFactoryStatistics.sessionOpenCount - sessionFactoryStatistics.sessionCloseCount
 
     private var requestId: String?
-        get() = Vertx.currentContext()?.getLocal<String>("fi.metatavu.coroutine.requestId")
+        get() {
+            return try {
+                Vertx.currentContext()?.getLocal<String>("fi.metatavu.coroutine.requestId")
+            } catch (e: Exception) {
+                "null"
+            }
+        }
         set(value) = Vertx.currentContext()?.putLocal("fi.metatavu.coroutine.requestId", value)!!
 
     /**
@@ -61,16 +66,16 @@ object CoroutineUtils {
     fun logSessionDetails(context: Context = Vertx.currentContext()) {
         val session = getCurrentSession(context)
         if (session != null && session.isOpen) {
-            log.info("Session is not null and open")
+            logInfo("Session is not null and open")
         } else {
             if (session == null) {
-                log.info("Session is null")
+                logInfo("Session is null")
             } else {
-                log.info("Session is closed")
+                logInfo("Session is closed")
             }
         }
 
-        log.info("Context: $context")
+        logInfo("Context: $context")
     }
 
     /**
@@ -87,7 +92,9 @@ object CoroutineUtils {
         requestId = java.util.UUID.randomUUID().toString()
 
         val context = Vertx.currentContext()
-        return CoroutineScope(context.dispatcher())
+        val dispatcher = VertxCoroutineDispatcher(context)
+
+        return CoroutineScope(context = dispatcher)
             .async {
                 try {
                     withTimeout(requestTimeOut) {
@@ -196,4 +203,11 @@ object CoroutineUtils {
      */
     private fun logError(message: String) = log.error("$requestId: $message")
 
+    private class VertxCoroutineDispatcher(private val vertxContext: Context): CoroutineDispatcher() {
+        override fun dispatch(context: CoroutineContext, block: Runnable) {
+            vertxContext.runOnContext {
+                block.run()
+            }
+        }
+    }
 }
