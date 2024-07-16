@@ -13,7 +13,6 @@ import jakarta.enterprise.context.RequestScoped
 import jakarta.inject.Inject
 import jakarta.ws.rs.core.Response
 import java.util.*
-import fi.metatavu.coroutine.CoroutineUtils.withCoroutineScope
 import io.quarkus.hibernate.reactive.panache.common.WithSession
 import io.quarkus.hibernate.reactive.panache.common.WithTransaction
 

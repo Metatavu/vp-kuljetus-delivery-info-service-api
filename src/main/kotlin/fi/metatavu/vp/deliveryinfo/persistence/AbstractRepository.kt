@@ -1,10 +1,8 @@
 package fi.metatavu.vp.deliveryinfo.persistence
 
-import fi.metatavu.coroutine.CoroutineUtils
 import io.quarkus.hibernate.reactive.panache.PanacheQuery
 import io.quarkus.hibernate.reactive.panache.PanacheRepositoryBase
 import io.smallrye.mutiny.coroutines.awaitSuspending
-import org.jboss.logging.Logger
 
 /**
  * Abstract base class for all Repository classes
@@ -14,8 +12,6 @@ import org.jboss.logging.Logger
  * @param <T> entity type
  */
 abstract class AbstractRepository<Entity, Id> : PanacheRepositoryBase<Entity, Id> {
-
-    private val log: Logger = Logger.getLogger(CoroutineUtils::class.java)
 
     /**
      * Adds condition to the list of conditions. Note: parameters are not added here
