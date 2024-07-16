@@ -1,8 +1,11 @@
 package fi.metatavu.vp.deliveryinfo.persistence
 
+import fi.metatavu.coroutine.CoroutineUtils
 import io.quarkus.hibernate.reactive.panache.PanacheQuery
 import io.quarkus.hibernate.reactive.panache.PanacheRepositoryBase
 import io.smallrye.mutiny.coroutines.awaitSuspending
+import io.vertx.core.Vertx
+import org.jboss.logging.Logger
 
 /**
  * Abstract base class for all Repository classes
@@ -12,6 +15,8 @@ import io.smallrye.mutiny.coroutines.awaitSuspending
  * @param <T> entity type
  */
 abstract class AbstractRepository<Entity, Id> : PanacheRepositoryBase<Entity, Id> {
+
+    private val log: Logger = Logger.getLogger(CoroutineUtils::class.java)
 
     /**
      * Adds condition to the list of conditions. Note: parameters are not added here
@@ -49,7 +54,12 @@ abstract class AbstractRepository<Entity, Id> : PanacheRepositoryBase<Entity, Id
      * @return saved entity
      */
     open suspend fun persistSuspending(entity: Entity): Entity {
-        return persist(entity).awaitSuspending()
+        return try {
+            persist(entity).awaitSuspending()
+        } catch (e: Exception) {
+            logSessionDetails()
+            throw e
+        }
     }
 
     /**
@@ -59,7 +69,12 @@ abstract class AbstractRepository<Entity, Id> : PanacheRepositoryBase<Entity, Id
      * @return void
      */
     open suspend fun deleteSuspending(entity: Entity) {
-        delete(entity).awaitSuspending()
+        try {
+            delete(entity).awaitSuspending()
+        } catch (e: Exception) {
+            logSessionDetails()
+            throw e
+        }
     }
 
     /**
@@ -91,6 +106,27 @@ abstract class AbstractRepository<Entity, Id> : PanacheRepositoryBase<Entity, Id
      * @return entity if found
      */
     open suspend fun findByIdSuspending(id: Id): Entity? {
-        return findById(id).awaitSuspending()
+        return try {
+            findById(id).awaitSuspending()
+        } catch (e: Exception) {
+            logSessionDetails()
+            throw e
+        }
+    }
+
+    /**
+     * Logs current session details
+     */
+    private fun logSessionDetails() {
+        val session = CoroutineUtils.getCurrentSession(Vertx.currentContext())
+        if (session != null && session.isOpen) {
+            log.info("Session is not null and open")
+        } else {
+            if (session == null) {
+                log.info("Session is null")
+            } else {
+                log.info("Session is closed")
+            }
+        }
     }
 }
