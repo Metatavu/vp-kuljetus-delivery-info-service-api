@@ -31,12 +31,12 @@ jobs:
     - name: Merge develop -> master
       run: |
         git checkout master
-        CHANGES=$(git log master..develop --oneline)
+        CHANGES=$(git log master..origin/develop --oneline)
         if [[ -z "$CHANGES" ]]; then
           echo "No changes to merge."
           echo "has_changes=no" >> $GITHUB_ENV
         else
-          git merge develop
+          git merge origin/develop
           echo "has_changes=yes" >> $GITHUB_ENV
         fi
         
