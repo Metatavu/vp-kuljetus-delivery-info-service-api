@@ -1,7 +1,10 @@
 package fi.metatavu.vp.deliveryinfo.sites
 
 import fi.metatavu.vp.api.model.Site
+import fi.metatavu.vp.api.model.SiteType
 import fi.metatavu.vp.api.spec.SitesApi
+import fi.metatavu.vp.deliveryinfo.devices.Device
+import fi.metatavu.vp.deliveryinfo.devices.DeviceController
 import fi.metatavu.vp.deliveryinfo.rest.AbstractApi
 import fi.metatavu.vp.deliveryinfo.tasks.TaskController
 import io.smallrye.mutiny.Uni
@@ -25,6 +28,9 @@ class SitesApiImpl: SitesApi, AbstractApi() {
     lateinit var siteController: SiteController
 
     @Inject
+    lateinit var deviceController: DeviceController
+
+    @Inject
     lateinit var siteTranslator: SiteTranslator
 
     @Inject
@@ -41,10 +47,28 @@ class SitesApiImpl: SitesApi, AbstractApi() {
     override fun createSite(site: Site): Uni<Response> = withCoroutineScope {
         val userId = loggedUserId ?: return@withCoroutineScope createUnauthorized(UNAUTHORIZED)
         val parsedPoint = siteController.parsePoint(site.location)
+
         if (!siteController.validateSite(site, parsedPoint)) {
             return@withCoroutineScope createBadRequest(INVALID_REQUEST_BODY)
         }
+
+        if (site.siteType == SiteType.TERMINAL) {
+            val devices = deviceController.listAll()
+            site.deviceIds.forEach { deviceId ->
+                if (devices.find { device -> device.deviceId == deviceId } != null) {
+                    return@withCoroutineScope createBadRequest("Device $deviceId already exists")
+                }
+            }
+        }
+
         val createdSite = siteController.createSite(site, parsedPoint!!, userId)
+
+        if (site.siteType == SiteType.TERMINAL) {
+            site.deviceIds.forEach { deviceId ->
+                deviceController.create(deviceId, createdSite)
+            }
+        }
+
         createOk(siteTranslator.translate(createdSite))
     }
 
@@ -69,6 +93,11 @@ class SitesApiImpl: SitesApi, AbstractApi() {
         }
 
         val updatedSite = siteController.updateSite(existingSite, site, parsedPoint!!, userId)
+
+        if (site.siteType == SiteType.TERMINAL) {
+            deviceController.updateDevices(existingSite, site.deviceIds)
+        }
+
         createOk(siteTranslator.translate(updatedSite))
     }
 
@@ -80,6 +109,10 @@ class SitesApiImpl: SitesApi, AbstractApi() {
         val site = siteController.findSite(siteId) ?: return@withCoroutineScope createNotFound(createNotFoundMessage(SITE, siteId))
         if (taskController.listTasks(site = site).first.isNotEmpty()) {
             return@withCoroutineScope createConflict("Cannot delete site with tasks")
+        }
+
+        if (site.siteType == "TERMINAL") {
+            deviceController.listBySite(site).component1().forEach { deviceController.delete(it) }
         }
 
         siteController.deleteSite(site)

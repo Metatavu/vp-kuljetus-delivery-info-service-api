@@ -8,6 +8,7 @@ import fi.metatavu.vp.deliveryinfo.functional.impl.InvalidTestValues
 import fi.metatavu.vp.deliveryinfo.functional.settings.ApiTestSettings
 import fi.metatavu.vp.deliveryinfo.functional.settings.DefaultTestProfile
 import fi.metatavu.vp.test.client.models.Site
+import fi.metatavu.vp.test.client.models.SiteType
 import io.quarkus.test.junit.QuarkusTest
 import io.quarkus.test.junit.TestProfile
 import io.restassured.http.Method
@@ -52,7 +53,9 @@ class SitesTestIT : AbstractFunctionalTest() {
             location = "POINT (60.16952 24.93545)",
             address = "Test address",
             postalCode = "00100",
-            locality = "Helsinki"
+            locality = "Helsinki",
+            siteType = SiteType.CUSTOMER_SITE,
+            deviceIds = emptyArray()
         )
         val site2 = Site(
             name = "Test site 1",
@@ -60,7 +63,9 @@ class SitesTestIT : AbstractFunctionalTest() {
             address = "Test address",
             postalCode = "00100",
             locality = "Helsinki",
-            additionalInfo = generateRandomString(1000)
+            additionalInfo = generateRandomString(1000),
+            siteType = SiteType.CUSTOMER_SITE,
+            deviceIds = emptyArray()
         )
 
         val result1 = it.manager.sites.create(site1)
@@ -72,6 +77,7 @@ class SitesTestIT : AbstractFunctionalTest() {
         assertEquals(site1.address, result1.address)
         assertEquals(site1.postalCode, result1.postalCode)
         assertEquals(site1.locality, result1.locality)
+        assertEquals(site1.siteType, result1.siteType)
         assertNull(result1.additionalInfo)
         assertNotNull(result2.additionalInfo)
         assertEquals(result2.additionalInfo, site2.additionalInfo)
@@ -107,21 +113,27 @@ class SitesTestIT : AbstractFunctionalTest() {
             location = "POINT (60.16952 24.93545)",
             address = "Test address",
             postalCode = "00100",
-            locality = "Helsinki"
+            locality = "Helsinki",
+            siteType = SiteType.CUSTOMER_SITE,
+            deviceIds = emptyArray()
         )
         val site2 = Site(
             name = "Test site 2",
             location = "POINT (60.16952 24.93545)",
             address = "Test address",
             postalCode = "00100",
-            locality = "Helsinki"
+            locality = "Helsinki",
+            siteType = SiteType.CUSTOMER_SITE,
+            deviceIds = emptyArray()
         )
         val site3 = Site(
             name = "Test site 3",
             location = "POINT (60.16952 24.93545)",
             address = "Test address",
             postalCode = "00100",
-            locality = "Helsinki"
+            locality = "Helsinki",
+            siteType = SiteType.CUSTOMER_SITE,
+            deviceIds = emptyArray()
         )
         it.manager.sites.create(site1)
         it.manager.sites.create(site2)
@@ -189,7 +201,9 @@ class SitesTestIT : AbstractFunctionalTest() {
             location = "POINT (100 100)",
             address = "Test address",
             postalCode = "00100",
-            locality = "Helsinki"
+            locality = "Helsinki",
+            siteType = SiteType.CUSTOMER_SITE,
+            deviceIds = emptyArray()
         )
         val result1 = it.manager.sites.updateSite(createdSite.id!!, updateData)
         assertNotNull(result1)

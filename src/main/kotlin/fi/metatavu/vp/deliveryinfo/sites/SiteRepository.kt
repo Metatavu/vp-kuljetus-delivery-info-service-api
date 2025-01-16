@@ -1,5 +1,6 @@
 package fi.metatavu.vp.deliveryinfo.sites
 
+import fi.metatavu.vp.api.model.SiteType
 import fi.metatavu.vp.deliveryinfo.persistence.AbstractRepository
 import io.quarkus.panache.common.Sort
 import jakarta.enterprise.context.ApplicationScoped
@@ -20,6 +21,7 @@ class SiteRepository: AbstractRepository<Site, UUID>() {
      * @param address address
      * @param postalCode postal code
      * @param locality locality
+     * @param siteType site type
      * @param additionalInfo additional info
      * @param creatorId creator id
      * @return created site
@@ -31,6 +33,7 @@ class SiteRepository: AbstractRepository<Site, UUID>() {
         address: String,
         postalCode: String,
         locality: String,
+        siteType: SiteType,
         additionalInfo: String?,
         creatorId: UUID
     ): Site {
@@ -42,6 +45,7 @@ class SiteRepository: AbstractRepository<Site, UUID>() {
         site.address = address
         site.postalCode = postalCode
         site.locality = locality
+        site.siteType = siteType.toString()
         site.additionalInfo = additionalInfo
         site.creatorId = creatorId
         site.lastModifierId = creatorId

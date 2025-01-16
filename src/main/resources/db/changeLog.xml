@@ -238,7 +238,7 @@
                 <constraints primaryKey="true" nullable="false"/>
             </column>
             <column name="deviceid" type="varchar(191)">
-                <constraints nullable="false"/>
+                <constraints unique="true" nullable="false"/>
             </column>
             <column name="site_id" type="binary(16)">
                 <constraints nullable="false" foreignKeyName="FK_DEVICE_SITE_ID" referencedColumnNames="id" referencedTableName="site"/>
@@ -246,8 +246,9 @@
         </createTable>
         <addColumn tableName="site">
             <column name="sitetype" type="varchar(191)">
-                <constraints primaryKey="true" nullable="false"/>
+                <constraints nullable="false"/>
             </column>
         </addColumn>
+        <sql>UPDATE site SET sitetype="CUSTOMER_SITE"</sql>
     </changeSet>
 </databaseChangeLog>

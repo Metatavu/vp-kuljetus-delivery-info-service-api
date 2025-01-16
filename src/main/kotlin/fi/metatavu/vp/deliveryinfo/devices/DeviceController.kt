@@ -5,6 +5,7 @@ import jakarta.enterprise.context.ApplicationScoped
 import jakarta.inject.Inject
 import fi.metatavu.vp.deliveryinfo.sites.Site
 import io.quarkus.panache.common.Sort
+import io.smallrye.mutiny.Uni
 import java.util.*
 
 
@@ -38,5 +39,33 @@ class DeviceController {
      */
     suspend fun listBySite(site: Site): Pair<List<Device>, Long> {
         return deviceRepository.listBySite(site)
+    }
+
+    /**
+     * Lists all devices
+     *
+     * @return pair of list of devices and total count
+     */
+    suspend fun listAll(): List<Device> {
+        val (devices, count) = deviceRepository.list()
+        return devices
+    }
+
+    /**
+     * Deletes a device
+     */
+    suspend fun delete(device: Device) {
+        deviceRepository.deleteSuspending(device)
+    }
+
+    /**
+     * Updates device sites
+     *
+     * @param site site
+     * @param deviceIds new device ids
+     */
+    suspend fun updateDevices(site: Site, deviceIds: List<String>) {
+        deviceRepository.listBySite(site).component1().forEach { delete(it) }
+        deviceIds.forEach { create(it, site) }
     }
 }
