@@ -14,6 +14,7 @@ import io.quarkus.test.junit.TestProfile
 import io.restassured.http.Method
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.Test
+import java.util.*
 
 /**
  * Sites test
@@ -47,7 +48,7 @@ class SitesTestIT : AbstractFunctionalTest() {
     }
 
     @Test
-    fun testCreate() = createTestBuilder().use {
+    fun testCreateCustomerSite() = createTestBuilder().use {
         val site1 = Site(
             name = "Test site 1",
             location = "POINT (60.16952 24.93545)",
@@ -81,6 +82,32 @@ class SitesTestIT : AbstractFunctionalTest() {
         assertNull(result1.additionalInfo)
         assertNotNull(result2.additionalInfo)
         assertEquals(result2.additionalInfo, site2.additionalInfo)
+    }
+
+    @Test
+    fun testCreateTerminal() = createTestBuilder().use {
+        val site1 = Site(
+            name = "Test site 1",
+            location = "POINT (60.16952 24.93545)",
+            address = "Test address",
+            postalCode = "00100",
+            locality = "Helsinki",
+            siteType = SiteType.TERMINAL,
+            deviceIds = arrayOf(UUID.randomUUID().toString(), UUID.randomUUID().toString())
+        )
+
+        val result1 = it.manager.sites.create(site1)
+        assertNotNull(result1)
+        assertNotNull(result1.id)
+        assertEquals(site1.name, result1.name)
+        assertEquals(site1.location, result1.location)
+        assertEquals(site1.address, result1.address)
+        assertEquals(site1.postalCode, result1.postalCode)
+        assertEquals(site1.locality, result1.locality)
+        assertEquals(site1.siteType, result1.siteType)
+        assertNull(result1.additionalInfo)
+        assertNotNull(result1.deviceIds.find { deviceId -> deviceId == site1.deviceIds.first() })
+        assertNotNull(result1.deviceIds.find { deviceId -> deviceId == site1.deviceIds.last() })
     }
 
     @Test
