@@ -20,6 +20,7 @@ class DeviceRepository: AbstractRepository<Device, UUID>() {
      *
      * @param deviceId device id
      * @param site site
+     * @param userId user id
      * @return new device
      */
     suspend fun create(
