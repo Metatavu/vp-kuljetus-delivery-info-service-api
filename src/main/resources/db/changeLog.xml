@@ -263,4 +263,36 @@
         </addColumn>
         <sql>UPDATE site SET sitetype="CUSTOMER_SITE"</sql>
     </changeSet>
+
+    <changeSet id="temperaturerecord" author="Simeon Platonov">
+        <createTable tableName="temperaturerecord">
+            <column name="id" type="binary(16)">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="deviceid" type="varchar(191)">
+                <constraints unique="true" nullable="false"/>
+            </column>
+            <column name="sensorid" type="varchar(191)">
+                <constraints unique="true" nullable="false"/>
+            </column>
+            <column name="timestamp" type="bigint">
+                <constraints nullable="false"/>
+            </column>
+            <column name="value" type="float">
+                <constraints nullable="false"/>
+            </column>
+            <column name="creatorid" type="binary(16)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="createdat" type="datetime(6)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="lastmodifierid" type="binary(16)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="modifiedat" type="datetime(6)">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+    </changeSet>
 </databaseChangeLog>

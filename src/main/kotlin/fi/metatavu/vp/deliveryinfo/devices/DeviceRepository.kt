@@ -1,7 +1,5 @@
 package fi.metatavu.vp.deliveryinfo.devices
 
-import fi.metatavu.vp.deliveryinfo.freights.Freight
-import fi.metatavu.vp.deliveryinfo.freights.freightunits.FreightUnit
 import fi.metatavu.vp.deliveryinfo.persistence.AbstractRepository
 import jakarta.enterprise.context.ApplicationScoped
 import java.util.*
