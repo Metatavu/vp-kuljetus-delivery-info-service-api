@@ -111,6 +111,63 @@ class SitesTestIT : AbstractFunctionalTest() {
     }
 
     @Test
+    fun testDeleteTerminal() = createTestBuilder().use {
+        val site1 = Site(
+            name = "Test site 1",
+            location = "POINT (60.16952 24.93545)",
+            address = "Test address",
+            postalCode = "00100",
+            locality = "Helsinki",
+            siteType = SiteType.TERMINAL,
+            deviceIds = arrayOf(UUID.randomUUID().toString(), UUID.randomUUID().toString())
+        )
+
+        val created = it.manager.sites.create(site1)
+        assertNotNull(it.manager.sites.findSite(created.id!!))
+        it.manager.sites.deleteSite(created.id!!)
+        val emptyList = it.manager.sites.listSites()
+        assertEquals(0, emptyList.size)
+    }
+
+    @Test
+    fun testUpdateTerminal() = createTestBuilder().use {
+        val id1 = UUID.randomUUID().toString()
+        val id2 = UUID.randomUUID().toString()
+        val originalDeviceIds = arrayOf(id1, id2)
+        val site = Site(
+            name = "Test site 1",
+            location = "POINT (60.16952 24.93545)",
+            address = "Test address",
+            postalCode = "00100",
+            locality = "Helsinki",
+            siteType = SiteType.TERMINAL,
+            deviceIds = originalDeviceIds
+        )
+
+        val original = it.manager.sites.create(site)
+        assertNotNull(original.deviceIds.find { deviceId -> deviceId == id1 })
+        assertNotNull(original.deviceIds.find { deviceId -> deviceId == id2 })
+
+        val id3 = UUID.randomUUID().toString()
+        val newDeviceIds = arrayOf(id2, id3)
+        val newSite = Site(
+            name = "Test site 1",
+            location = "POINT (60.16952 24.93545)",
+            address = "Test address",
+            postalCode = "00100",
+            locality = "Helsinki",
+            siteType = SiteType.TERMINAL,
+            deviceIds = newDeviceIds
+        )
+
+        val updated = it.manager.sites.updateSite(original.id!!, newSite)
+        assertNull(updated.deviceIds.find { deviceId -> deviceId == id1 })
+        assertNotNull(updated.deviceIds.find { deviceId -> deviceId == id2 })
+        assertNotNull(updated.deviceIds.find { deviceId -> deviceId == id3 })
+    }
+
+
+    @Test
     fun testCreateFail() = createTestBuilder().use { tb ->
         //Access rights checks
         tb.user.sites.assertCreateFail(403)

@@ -1,5 +1,6 @@
 package fi.metatavu.vp.deliveryinfo.devices
 
+import fi.metatavu.vp.deliveryinfo.persistence.Metadata
 import fi.metatavu.vp.deliveryinfo.sites.Site
 import jakarta.persistence.Column
 import jakarta.persistence.Entity
@@ -14,7 +15,7 @@ import java.util.*
  */
 @Entity
 @Table(name = "device")
-class Device {
+class Device: Metadata() {
     @Id
     lateinit var id: UUID
 
@@ -24,4 +25,8 @@ class Device {
 
     @ManyToOne
     lateinit var site: Site
+
+    override lateinit var creatorId: UUID
+
+    override lateinit var lastModifierId: UUID
 }

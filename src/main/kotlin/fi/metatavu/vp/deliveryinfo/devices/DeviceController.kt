@@ -6,6 +6,7 @@ import jakarta.inject.Inject
 import fi.metatavu.vp.deliveryinfo.sites.Site
 import io.quarkus.panache.common.Sort
 import io.smallrye.mutiny.Uni
+import io.vertx.kotlin.coroutines.awaitResult
 import java.util.*
 
 
@@ -22,13 +23,15 @@ class DeviceController {
      *
      * @param deviceId device id
      * @param site site
+     * @param userId
      * @return new device
      */
     suspend fun create(
         deviceId: String,
-        site: Site
+        site: Site,
+        userId: UUID
     ): Device {
-        return deviceRepository.create(deviceId, site)
+        return deviceRepository.create(deviceId, site, userId)
     }
 
     /**
@@ -63,9 +66,15 @@ class DeviceController {
      *
      * @param site site
      * @param deviceIds new device ids
+     * @param userId user id
      */
-    suspend fun updateDevices(site: Site, deviceIds: List<String>) {
-        deviceRepository.listBySite(site).component1().forEach { delete(it) }
-        deviceIds.forEach { create(it, site) }
+    suspend fun updateDevices(site: Site, deviceIds: List<String>, userId: UUID) {
+        val existingDevices = listBySite(site).component1()
+        val devicesToRemove = existingDevices.filter { device -> deviceIds.find { it == device.deviceId } == null  }
+        val deviceIdsToAdd = deviceIds.filter { deviceId -> existingDevices.find { it.deviceId == deviceId } == null  }
+
+        deviceIdsToAdd.forEach { create(it, site, userId) }
+        devicesToRemove.forEach { delete(it) }
+
     }
 }

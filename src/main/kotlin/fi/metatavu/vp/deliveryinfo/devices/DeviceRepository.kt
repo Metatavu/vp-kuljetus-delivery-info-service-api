@@ -1,5 +1,7 @@
 package fi.metatavu.vp.deliveryinfo.devices
 
+import fi.metatavu.vp.deliveryinfo.freights.Freight
+import fi.metatavu.vp.deliveryinfo.freights.freightunits.FreightUnit
 import fi.metatavu.vp.deliveryinfo.persistence.AbstractRepository
 import jakarta.enterprise.context.ApplicationScoped
 import java.util.*
@@ -22,26 +24,32 @@ class DeviceRepository: AbstractRepository<Device, UUID>() {
      */
     suspend fun create(
         deviceId: String,
-        site: Site
+        site: Site,
+        userId: UUID,
     ): Device {
         val device = Device()
         device.id = UUID.randomUUID()
         device.deviceId = deviceId
         device.site = site
+        device.creatorId = userId
+        device.lastModifierId = userId
         return persistSuspending(device)
     }
 
     /**
-     * Lists devices by site
+     * Lists devices
      *
      * @param site site
      * @return pair of list of devices and total count
      */
     suspend fun listBySite(site: Site): Pair<List<Device>, Long> {
-        val params = Parameters().and("site_id", site.id)
-        return applyFirstMaxToQuery(
-            query = find("site_id = :site_id", params)
-        )
+        val stringBuilder = StringBuilder()
+        val parameters = Parameters()
+
+        stringBuilder.append("site = :site")
+        parameters.and("site", site)
+
+        return applyFirstMaxToQuery(find(stringBuilder.toString(), Sort.by("modifiedAt").descending(), parameters ))
     }
 
     /**

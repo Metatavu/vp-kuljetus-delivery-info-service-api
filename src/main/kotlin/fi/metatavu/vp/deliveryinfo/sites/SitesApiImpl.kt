@@ -65,7 +65,7 @@ class SitesApiImpl: SitesApi, AbstractApi() {
 
         if (site.siteType == SiteType.TERMINAL) {
             site.deviceIds.forEach { deviceId ->
-                deviceController.create(deviceId, createdSite)
+                deviceController.create(deviceId, createdSite, loggedUserId!!)
             }
         }
 
@@ -95,7 +95,7 @@ class SitesApiImpl: SitesApi, AbstractApi() {
         val updatedSite = siteController.updateSite(existingSite, site, parsedPoint!!, userId)
 
         if (site.siteType == SiteType.TERMINAL) {
-            deviceController.updateDevices(existingSite, site.deviceIds)
+            deviceController.updateDevices(existingSite, site.deviceIds, loggedUserId!!)
         }
 
         createOk(siteTranslator.translate(updatedSite))
