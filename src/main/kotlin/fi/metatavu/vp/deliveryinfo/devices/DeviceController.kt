@@ -15,6 +15,7 @@ import java.util.*
  */
 @ApplicationScoped
 class DeviceController {
+
     @Inject
     lateinit var deviceRepository: DeviceRepository
 
