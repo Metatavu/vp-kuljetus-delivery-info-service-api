@@ -8,6 +8,7 @@ import java.util.*
 import fi.metatavu.vp.deliveryinfo.sites.Site
 import io.quarkus.panache.common.Parameters
 import io.quarkus.panache.common.Sort
+import io.smallrye.mutiny.coroutines.awaitSuspending
 
 /**
  * Repository for sites
@@ -56,12 +57,10 @@ class DeviceRepository: AbstractRepository<Device, UUID>() {
     /**
      * Lists all devices
      *
-     * @return pair of list of devices and total count
+     * @return list of devices
      */
-    suspend fun list(): Pair<List<Device>, Long> {
-        return applyFirstMaxToQuery(
-            query = findAll(Sort.by("modifiedAt").descending())
-        )
+    suspend fun list(): List<Device> {
+        return listAll(Sort.by("modifiedAt").descending()).awaitSuspending()
     }
 
 

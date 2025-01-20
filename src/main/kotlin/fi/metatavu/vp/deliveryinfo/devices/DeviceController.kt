@@ -6,6 +6,7 @@ import jakarta.inject.Inject
 import fi.metatavu.vp.deliveryinfo.sites.Site
 import io.quarkus.panache.common.Sort
 import io.smallrye.mutiny.Uni
+import io.smallrye.mutiny.coroutines.awaitSuspending
 import io.vertx.kotlin.coroutines.awaitResult
 import java.util.*
 
@@ -51,8 +52,7 @@ class DeviceController {
      * @return pair of list of devices and total count
      */
     suspend fun listAll(): List<Device> {
-        val (devices, count) = deviceRepository.list()
-        return devices
+        return deviceRepository.list()
     }
 
     /**

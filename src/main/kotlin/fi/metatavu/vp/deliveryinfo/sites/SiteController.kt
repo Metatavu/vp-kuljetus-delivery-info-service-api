@@ -1,5 +1,6 @@
 package fi.metatavu.vp.deliveryinfo.sites
 
+import fi.metatavu.vp.api.model.SiteType
 import fi.metatavu.vp.deliveryinfo.devices.DeviceController
 import jakarta.enterprise.context.ApplicationScoped
 import jakarta.inject.Inject
@@ -73,6 +74,12 @@ class SiteController {
             additionalInfo = site.additionalInfo,
             creatorId = userId
         )
+
+        if (site.siteType == SiteType.TERMINAL) {
+            site.deviceIds.forEach { deviceId ->
+                deviceController.create(deviceId, createdSite, userId)
+            }
+        }
 
         return createdSite
     }

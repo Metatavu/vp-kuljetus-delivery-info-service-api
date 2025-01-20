@@ -63,12 +63,6 @@ class SitesApiImpl: SitesApi, AbstractApi() {
 
         val createdSite = siteController.createSite(site, parsedPoint!!, userId)
 
-        if (site.siteType == SiteType.TERMINAL) {
-            site.deviceIds.forEach { deviceId ->
-                deviceController.create(deviceId, createdSite, loggedUserId!!)
-            }
-        }
-
         createOk(siteTranslator.translate(createdSite))
     }
 
