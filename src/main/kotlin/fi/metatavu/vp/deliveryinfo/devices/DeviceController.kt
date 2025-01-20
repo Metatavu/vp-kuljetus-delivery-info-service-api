@@ -76,6 +76,5 @@ class DeviceController {
 
         deviceIdsToAdd.forEach { create(it, site, userId) }
         devicesToRemove.forEach { delete(it) }
-
     }
 }
