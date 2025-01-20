@@ -72,6 +72,10 @@ class SitesApiImpl: SitesApi, AbstractApi() {
         createOk(siteTranslator.translate(site))
     }
 
+    override fun listSiteTemperatures(siteId: UUID, includeArchived: Boolean, first: Int?, max: Int?): Uni<Response> {
+        TODO("Not yet implemented")
+    }
+
     @RolesAllowed(MANAGER_ROLE)
     @WithTransaction
     override fun updateSite(siteId: UUID, site: Site): Uni<Response> = withCoroutineScope {
