@@ -7,6 +7,7 @@ import fi.metatavu.vp.test.client.apis.SitesApi
 import fi.metatavu.vp.test.client.infrastructure.ApiClient
 import fi.metatavu.vp.test.client.infrastructure.ClientException
 import fi.metatavu.vp.test.client.models.Site
+import fi.metatavu.vp.test.client.models.SiteType
 import org.junit.Assert
 import java.util.*
 
@@ -41,7 +42,9 @@ class SiteTestBuilderResource(
                 location = "POINT (60.16952 24.93545)",
                 address = "Test address",
                 postalCode = "00100",
-                locality = "Helsinki"
+                locality = "Helsinki",
+                siteType = SiteType.CUSTOMER_SITE,
+                deviceIds = emptyArray()
             )
         )
     }

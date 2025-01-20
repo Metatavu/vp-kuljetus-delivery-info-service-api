@@ -1,5 +1,7 @@
 package fi.metatavu.vp.deliveryinfo.sites
 
+import fi.metatavu.vp.api.model.SiteType
+import fi.metatavu.vp.deliveryinfo.devices.DeviceController
 import jakarta.enterprise.context.ApplicationScoped
 import jakarta.inject.Inject
 import org.locationtech.jts.geom.Geometry
@@ -14,6 +16,9 @@ class SiteController {
 
     @Inject
     lateinit var siteRepository: SiteRepository
+
+    @Inject
+    lateinit var deviceController: DeviceController
 
     private val reader = WKTReader()
 
@@ -58,16 +63,25 @@ class SiteController {
     ): Site {
         val ( lat, lon ) = getLatLon(parsedPoint)
 
-        return siteRepository.create(
+        val createdSite = siteRepository.create(
             name = site.name,
             latitude = lat,
             longitude = lon,
             address = site.address,
             postalCode = site.postalCode,
             locality = site.locality,
+            siteType = site.siteType,
             additionalInfo = site.additionalInfo,
             creatorId = userId
         )
+
+        if (site.siteType == SiteType.TERMINAL) {
+            site.deviceIds.forEach { deviceId ->
+                deviceController.create(deviceId, createdSite, userId)
+            }
+        }
+
+        return createdSite
     }
 
     /**

@@ -3,10 +3,7 @@ package fi.metatavu.vp.deliveryinfo.functional.impl
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import fi.metatavu.invalid.InvalidValues
 import fi.metatavu.invalid.providers.SimpleInvalidValueProvider
-import fi.metatavu.vp.test.client.models.FreightUnit
-import fi.metatavu.vp.test.client.models.Site
-import fi.metatavu.vp.test.client.models.Task
-import fi.metatavu.vp.test.client.models.TaskType
+import fi.metatavu.vp.test.client.models.*
 import java.util.*
 
 /**
@@ -21,42 +18,54 @@ class InvalidTestValues: InvalidValues() {
                 location = "qqq",
                 address = "address",
                 postalCode = "postalCode",
-                locality = "locality"
+                locality = "locality",
+                siteType = SiteType.CUSTOMER_SITE,
+                deviceIds = emptyArray()
             ),
             Site(
                 name = "",
                 location = "POINT (60.16952 24.93545)",
                 address = "address",
                 postalCode = "postalCode",
-                locality = "locality"
+                locality = "locality",
+                siteType = SiteType.CUSTOMER_SITE,
+                deviceIds = emptyArray()
             ),
             Site(
                 name = "Test site 1",
                 location = "",
                 address = "address",
                 postalCode = "postalCode",
-                locality = "locality"
+                locality = "locality",
+                siteType = SiteType.CUSTOMER_SITE,
+                deviceIds = emptyArray()
             ),
             Site(
                 name = "Test site 1",
                 location = "POINT (60.16952 24.93545)",
                 address = "",
                 postalCode = "postalCode",
-                locality = "locality"
+                locality = "locality",
+                siteType = SiteType.CUSTOMER_SITE,
+                deviceIds = emptyArray()
             ),
             Site(
                 name = "Test site 1",
                 location = "POINT (60.16952 24.93545)",
                 address = "address",
                 postalCode = "",
-                locality = "locality"
+                locality = "locality",
+                siteType = SiteType.CUSTOMER_SITE,
+                deviceIds = emptyArray()
             ),
             Site(
                 name = "Test site 1",
                 location = "POINT (60.16952 24.93545)",
                 address = "address",
                 postalCode = "postalCode",
-                locality = ""
+                locality = "",
+                siteType = SiteType.CUSTOMER_SITE,
+                deviceIds = emptyArray()
             )
         ).map { jacksonObjectMapper().writeValueAsString(it) }.map { SimpleInvalidValueProvider(it) }
 
@@ -110,7 +119,7 @@ class InvalidTestValues: InvalidValues() {
                 groupNumber = 0
             )
             return listOf(
-                Site(name = "Test site 1", location = "qqq", address = "address", postalCode = "postalCode", locality = "locality"),
+                Site(name = "Test site 1", location = "qqq", address = "address", postalCode = "postalCode", locality = "locality", siteType = SiteType.CUSTOMER_SITE, deviceIds = emptyArray()),
                 sampleValidTask.copy(freightId = UUID.randomUUID()), //not found freight
                 sampleValidTask.copy(customerSiteId = UUID.randomUUID()), //not found site
                 sampleValidTask.copy(routeId = UUID.randomUUID()), //not found route

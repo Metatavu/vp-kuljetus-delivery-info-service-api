@@ -41,6 +41,10 @@ class Site: Metadata() {
     @NotEmpty
     lateinit var locality: String
 
+    @Column(nullable = false)
+    @NotEmpty
+    lateinit var siteType: String
+
     @Column(nullable = true)
     var additionalInfo: String? = null
 
