@@ -36,7 +36,7 @@ class DeviceRepository: AbstractRepository<Device, UUID>() {
     }
 
     /**
-     * Lists devices
+     * Lists devices by site
      *
      * @param site site
      * @return pair of list of devices and total count
@@ -49,6 +49,22 @@ class DeviceRepository: AbstractRepository<Device, UUID>() {
         parameters.and("site", site)
 
         return applyFirstMaxToQuery(find(stringBuilder.toString(), Sort.by("modifiedAt").descending(), parameters ))
+    }
+
+    /**
+     * Finds a device by device id
+     *
+     * @param deviceId device id
+     * @return found device
+     */
+    suspend fun findByDeviceId(deviceId: String): Pair<List<Device>, Long> {
+        val stringBuilder = StringBuilder()
+        val parameters = Parameters()
+
+        stringBuilder.append("deviceId = :deviceId")
+        parameters.and("deviceId", deviceId)
+
+        return applyFirstMaxToQuery(find(stringBuilder.toString(), parameters ))
     }
 
     /**

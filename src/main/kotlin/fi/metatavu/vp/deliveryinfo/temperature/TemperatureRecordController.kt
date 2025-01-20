@@ -9,6 +9,7 @@ import java.util.*
  */
 @ApplicationScoped
 class TemperatureRecordController {
+
     @Inject
     lateinit var temperatureRecordRepository: TemperatureRecordRepository
 
@@ -19,6 +20,7 @@ class TemperatureRecordController {
      * @param sensorId sensor id
      * @param value value
      * @param timestamp timestamp
+     * @param terminalId terminal id
      * @param userId user id
      * @return new device
      */
@@ -27,6 +29,7 @@ class TemperatureRecordController {
         sensorId: String,
         value: Float,
         timestamp: Long,
+        terminalId: String,
         userId: UUID,
     ): TemperatureRecord {
         return temperatureRecordRepository.create(
@@ -34,8 +37,13 @@ class TemperatureRecordController {
             sensorId = sensorId,
             value = value,
             timestamp = timestamp,
+            terminalId = terminalId,
             userId = userId
         )
+    }
+
+    suspend fun listWithFilters(terminalId: String?, deviceId: String?, first: Int?, max: Int?): List<TemperatureRecord> {
+        return temperatureRecordRepository.listWithFilters(terminalId = terminalId, deviceId = deviceId, first = first, max = max).component1()
     }
 
     suspend fun findById(id: UUID): TemperatureRecord? {

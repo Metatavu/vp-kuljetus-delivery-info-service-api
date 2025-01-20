@@ -61,6 +61,10 @@ class DeviceController {
         deviceRepository.deleteSuspending(device)
     }
 
+    suspend fun find(deviceId: String): Device? {
+        return deviceRepository.findByDeviceId(deviceId).first.firstOrNull()
+    }
+
     /**
      * Updates device sites
      *

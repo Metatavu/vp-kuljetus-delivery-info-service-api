@@ -270,10 +270,13 @@
                 <constraints primaryKey="true" nullable="false"/>
             </column>
             <column name="deviceid" type="varchar(191)">
-                <constraints unique="true" nullable="false"/>
+                <constraints nullable="false"/>
             </column>
             <column name="sensorid" type="varchar(191)">
-                <constraints unique="true" nullable="false"/>
+                <constraints nullable="false"/>
+            </column>
+            <column name="terminalid" type="varchar(191)">
+                <constraints nullable="false"/>
             </column>
             <column name="timestamp" type="bigint">
                 <constraints nullable="false"/>

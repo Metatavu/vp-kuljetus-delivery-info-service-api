@@ -6,6 +6,7 @@ import fi.metatavu.vp.deliveryinfo.functional.TestBuilder
 import fi.metatavu.vp.deliveryinfo.functional.settings.ApiTestSettings
 import fi.metatavu.vp.test.client.infrastructure.ApiClient
 import fi.metatavu.vp.test.client.models.TemperatureRecord
+import java.util.UUID
 
 
 /**
@@ -34,5 +35,9 @@ class TemperatureRecordTestBuilderResource(
      */
     fun create(temperatureRecord: TemperatureRecord): TemperatureRecord {
         return addClosable(api.createTemperatureRecord(temperatureRecord))
+    }
+
+    fun list(terminalId: UUID?, deviceId: String?): List<TemperatureRecord> {
+        return api.listTemperatureRecords(terminalId = terminalId, deviceId = deviceId).toList()
     }
 }

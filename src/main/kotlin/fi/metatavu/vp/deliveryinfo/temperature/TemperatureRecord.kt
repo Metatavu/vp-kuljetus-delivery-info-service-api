@@ -25,6 +25,10 @@ class TemperatureRecord: Metadata() {
     lateinit var sensorId: String
 
     @Column(nullable = false)
+    @NotEmpty
+    lateinit var terminalId: String
+
+    @Column(nullable = false)
     var value: Float? = null
 
     @Column(nullable = false)
