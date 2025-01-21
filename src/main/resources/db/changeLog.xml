@@ -264,7 +264,7 @@
         <sql>UPDATE site SET sitetype="CUSTOMER_SITE"</sql>
     </changeSet>
     <changeSet id="thermometer" author="Simeon Platonov">
-        <createTable tableName="device">
+        <createTable tableName="thermometer">
             <column name="id" type="binary(16)">
                 <constraints primaryKey="true" nullable="false"/>
             </column>

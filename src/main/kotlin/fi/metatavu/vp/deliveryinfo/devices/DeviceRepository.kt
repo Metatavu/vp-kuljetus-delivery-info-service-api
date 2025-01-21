@@ -39,6 +39,22 @@ class DeviceRepository: AbstractRepository<Device, UUID>() {
     }
 
     /**
+     * Finds a device by its device id
+     *
+     * @param deviceId device id
+     * @return found device or null
+     */
+    suspend fun findByDeviceId(deviceId: String): Device? {
+        val stringBuilder = StringBuilder()
+        val parameters = Parameters()
+
+        stringBuilder.append("deviceId = :deviceId")
+        parameters.and("deviceId", deviceId)
+
+        return applyFirstMaxToQuery(find(stringBuilder.toString(), parameters )).component1().firstOrNull()
+    }
+
+    /**
      * Lists devices
      *
      * @param site site

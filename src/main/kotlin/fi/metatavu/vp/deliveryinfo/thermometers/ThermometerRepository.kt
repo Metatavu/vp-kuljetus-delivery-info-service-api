@@ -58,9 +58,33 @@ class ThermometerRepository : AbstractRepository<Thermometer, UUID>() {
     suspend fun findActiveThermometerByDeviceId(sensorId: String): Pair<List<Thermometer>, Long> {
         val stringBuilder = StringBuilder()
         val parameters = Parameters()
-        stringBuilder.append("archivedAt IS NULL AND")
-        stringBuilder.append("hardwaresensorid = :sensorid")
+        stringBuilder.append("archivedAt IS NULL AND ")
+        stringBuilder.append("hardwareSensorId = :sensorid")
         parameters.and("sensorid", sensorId)
+
+        return applyFirstMaxToQuery(find(stringBuilder.toString(), parameters))
+    }
+
+    /**
+     * List thermometers
+     *
+     * @param site site
+     * @param includeArchived include archived
+     * @return thermometers
+     */
+    suspend fun list(site: Site?, includeArchived: Boolean): Pair<List<Thermometer>, Long> {
+        val stringBuilder = StringBuilder()
+        val parameters = Parameters()
+
+        if (site != null) {
+            addCondition(stringBuilder, "site = :site")
+            parameters.and("site", site)
+        }
+
+        if (!includeArchived) {
+            addCondition(stringBuilder, "archivedAt is null")
+        }
+
 
         return applyFirstMaxToQuery(find(stringBuilder.toString(), parameters))
     }
