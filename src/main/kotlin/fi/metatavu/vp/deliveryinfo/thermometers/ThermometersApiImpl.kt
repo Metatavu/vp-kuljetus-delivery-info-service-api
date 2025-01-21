@@ -30,8 +30,10 @@ class ThermometersApiImpl: ThermometersApi, AbstractApi() {
     @Inject
     lateinit var thermometerTranslator: ThermometerTranslator
 
-    override fun findThermometer(thermometerId: UUID): Uni<Response> {
-        TODO("Not yet implemented")
+    @RolesAllowed(MANAGER_ROLE)
+    override fun findThermometer(thermometerId: UUID): Uni<Response> = withCoroutineScope {
+        val thermometer = thermometerController.findThermometer(thermometerId) ?: return@withCoroutineScope createNotFound("Thermometer with id $thermometerId not found")
+        createOk(thermometerTranslator.translate(thermometer))
     }
 
     @RolesAllowed(MANAGER_ROLE)

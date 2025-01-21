@@ -142,4 +142,31 @@ class ThermometerTestsIT: AbstractFunctionalTest() {
         val list10 = it.manager.thermometers.listThermometers(site1.id, false)
         assertEquals(2, list10.size)
     }
+
+    @Test
+    fun testFindThermometer() = createTestBuilder().use {
+        val deviceId = UUID.randomUUID().toString()
+        it.manager.sites.create(Site(
+            name = "Test site 1",
+            location = "POINT (60.16952 24.93545)",
+            address = "Test address",
+            postalCode = "00100",
+            locality = "Helsinki",
+            siteType = SiteType.TERMINAL,
+            deviceIds = arrayOf(deviceId)
+        ))
+
+        val temperatureReading = TemperatureReading(
+            espMacAddress = deviceId,
+            hardwareSensorId = "wgrewgerf",
+            value = 23.2f,
+            timestamp = Instant.now().toEpochMilli()
+        )
+
+        it.setTerminalDeviceApiKey().temperatureReadings.createTemperatureReading(temperatureReading)
+        val thermometer = it.manager.thermometers.listThermometers(null, false).first()
+        val found = it.manager.thermometers.findThermometer(thermometer.id!!)
+        assertNotNull(found)
+        assertEquals(thermometer.id, found.id)
+    }
 }

@@ -85,4 +85,15 @@ class ThermometerController {
     suspend fun deleteThermometer(thermometer: Thermometer) {
         thermometerRepository.deleteSuspending(thermometer)
     }
+
+    /**
+     * Finds a thermometer by id
+     *
+     * @param id id
+     *
+     * @return found thermometer or null
+     */
+    suspend fun findThermometer(id: UUID): Thermometer? {
+        return thermometerRepository.findByIdSuspending(id)
+    }
 }

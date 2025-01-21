@@ -38,4 +38,15 @@ class ThermometersTestBuildingResource(
         return api.listThermometers(siteId, archivedAt).toList()
     }
 
+    /**
+     * Finds the thermometer by id
+     *
+     * @param id thermometer id
+     *
+     * @return found thermometer
+     */
+    fun findThermometer(id: UUID): Thermometer {
+        return api.findThermometer(id)
+    }
+
 }
