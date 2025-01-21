@@ -45,7 +45,7 @@ class TemperatureController {
      * @return temperature
      */
     suspend fun listByThermometer(thermometer: Thermometer?): List<Temperature> {
-        return temperatureRepository.list(thermometer = thermometer, site = null, first = null, max = null, includeArchived = null).component1()
+        return temperatureRepository.list(thermometer = thermometer, site = null, first = null, max = null, includeArchived = true).component1()
     }
 
     /**

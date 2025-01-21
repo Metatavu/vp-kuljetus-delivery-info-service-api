@@ -61,7 +61,7 @@ class TemperatureRepository: AbstractRepository<Temperature, UUID>() {
             parameters.and("site", site)
         }
 
-        if (includeArchived != null) {
+        if (includeArchived != true) {
             addCondition(stringBuilder, "thermometer.archivedAt is null")
         }
 

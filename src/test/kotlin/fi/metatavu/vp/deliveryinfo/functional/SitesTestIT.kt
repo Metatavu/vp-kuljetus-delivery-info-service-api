@@ -379,6 +379,7 @@ class SitesTestIT : AbstractFunctionalTest() {
     @Test
     fun testListSiteTemperatures() = createTestBuilder().use {
         val deviceId = UUID.randomUUID().toString()
+        val device2Id = UUID.randomUUID().toString()
         val site1 = Site(
             name = "Test site 1",
             location = "POINT (60.16952 24.93545)",
@@ -386,7 +387,7 @@ class SitesTestIT : AbstractFunctionalTest() {
             postalCode = "00100",
             locality = "Helsinki",
             siteType = SiteType.TERMINAL,
-            deviceIds = arrayOf(deviceId)
+            deviceIds = arrayOf(deviceId, device2Id)
         )
 
         val createdSite = it.manager.sites.create(site1)
@@ -424,6 +425,44 @@ class SitesTestIT : AbstractFunctionalTest() {
         it.setTerminalDeviceApiKey().temperatureReadings.createTemperatureReading(temperatureReading3)
         val list1 = it.manager.sites.listSiteTemperatures(siteId = createdSite.id, includeArchived = false, null, null)
         assertEquals(3, list1.size)
+
+        val temperatureReading4 = TemperatureReading(
+            espMacAddress = device2Id,
+            hardwareSensorId = "wgrewgerf",
+            value = 21.1f,
+            timestamp = Instant.now().toEpochMilli()
+        )
+        it.setTerminalDeviceApiKey().temperatureReadings.createTemperatureReading(temperatureReading4)
+        val list2 = it.manager.sites.listSiteTemperatures(siteId = createdSite.id, includeArchived = false, null, null)
+        assertEquals(1, list2.size)
+        val list3 = it.manager.sites.listSiteTemperatures(siteId = createdSite.id, includeArchived = true, null, null)
+        assertEquals(4, list3.size)
+        val list4 = it.manager.sites.listSiteTemperatures(siteId = createdSite.id, includeArchived = true, 1, null)
+        assertEquals(3, list4.size)
+        val list5 = it.manager.sites.listSiteTemperatures(siteId = createdSite.id, includeArchived = true, 1, 2)
+        assertEquals(2, list5.size)
+
+        val device3Id = UUID.randomUUID().toString()
+        val site2 = Site(
+            name = "Test site 1",
+            location = "POINT (60.16952 24.93545)",
+            address = "Test address",
+            postalCode = "00100",
+            locality = "Helsinki",
+            siteType = SiteType.TERMINAL,
+            deviceIds = arrayOf(device3Id)
+        )
+
+        val createdSite2 = it.manager.sites.create(site2)
+        val temperatureReading5 = TemperatureReading(
+            espMacAddress = device3Id,
+            hardwareSensorId = "wgrewgerf",
+            value = 21.1f,
+            timestamp = Instant.now().toEpochMilli()
+        )
+        it.setTerminalDeviceApiKey().temperatureReadings.createTemperatureReading(temperatureReading5)
+        val list6 = it.manager.sites.listSiteTemperatures(siteId = createdSite2.id!!, includeArchived = false, null, null)
+        assertEquals(1, list6.size)
     }
 
 }
