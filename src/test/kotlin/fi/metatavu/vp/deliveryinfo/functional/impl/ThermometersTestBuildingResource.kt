@@ -9,6 +9,7 @@ import fi.metatavu.vp.test.client.infrastructure.ApiClient
 import fi.metatavu.vp.test.client.models.Site
 import fi.metatavu.vp.test.client.models.TemperatureReading
 import fi.metatavu.vp.test.client.models.Thermometer
+import fi.metatavu.vp.test.client.models.UpdateThermometerRequest
 import java.util.*
 
 /**
@@ -47,6 +48,18 @@ class ThermometersTestBuildingResource(
      */
     fun findThermometer(id: UUID): Thermometer {
         return api.findThermometer(id)
+    }
+
+    /**
+     * Update thermometer
+     *
+     * @param id id
+     * @param thermometer thermometer
+     *
+     * @return updated thermometer
+     */
+    fun updateThermometer(id: UUID, thermometer: UpdateThermometerRequest): Thermometer {
+        return api.updateThermometer(id, thermometer)
     }
 
 }

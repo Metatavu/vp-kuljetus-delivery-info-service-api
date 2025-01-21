@@ -4,10 +4,12 @@ import fi.metatavu.vp.deliveryinfo.functional.settings.DefaultTestProfile
 import fi.metatavu.vp.test.client.models.Site
 import fi.metatavu.vp.test.client.models.SiteType
 import fi.metatavu.vp.test.client.models.TemperatureReading
+import fi.metatavu.vp.test.client.models.UpdateThermometerRequest
 import io.quarkus.test.junit.QuarkusTest
 import io.quarkus.test.junit.TestProfile
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.Test
+import java.lang.Thread.sleep
 import java.time.Instant
 import java.util.*
 
@@ -168,5 +170,32 @@ class ThermometerTestsIT: AbstractFunctionalTest() {
         val found = it.manager.thermometers.findThermometer(thermometer.id!!)
         assertNotNull(found)
         assertEquals(thermometer.id, found.id)
+    }
+
+    @Test
+    fun testUpdateThermometer() = createTestBuilder().use {
+        val deviceId = UUID.randomUUID().toString()
+        it.manager.sites.create(Site(
+            name = "Test site 1",
+            location = "POINT (60.16952 24.93545)",
+            address = "Test address",
+            postalCode = "00100",
+            locality = "Helsinki",
+            siteType = SiteType.TERMINAL,
+            deviceIds = arrayOf(deviceId)
+        ))
+
+        val temperatureReading = TemperatureReading(
+            espMacAddress = deviceId,
+            hardwareSensorId = "wgrewgerf",
+            value = 23.2f,
+            timestamp = Instant.now().toEpochMilli()
+        )
+
+        it.setTerminalDeviceApiKey().temperatureReadings.createTemperatureReading(temperatureReading)
+        val thermometer = it.manager.thermometers.listThermometers(null, false).first()
+        assertNull(thermometer.name)
+        val updated = it.manager.thermometers.updateThermometer(id = thermometer.id!!, thermometer = UpdateThermometerRequest(name = "Sensor1"))
+        assertEquals("Sensor1", updated.name)
     }
 }

@@ -96,4 +96,18 @@ class ThermometerController {
     suspend fun findThermometer(id: UUID): Thermometer? {
         return thermometerRepository.findByIdSuspending(id)
     }
+
+    /**
+     * Update thermometer name
+     *
+     * @param thermometerId thermometer id
+     * @param name name
+     * @param userId userId
+     *
+     * @return update thermometer
+     */
+    suspend fun updateThermometerName(thermometerId: UUID, name: String?, userId: UUID): Thermometer {
+        val thermometer = thermometerRepository.findByIdSuspending(thermometerId)!!
+        return thermometerRepository.update(thermometer = thermometer, archivedAt = thermometer.archivedAt, name = name, modifierId = userId)
+    }
 }
