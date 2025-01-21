@@ -43,6 +43,7 @@ class ThermometersApiImpl: ThermometersApi, AbstractApi() {
         createOk(thermometers)
     }
 
+    @RolesAllowed(MANAGER_ROLE)
     override fun updateThermometer(
         thermometerId: UUID,
         updateThermometerRequest: UpdateThermometerRequest
