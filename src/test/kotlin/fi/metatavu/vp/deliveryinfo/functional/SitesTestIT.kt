@@ -468,7 +468,6 @@ class SitesTestIT : AbstractFunctionalTest() {
     @Test
     fun testListTemperaturesFail() = createTestBuilder().use {
         val deviceId = UUID.randomUUID().toString()
-        val device2Id = UUID.randomUUID().toString()
         val site1 = Site(
             name = "Test site 1",
             location = "POINT (60.16952 24.93545)",
@@ -476,7 +475,7 @@ class SitesTestIT : AbstractFunctionalTest() {
             postalCode = "00100",
             locality = "Helsinki",
             siteType = SiteType.TERMINAL,
-            deviceIds = arrayOf(deviceId, device2Id)
+            deviceIds = arrayOf(deviceId)
         )
 
         val createdSite = it.manager.sites.create(site1)
@@ -484,6 +483,34 @@ class SitesTestIT : AbstractFunctionalTest() {
         it.user.sites.assertListSiteTemperaturesFail(createdSite.id!!, 403)
         it.driver.sites.assertListSiteTemperaturesFail(createdSite.id,403)
         it.manager.sites.listSiteTemperatures(createdSite.id, false, null, null)
+        return@use
+    }
+
+    @Test
+    fun testCreateTemperatureReadingFail() = createTestBuilder().use {
+        val deviceId = UUID.randomUUID().toString()
+        val site1 = Site(
+            name = "Test site 1",
+            location = "POINT (60.16952 24.93545)",
+            address = "Test address",
+            postalCode = "00100",
+            locality = "Helsinki",
+            siteType = SiteType.TERMINAL,
+            deviceIds = arrayOf(deviceId)
+        )
+
+        it.manager.sites.create(site1)
+        val temperatureReading = TemperatureReading(
+            espMacAddress = deviceId,
+            hardwareSensorId = "wgrewgerf",
+            value = 23.2f,
+            timestamp = Instant.now().toEpochMilli()
+        )
+        //Access rights checks
+        it.user.temperatureReadings.assertCreateTemperatureReadingFail(temperatureReading, 403)
+        it.driver.temperatureReadings.assertCreateTemperatureReadingFail(temperatureReading,403)
+        it.manager.temperatureReadings.assertCreateTemperatureReadingFail(temperatureReading,403)
+        it.setTerminalDeviceApiKey().temperatureReadings.createTemperatureReading(temperatureReading)
         return@use
     }
 

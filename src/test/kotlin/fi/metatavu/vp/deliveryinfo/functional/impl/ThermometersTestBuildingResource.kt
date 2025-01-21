@@ -79,7 +79,7 @@ class ThermometersTestBuildingResource(
     }
 
     /**
-     * Asserts that thermometer listing fails with expected status
+     * Asserts that thermometer finding fails with expected status
      *
      * @param id thermometer id
      * @param expectedStatus expected status
@@ -92,5 +92,22 @@ class ThermometersTestBuildingResource(
             assertClientExceptionStatus(expectedStatus, ex)
         }
     }
+
+    /**
+     * Asserts that thermometer update fails with expected status
+     * 
+     * @param id thermometer id
+     * @param expectedStatus expected status
+     */
+    fun assertUpdateThermometerFail(id: UUID, expectedStatus: Int) {
+        try {
+            updateThermometer(id, UpdateThermometerRequest(name = "name"))
+            Assert.fail(String.format("Expected list to fail with status %d", expectedStatus))
+        } catch (ex: ClientException) {
+            assertClientExceptionStatus(expectedStatus, ex)
+        }
+    }
+
+
 
 }
