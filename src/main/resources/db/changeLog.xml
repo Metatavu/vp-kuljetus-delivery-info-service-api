@@ -294,4 +294,20 @@
             </column>
         </createTable>
     </changeSet>
+    <changeSet id="temperature" author="Simeon Platonov">
+        <createTable tableName="temperature">
+            <column name="id" type="binary(16)">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="thermometer_id" type="binary(16)">
+                <constraints nullable="false" foreignKeyName="FK_TEMPERATURE_THERMOMETER_ID" referencedColumnNames="id" referencedTableName="thermometer"/>
+            </column>
+            <column name="value" type="float">
+                <constraints nullable="false"/>
+            </column>
+            <column name="timestamp" type="bigint">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+    </changeSet>
 </databaseChangeLog>

@@ -7,6 +7,7 @@ import fi.metatavu.vp.deliveryinfo.devices.Device
 import fi.metatavu.vp.deliveryinfo.devices.DeviceController
 import fi.metatavu.vp.deliveryinfo.rest.AbstractApi
 import fi.metatavu.vp.deliveryinfo.tasks.TaskController
+import fi.metatavu.vp.deliveryinfo.temperature.TemperatureController
 import fi.metatavu.vp.deliveryinfo.thermometers.ThermometerController
 import io.smallrye.mutiny.Uni
 import jakarta.annotation.security.RolesAllowed
@@ -33,6 +34,9 @@ class SitesApiImpl: SitesApi, AbstractApi() {
 
     @Inject
     lateinit var thermometerController: ThermometerController
+
+    @Inject
+    lateinit var temperatureController: TemperatureController
 
     @Inject
     lateinit var siteTranslator: SiteTranslator
@@ -115,7 +119,13 @@ class SitesApiImpl: SitesApi, AbstractApi() {
 
         if (site.siteType == "TERMINAL") {
             deviceController.listBySite(site).component1().forEach { deviceController.delete(it) }
-            thermometerController.listThermometers(site, true).forEach { thermometerController.deleteThermometer(it) }
+
+            thermometerController.listThermometers(site, true).forEach {
+                temperatureController.list(it).forEach { temperature ->
+                    temperatureController.delete(temperature)
+                }
+                thermometerController.deleteThermometer(it)
+            }
         }
 
         siteController.deleteSite(site)

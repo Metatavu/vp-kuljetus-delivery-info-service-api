@@ -56,14 +56,16 @@ class ThermometerController {
     suspend fun onNewSensorData(
         hardwareSensorId: String,
         device: Device
-    ) {
+    ): Thermometer {
         val existing = thermometerRepository.findActiveThermometerByDeviceId(hardwareSensorId).component1().firstOrNull()
 
         val archived = archiveOldThermometer(existing, device, device.site)
 
         if (existing == null || archived) {
-            createNew(hardwareSensorId, device, device.site)
+            return createNew(hardwareSensorId, device, device.site)
         }
+
+        return existing
     }
 
     /**

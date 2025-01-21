@@ -9,6 +9,9 @@ import jakarta.enterprise.context.ApplicationScoped
 import java.time.OffsetDateTime
 import java.util.*
 
+/**
+ * Repository for thermometers
+ */
 @ApplicationScoped
 class ThermometerRepository : AbstractRepository<Thermometer, UUID>() {
     /**
