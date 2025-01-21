@@ -8,6 +8,7 @@ import fi.metatavu.vp.test.client.infrastructure.ApiClient
 import fi.metatavu.vp.test.client.infrastructure.ClientException
 import fi.metatavu.vp.test.client.models.Site
 import fi.metatavu.vp.test.client.models.SiteType
+import fi.metatavu.vp.test.client.models.Temperature
 import org.junit.Assert
 import java.util.*
 
@@ -57,6 +58,20 @@ class SiteTestBuilderResource(
      */
     fun create(site: Site): Site {
         return addClosable(api.createSite(site))
+    }
+
+    /**
+     * Lists site temperatures
+     *
+     * @param siteId site id
+     * @param includeArchived include archived
+     * @param first first result index
+     * @param max amount of results
+     *
+     * @return site temperatures
+     */
+    fun listSiteTemperatures(siteId: UUID, includeArchived: Boolean, first: Int?, max: Int?): List<Temperature> {
+        return api.listSiteTemperatures(siteId = siteId, includeArchived = includeArchived, first = first, max = max).toList()
     }
 
     /**

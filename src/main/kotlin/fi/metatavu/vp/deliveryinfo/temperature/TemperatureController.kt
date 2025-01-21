@@ -1,5 +1,6 @@
 package fi.metatavu.vp.deliveryinfo.temperature
 
+import fi.metatavu.vp.deliveryinfo.sites.Site
 import fi.metatavu.vp.deliveryinfo.thermometers.Thermometer
 import jakarta.enterprise.context.ApplicationScoped
 import jakarta.inject.Inject
@@ -43,8 +44,27 @@ class TemperatureController {
      *
      * @return temperature
      */
-    suspend fun list(thermometer: Thermometer?): List<Temperature> {
-        return temperatureRepository.list(thermometer).component1()
+    suspend fun listByThermometer(thermometer: Thermometer?): List<Temperature> {
+        return temperatureRepository.list(thermometer = thermometer, site = null, first = null, max = null, includeArchived = null).component1()
+    }
+
+    /**
+     * Lists temperature
+     *
+     * @param site site
+     * @param includeArchived include archived
+     * @param first first
+     * @param max max
+     *
+     * @return temperature
+     */
+    suspend fun list(site: Site, includeArchived: Boolean, first: Int?, max: Int?): List<Temperature> {
+        return temperatureRepository.list(
+            thermometer = null,
+            site = site,
+            includeArchived = includeArchived,
+            first = first,
+            max = max).component1()
     }
 
     suspend fun delete(temperature: Temperature) {

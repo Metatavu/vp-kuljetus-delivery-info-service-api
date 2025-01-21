@@ -3,11 +3,11 @@ package fi.metatavu.vp.deliveryinfo.sites
 import fi.metatavu.vp.api.model.Site
 import fi.metatavu.vp.api.model.SiteType
 import fi.metatavu.vp.api.spec.SitesApi
-import fi.metatavu.vp.deliveryinfo.devices.Device
 import fi.metatavu.vp.deliveryinfo.devices.DeviceController
 import fi.metatavu.vp.deliveryinfo.rest.AbstractApi
 import fi.metatavu.vp.deliveryinfo.tasks.TaskController
 import fi.metatavu.vp.deliveryinfo.temperature.TemperatureController
+import fi.metatavu.vp.deliveryinfo.temperature.TemperatureTranslator
 import fi.metatavu.vp.deliveryinfo.thermometers.ThermometerController
 import io.smallrye.mutiny.Uni
 import jakarta.annotation.security.RolesAllowed
@@ -40,6 +40,9 @@ class SitesApiImpl: SitesApi, AbstractApi() {
 
     @Inject
     lateinit var siteTranslator: SiteTranslator
+
+    @Inject
+    lateinit var temperatureTranslator: TemperatureTranslator
 
     @Inject
     lateinit var taskController: TaskController
@@ -80,8 +83,12 @@ class SitesApiImpl: SitesApi, AbstractApi() {
         createOk(siteTranslator.translate(site))
     }
 
-    override fun listSiteTemperatures(siteId: UUID, includeArchived: Boolean, first: Int?, max: Int?): Uni<Response> {
-        TODO("Not yet implemented")
+    override fun listSiteTemperatures(siteId: UUID, includeArchived: Boolean, first: Int?, max: Int?): Uni<Response> = withCoroutineScope {
+        val site = siteController.findSite(siteId) ?: return@withCoroutineScope createNotFound(createNotFoundMessage(SITE, siteId))
+        val temperatures = temperatureController.list(site = site, includeArchived = includeArchived, first = first, max = max).map {
+            temperatureTranslator.translate(it)
+        }
+        createOk(temperatures)
     }
 
     @RolesAllowed(MANAGER_ROLE)
@@ -121,7 +128,7 @@ class SitesApiImpl: SitesApi, AbstractApi() {
             deviceController.listBySite(site).component1().forEach { deviceController.delete(it) }
 
             thermometerController.listThermometers(site, true).forEach {
-                temperatureController.list(it).forEach { temperature ->
+                temperatureController.listByThermometer(it).forEach { temperature ->
                     temperatureController.delete(temperature)
                 }
                 thermometerController.deleteThermometer(it)
