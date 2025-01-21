@@ -166,6 +166,21 @@ class SiteTestBuilderResource(
     }
 
     /**
+     * Asserts that site temperature listing fails with expected status
+     *
+     * @param siteId site id
+     * @param expectedStatus expected status
+     */
+    fun assertListSiteTemperaturesFail(siteId: UUID, expectedStatus: Int) {
+        try {
+            listSiteTemperatures(siteId = siteId, includeArchived = false, null, null)
+            Assert.fail(String.format("Expected list to fail with status %d", expectedStatus))
+        } catch (ex: ClientException) {
+            assertClientExceptionStatus(expectedStatus, ex)
+        }
+    }
+
+    /**
      * Deletes site
      *
      * @param siteId site id

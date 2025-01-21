@@ -198,4 +198,44 @@ class ThermometerTestsIT: AbstractFunctionalTest() {
         val updated = it.manager.thermometers.updateThermometer(id = thermometer.id!!, thermometer = UpdateThermometerRequest(name = "Sensor1"))
         assertEquals("Sensor1", updated.name)
     }
+
+    @Test
+    fun testListFail() = createTestBuilder().use {
+        //Access rights checks
+        it.user.thermometers.assertListThermometersFail(403)
+        it.driver.thermometers.assertListThermometersFail(403)
+        it.manager.thermometers.listThermometers(null, false)
+        return@use
+    }
+
+    @Test
+    fun testFindFail() = createTestBuilder().use {
+        val deviceId = UUID.randomUUID().toString()
+        val site1 = Site(
+            name = "Test site 1",
+            location = "POINT (60.16952 24.93545)",
+            address = "Test address",
+            postalCode = "00100",
+            locality = "Helsinki",
+            siteType = SiteType.TERMINAL,
+            deviceIds = arrayOf(deviceId)
+        )
+
+        it.manager.sites.create(site1)
+
+        val temperatureReading = TemperatureReading(
+            espMacAddress = deviceId,
+            hardwareSensorId = "wgrewgerf",
+            value = 23.2f,
+            timestamp = Instant.now().toEpochMilli()
+        )
+
+        it.setTerminalDeviceApiKey().temperatureReadings.createTemperatureReading(temperatureReading)
+        val thermometer = it.manager.thermometers.listThermometers(null, false).firstOrNull()
+        //Access rights checks
+        it.user.thermometers.assertFindThermometerFail(thermometer!!.id!!, 403)
+        it.driver.thermometers.assertFindThermometerFail(thermometer.id!!, 403)
+        it.manager.thermometers.findThermometer(thermometer.id)
+        return@use
+    }
 }

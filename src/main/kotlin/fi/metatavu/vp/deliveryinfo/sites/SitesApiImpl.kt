@@ -83,6 +83,7 @@ class SitesApiImpl: SitesApi, AbstractApi() {
         createOk(siteTranslator.translate(site))
     }
 
+    @RolesAllowed(MANAGER_ROLE)
     override fun listSiteTemperatures(siteId: UUID, includeArchived: Boolean, first: Int?, max: Int?): Uni<Response> = withCoroutineScope {
         val site = siteController.findSite(siteId) ?: return@withCoroutineScope createNotFound(createNotFoundMessage(SITE, siteId))
         val temperatures = temperatureController.list(site = site, includeArchived = includeArchived, first = first, max = max).map {

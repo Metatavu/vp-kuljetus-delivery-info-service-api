@@ -465,4 +465,26 @@ class SitesTestIT : AbstractFunctionalTest() {
         assertEquals(1, list6.size)
     }
 
+    @Test
+    fun testListTemperaturesFail() = createTestBuilder().use {
+        val deviceId = UUID.randomUUID().toString()
+        val device2Id = UUID.randomUUID().toString()
+        val site1 = Site(
+            name = "Test site 1",
+            location = "POINT (60.16952 24.93545)",
+            address = "Test address",
+            postalCode = "00100",
+            locality = "Helsinki",
+            siteType = SiteType.TERMINAL,
+            deviceIds = arrayOf(deviceId, device2Id)
+        )
+
+        val createdSite = it.manager.sites.create(site1)
+        //Access rights checks
+        it.user.sites.assertListSiteTemperaturesFail(createdSite.id!!, 403)
+        it.driver.sites.assertListSiteTemperaturesFail(createdSite.id,403)
+        it.manager.sites.listSiteTemperatures(createdSite.id, false, null, null)
+        return@use
+    }
+
 }
