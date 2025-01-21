@@ -2,11 +2,7 @@ package fi.metatavu.vp.deliveryinfo.thermometers
 
 import fi.metatavu.vp.deliveryinfo.persistence.Metadata
 import fi.metatavu.vp.deliveryinfo.sites.Site
-import jakarta.persistence.Entity
-import jakarta.persistence.Table
-import jakarta.persistence.Column
-import jakarta.persistence.Id
-import jakarta.persistence.ManyToOne
+import jakarta.persistence.*
 import java.time.OffsetDateTime
 import java.util.*
 
@@ -15,8 +11,7 @@ import java.util.*
  */
 @Entity
 @Table(name = "thermometer")
-class Thermometer: Metadata() {
-
+class Thermometer {
     @Id
     lateinit var id: UUID
 
@@ -35,7 +30,30 @@ class Thermometer: Metadata() {
     @Column
     var archivedAt: OffsetDateTime? = null
 
-    override lateinit var creatorId: UUID
+    @Column
+    var lastModifierId: UUID? = null
 
-    override lateinit var lastModifierId: UUID
+    @Column(nullable = false)
+    var createdAt: OffsetDateTime? = null
+
+    @Column(nullable = false)
+    var modifiedAt: OffsetDateTime? = null
+
+    /**
+     * JPA pre-persist event handler
+     */
+    @PrePersist
+    fun onCreate() {
+        val odtNow = OffsetDateTime.now()
+        createdAt = odtNow
+        modifiedAt = odtNow
+    }
+
+    /**
+     * JPA pre-update event handler
+     */
+    @PreUpdate
+    fun onUpdate() {
+        modifiedAt = OffsetDateTime.now()
+    }
 }

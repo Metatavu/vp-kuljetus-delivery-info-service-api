@@ -27,15 +27,13 @@ class TemperatureReadingsApiImpl: TemperatureReadingsApi, AbstractApi() {
     @Inject
     lateinit var thermometerController: ThermometerController
 
-    @RolesAllowed(MANAGER_ROLE)
     @WithTransaction
     override fun createTemperatureReading(temperatureReading: TemperatureReading): Uni<Response> = withCoroutineScope {
+        if (requestTerminalDeviceKey != terminalDeviceApiKeyValue) return@withCoroutineScope createForbidden(INVALID_API_KEY)
         val device = deviceController.findByDeviceId(temperatureReading.espMacAddress)
             ?: return@withCoroutineScope createBadRequest("Device with address ${temperatureReading.espMacAddress} does not exist")
 
-        val userId = loggedUserId ?: return@withCoroutineScope createUnauthorized(UNAUTHORIZED)
-
-        thermometerController.onNewSensorData(temperatureReading.hardwareSensorId, device, userId)
+        thermometerController.onNewSensorData(temperatureReading.hardwareSensorId, device)
 
         createNoContent()
     }

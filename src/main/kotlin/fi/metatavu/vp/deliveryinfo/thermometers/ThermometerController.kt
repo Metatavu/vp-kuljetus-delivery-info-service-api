@@ -18,15 +18,13 @@ class ThermometerController {
     suspend fun createNew(
         hardwareSensorId: String,
         device: Device,
-        site: Site,
-        userId: UUID
+        site: Site
     ): Thermometer {
         return thermometerRepository.create(
             id = UUID.randomUUID(),
             hardwareSensorId = hardwareSensorId,
             espMacAddress = device.deviceId,
-            site = site,
-            userId = userId
+            site = site
         )
     }
 
@@ -41,7 +39,7 @@ class ThermometerController {
     suspend fun archiveOldThermometer(thermometer: Thermometer?, device: Device, site: Site): Boolean {
         if (thermometer != null && (thermometer.espMacAddress != device.deviceId && thermometer.site!!.id != site.id)) {
             val archivedAt = OffsetDateTime.now()
-            thermometerRepository.update(thermometer = thermometer, archivedAt = archivedAt, name = thermometer.name)
+            thermometerRepository.update(thermometer = thermometer, archivedAt = archivedAt, name = thermometer.name, modifierId = null)
             return true
         }
 
@@ -54,19 +52,17 @@ class ThermometerController {
      *
      * @param hardwareSensorId sensor id
      * @param device ESP device
-     * @param userId user id
      */
     suspend fun onNewSensorData(
         hardwareSensorId: String,
-        device: Device,
-        userId: UUID
+        device: Device
     ) {
-        val existing = thermometerRepository.findActiveThermometerByDeviceId(device.deviceId).component1().firstOrNull()
+        val existing = thermometerRepository.findActiveThermometerByDeviceId(hardwareSensorId).component1().firstOrNull()
 
         val archived = archiveOldThermometer(existing, device, device.site)
 
         if (existing == null || archived) {
-            createNew(hardwareSensorId, device, device.site, userId)
+            createNew(hardwareSensorId, device, device.site)
         }
     }
 

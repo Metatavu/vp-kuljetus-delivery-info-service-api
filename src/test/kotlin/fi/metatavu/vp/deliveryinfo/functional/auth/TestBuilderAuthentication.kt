@@ -18,6 +18,7 @@ import fi.metatavu.vp.deliveryinfo.functional.settings.ApiTestSettings
  */
 class TestBuilderAuthentication(
     private val testBuilder: TestBuilder,
+    private val terminalDeviceApiKey: String?,
     val accessTokenProvider: AccessTokenProvider
 ) : AccessTokenTestBuilderAuthentication<ApiClient>(testBuilder, accessTokenProvider) {
 
@@ -25,7 +26,7 @@ class TestBuilderAuthentication(
     val freights = FreightTestBuilderResource(testBuilder, accessTokenProvider, createClient(accessTokenProvider))
     val freightUnits = FreightUnitTestBuilderResource(testBuilder, accessTokenProvider, createClient(accessTokenProvider))
     val tasks = TaskTestBuilderResource(testBuilder, accessTokenProvider, createClient(accessTokenProvider))
-    val temperatureReadings = TemperatureReadingTestBuilderResource(testBuilder, accessTokenProvider, createClient(accessTokenProvider))
+    val temperatureReadings = TemperatureReadingTestBuilderResource(testBuilder, this.terminalDeviceApiKey, createClient(accessTokenProvider))
     val thermometers = ThermometersTestBuildingResource(testBuilder, accessTokenProvider, createClient(accessTokenProvider))
 
     override fun createClient(authProvider: AccessTokenProvider): ApiClient {

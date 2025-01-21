@@ -12,14 +12,16 @@ import fi.metatavu.vp.test.client.models.TemperatureReading
  */
 class TemperatureReadingTestBuilderResource(
     testBuilder: TestBuilder,
-    private val accessTokenProvider: AccessTokenProvider?,
+    private val terminalDeviceApiKey: String?,
     apiClient: ApiClient
 ) : ApiTestBuilderResource<TemperatureReading, ApiClient>(testBuilder, apiClient) {
     override fun clean(p0: TemperatureReading?) {}
 
 
     override fun getApi(): TemperatureReadingsApi {
-        ApiClient.accessToken = accessTokenProvider?.accessToken
+        if (terminalDeviceApiKey != null) {
+            ApiClient.apiKey["X-DataReceiver-API-Key"] = terminalDeviceApiKey
+        }
         return TemperatureReadingsApi(ApiTestSettings.apiBasePath)
     }
 

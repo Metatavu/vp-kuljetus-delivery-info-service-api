@@ -24,16 +24,13 @@ class ThermometerRepository : AbstractRepository<Thermometer, UUID>() {
         id: UUID,
         hardwareSensorId: String,
         espMacAddress: String,
-        site: Site,
-        userId: UUID
+        site: Site
     ): Thermometer {
         val thermometer = Thermometer()
         thermometer.id = id
         thermometer.hardwareSensorId = hardwareSensorId
         thermometer.espMacAddress = espMacAddress
         thermometer.site = site
-        thermometer.creatorId = userId
-        thermometer.lastModifierId = userId
         return persistSuspending(thermometer)
     }
 
@@ -43,9 +40,14 @@ class ThermometerRepository : AbstractRepository<Thermometer, UUID>() {
      * @param thermometer thermometer to update
      * @param name new name
      * @param archivedAt time of archiving
+     * @param modifierId modifier id
+     *
      * @return updated thermometer
      */
-    suspend fun update(thermometer: Thermometer, name: String?, archivedAt: OffsetDateTime?): Thermometer {
+    suspend fun update(thermometer: Thermometer, name: String?, archivedAt: OffsetDateTime?, modifierId: UUID?): Thermometer {
+        thermometer.name = name
+        thermometer.archivedAt = archivedAt
+        thermometer.lastModifierId = modifierId
         return persistSuspending(thermometer)
     }
 

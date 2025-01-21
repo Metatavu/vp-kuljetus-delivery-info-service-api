@@ -24,7 +24,6 @@ class ThermometerTranslator: AbstractTranslator<Thermometer, fi.metatavu.vp.api.
             siteId = entity.site!!.id,
             espMacAddress = entity.espMacAddress,
             archivedAt = entity.archivedAt,
-            creatorId = entity.creatorId,
             lastModifierId = entity.lastModifierId,
             createdAt = entity.createdAt,
             modifiedAt = entity.modifiedAt
