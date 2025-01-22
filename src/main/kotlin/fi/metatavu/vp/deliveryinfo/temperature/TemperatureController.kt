@@ -67,6 +67,11 @@ class TemperatureController {
             max = max).component1()
     }
 
+    /**
+     * Deletes temperature
+     *
+     * @param temperature temperature to delete
+     */
     suspend fun delete(temperature: Temperature) {
         temperatureRepository.deleteSuspending(temperature)
     }

@@ -15,6 +15,14 @@ class ThermometerController {
     @Inject
     lateinit var thermometerRepository: ThermometerRepository
 
+    /**
+     * Create new thermometer
+     *
+     * @param hardwareSensorId hardware sensor id
+     * @param device device
+     * @param site site
+     * @return created thermometer
+     */
     suspend fun createNew(
         hardwareSensorId: String,
         device: Device,
