@@ -482,8 +482,7 @@ class SitesTestIT : AbstractFunctionalTest() {
         //Access rights checks
         it.user.sites.assertListSiteTemperaturesFail(createdSite.id!!, 403)
         it.driver.sites.assertListSiteTemperaturesFail(createdSite.id,403)
-        it.manager.sites.listSiteTemperatures(createdSite.id, false, null, null)
-        return@use
+        assertNotNull(it.manager.sites.listSiteTemperatures(createdSite.id, false, null, null))
     }
 
     @Test
