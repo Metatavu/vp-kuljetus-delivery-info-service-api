@@ -23,7 +23,7 @@ class TemperatureReadingTestBuilderResource(
 
     override fun getApi(): TemperatureReadingsApi {
         if (terminalDeviceApiKey != null) {
-            ApiClient.apiKey["X-DataReceiver-API-Key"] = terminalDeviceApiKey
+            ApiClient.apiKey["X-TerminalDevice-API-Key"] = terminalDeviceApiKey
         }
         return TemperatureReadingsApi(ApiTestSettings.apiBasePath)
     }
