@@ -65,7 +65,7 @@ class ThermometerController {
         hardwareSensorId: String,
         device: Device
     ): Thermometer {
-        val existing = thermometerRepository.findActiveThermometerByDeviceId(hardwareSensorId).component1().firstOrNull()
+        val existing = thermometerRepository.findActiveThermometerByDeviceId(hardwareSensorId).first.firstOrNull()
 
         val archived = archiveOldThermometer(existing, device, device.site)
 
