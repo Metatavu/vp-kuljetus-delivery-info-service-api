@@ -85,9 +85,7 @@ class SitesApiImpl: SitesApi, AbstractApi() {
         val site = siteController.findSite(siteId) ?: return@withCoroutineScope createNotFound(createNotFoundMessage(SITE, siteId))
         val temperatures = temperatureController.list(site = site, includeArchived = includeArchived, first = first, max = max)
 
-        val translated = temperatures.first.map {
-        temperatureTranslator.translate(it)
-    }
+        val translated = temperatures.first.map { temperatureTranslator.translate(it) }
         createOk(translated, temperatures.second)
     }
 
