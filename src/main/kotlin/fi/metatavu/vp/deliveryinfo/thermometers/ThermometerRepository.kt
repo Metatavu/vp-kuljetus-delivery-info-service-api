@@ -1,8 +1,10 @@
 package fi.metatavu.vp.deliveryinfo.thermometers
 
+import fi.metatavu.vp.deliveryinfo.devices.Device
 import fi.metatavu.vp.deliveryinfo.persistence.AbstractRepository
 import fi.metatavu.vp.deliveryinfo.sites.Site
 import io.quarkus.panache.common.Parameters
+import io.smallrye.mutiny.coroutines.awaitSuspending
 import jakarta.enterprise.context.ApplicationScoped
 import java.time.OffsetDateTime
 import java.util.*
@@ -61,14 +63,14 @@ class ThermometerRepository : AbstractRepository<Thermometer, UUID>() {
      * @param sensorId sensor id
      * @return found thermometer
      */
-    suspend fun findActiveThermometerByDeviceId(sensorId: String): Pair<List<Thermometer>, Long> {
+    suspend fun findActiveThermometerByDeviceId(sensorId: String): Thermometer? {
         val stringBuilder = StringBuilder()
         val parameters = Parameters()
         stringBuilder.append("archivedAt IS NULL AND ")
         stringBuilder.append("hardwareSensorId = :sensorid")
         parameters.and("sensorid", sensorId)
 
-        return applyFirstMaxToQuery(find(stringBuilder.toString(), parameters))
+        return find(stringBuilder.toString(), parameters).firstResult<Thermometer?>().awaitSuspending()
     }
 
     /**

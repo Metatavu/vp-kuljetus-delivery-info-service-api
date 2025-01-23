@@ -39,8 +39,9 @@ class ThermometersApiImpl: ThermometersApi, AbstractApi() {
     @RolesAllowed(MANAGER_ROLE)
     override fun listThermometers(siteId: UUID?, includeArchived: Boolean, first: Int?, max: Int?): Uni<Response> = withCoroutineScope {
         val site = getSiteIfExists(siteId)
-        val thermometers = thermometerController.listThermometers(site = site, includeArchived = includeArchived).map { thermometerTranslator.translate(it) }
-        createOk(thermometers)
+        val thermometers = thermometerController.listThermometers(site = site, includeArchived = includeArchived)
+        val translated = thermometers.first.map { thermometerTranslator.translate(it) }
+        createOk(translated, thermometers.second)
     }
 
     @RolesAllowed(MANAGER_ROLE)
@@ -51,7 +52,7 @@ class ThermometersApiImpl: ThermometersApi, AbstractApi() {
         val userId = loggedUserId ?: return@withCoroutineScope createUnauthorized(UNAUTHORIZED)
 
         val foundThermometer = thermometerController.findThermometer(thermometerId) ?: return@withCoroutineScope createNotFound("Thermometer with id $thermometerId not found")
-        val updatedThermometer = thermometerController.updateThermometerName(thermometerId = foundThermometer.id, name = updateThermometerRequest.name, userId = userId)
+        val updatedThermometer = thermometerController.updateThermometerName(foundThermometer, name = updateThermometerRequest.name, userId = userId)
         createOk(thermometerTranslator.translate(updatedThermometer))
     }
 

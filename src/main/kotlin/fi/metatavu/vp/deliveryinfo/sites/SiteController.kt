@@ -133,7 +133,7 @@ class SiteController {
         if (site.siteType == "TERMINAL") {
             deviceController.listBySite(site).first.forEach { deviceController.delete(it) }
 
-            thermometerController.listThermometers(site, true).forEach {
+            thermometerController.listThermometers(site, true).first.forEach {
                 temperatureController.listByThermometer(it).forEach { temperature ->
                     temperatureController.delete(temperature)
                 }

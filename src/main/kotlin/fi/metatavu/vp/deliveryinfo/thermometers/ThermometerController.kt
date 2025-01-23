@@ -45,7 +45,7 @@ class ThermometerController {
      * @return true if archiving took place
      */
     suspend fun archiveOldThermometer(thermometer: Thermometer?, device: Device, site: Site): Boolean {
-        val thermometerIsUnchanged = thermometer?.deviceIdentifier == device.deviceId && thermometer.site!!.id == site.id
+        val thermometerIsUnchanged = thermometer?.deviceIdentifier == device.deviceId && thermometer.site.id == site.id
 
         if (thermometer == null || thermometerIsUnchanged) {
           return false
@@ -72,7 +72,7 @@ class ThermometerController {
         hardwareSensorId: String,
         device: Device
     ): Thermometer {
-        val existing = thermometerRepository.findActiveThermometerByDeviceId(hardwareSensorId).first.firstOrNull()
+        val existing = thermometerRepository.findActiveThermometerByDeviceId(hardwareSensorId)
 
         val archived = archiveOldThermometer(existing, device, device.site)
 
@@ -90,8 +90,8 @@ class ThermometerController {
      * @param includeArchived include archived
      * @return thermometers
      */
-    suspend fun listThermometers(site: Site?, includeArchived: Boolean): List<Thermometer> {
-        return thermometerRepository.list(site, includeArchived).component1()
+    suspend fun listThermometers(site: Site?, includeArchived: Boolean): Pair<List<Thermometer>, Long> {
+        return thermometerRepository.list(site, includeArchived)
     }
 
     /**
@@ -117,14 +117,13 @@ class ThermometerController {
     /**
      * Update thermometer name
      *
-     * @param thermometerId thermometer id
+     * @param thermometer thermometer to update
      * @param name name
      * @param userId userId
      *
      * @return update thermometer
      */
-    suspend fun updateThermometerName(thermometerId: UUID, name: String?, userId: UUID): Thermometer {
-        val thermometer = thermometerRepository.findByIdSuspending(thermometerId)!!
+    suspend fun updateThermometerName(thermometer: Thermometer, name: String?, userId: UUID): Thermometer {
         return thermometerRepository.update(thermometer = thermometer, archivedAt = thermometer.archivedAt, name = name, modifierId = userId)
     }
 }

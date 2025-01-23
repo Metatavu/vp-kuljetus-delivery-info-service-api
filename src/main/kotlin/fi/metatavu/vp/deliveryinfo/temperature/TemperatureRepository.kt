@@ -5,6 +5,7 @@ import fi.metatavu.vp.deliveryinfo.sites.Site
 import fi.metatavu.vp.deliveryinfo.thermometers.Thermometer
 import io.quarkus.panache.common.Parameters
 import io.quarkus.panache.common.Sort
+import io.smallrye.mutiny.coroutines.awaitSuspending
 import jakarta.enterprise.context.ApplicationScoped
 import java.util.*
 
@@ -35,6 +36,22 @@ class TemperatureRepository: AbstractRepository<Temperature, UUID>() {
         temperatureReading.value = value
         temperatureReading.timestamp = timestamp
         return persistSuspending(temperatureReading)
+    }
+
+    /**
+     * List temperature by thermometer
+     *
+     * @param thermometer thermometer
+     * @return temperature
+     */
+    suspend fun listByThermometer(thermometer: Thermometer): List<Temperature> {
+        val stringBuilder = StringBuilder()
+        val parameters = Parameters()
+
+        addCondition(stringBuilder, "thermometer = :thermometer")
+        parameters.and("thermometer", thermometer)
+
+        return list(stringBuilder.toString(), Sort.by("timestamp").descending(), parameters).awaitSuspending()
     }
 
     /**
