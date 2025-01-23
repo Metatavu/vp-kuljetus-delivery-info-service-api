@@ -3,10 +3,12 @@ package fi.metatavu.vp.deliveryinfo.sites
 import fi.metatavu.vp.api.model.Site
 import fi.metatavu.vp.api.model.SiteType
 import fi.metatavu.vp.api.spec.SitesApi
-import fi.metatavu.vp.deliveryinfo.devices.Device
 import fi.metatavu.vp.deliveryinfo.devices.DeviceController
 import fi.metatavu.vp.deliveryinfo.rest.AbstractApi
 import fi.metatavu.vp.deliveryinfo.tasks.TaskController
+import fi.metatavu.vp.deliveryinfo.temperature.TemperatureController
+import fi.metatavu.vp.deliveryinfo.temperature.TemperatureTranslator
+import fi.metatavu.vp.deliveryinfo.thermometers.ThermometerController
 import io.smallrye.mutiny.Uni
 import jakarta.annotation.security.RolesAllowed
 import jakarta.enterprise.context.RequestScoped
@@ -31,7 +33,13 @@ class SitesApiImpl: SitesApi, AbstractApi() {
     lateinit var deviceController: DeviceController
 
     @Inject
+    lateinit var temperatureController: TemperatureController
+
+    @Inject
     lateinit var siteTranslator: SiteTranslator
+
+    @Inject
+    lateinit var temperatureTranslator: TemperatureTranslator
 
     @Inject
     lateinit var taskController: TaskController
@@ -73,6 +81,15 @@ class SitesApiImpl: SitesApi, AbstractApi() {
     }
 
     @RolesAllowed(MANAGER_ROLE)
+    override fun listSiteTemperatures(siteId: UUID, includeArchived: Boolean, first: Int?, max: Int?): Uni<Response> = withCoroutineScope {
+        val site = siteController.findSite(siteId) ?: return@withCoroutineScope createNotFound(createNotFoundMessage(SITE, siteId))
+        val temperatures = temperatureController.list(site = site, includeArchived = includeArchived, first = first, max = max)
+
+        val translated = temperatures.first.map { temperatureTranslator.translate(it) }
+        createOk(translated, temperatures.second)
+    }
+
+    @RolesAllowed(MANAGER_ROLE)
     @WithTransaction
     override fun updateSite(siteId: UUID, site: Site): Uni<Response> = withCoroutineScope {
         val userId = loggedUserId ?: return@withCoroutineScope createUnauthorized(UNAUTHORIZED)
@@ -103,10 +120,6 @@ class SitesApiImpl: SitesApi, AbstractApi() {
         val site = siteController.findSite(siteId) ?: return@withCoroutineScope createNotFound(createNotFoundMessage(SITE, siteId))
         if (taskController.listTasks(site = site).first.isNotEmpty()) {
             return@withCoroutineScope createConflict("Cannot delete site with tasks")
-        }
-
-        if (site.siteType == "TERMINAL") {
-            deviceController.listBySite(site).component1().forEach { deviceController.delete(it) }
         }
 
         siteController.deleteSite(site)

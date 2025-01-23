@@ -5,7 +5,9 @@ import fi.metatavu.jaxrs.test.functional.builder.AbstractTestBuilder
 import fi.metatavu.jaxrs.test.functional.builder.auth.AccessTokenProvider
 import fi.metatavu.jaxrs.test.functional.builder.auth.AuthorizedTestBuilderAuthentication
 import fi.metatavu.jaxrs.test.functional.builder.auth.KeycloakAccessTokenProvider
+import fi.metatavu.jaxrs.test.functional.builder.auth.NullAccessTokenProvider
 import fi.metatavu.vp.deliveryinfo.functional.auth.TestBuilderAuthentication
+import fi.metatavu.vp.deliveryinfo.functional.settings.DefaultTestProfile.Companion.TERMINAL_DEVICE_API_KEY
 import fi.metatavu.vp.test.client.infrastructure.ApiClient
 import org.eclipse.microprofile.config.ConfigProvider
 
@@ -25,7 +27,7 @@ class TestBuilder(private val config: Map<String, String>): AbstractAccessTokenT
         abstractTestBuilder: AbstractTestBuilder<ApiClient, AccessTokenProvider>,
         authProvider: AccessTokenProvider
     ): AuthorizedTestBuilderAuthentication<ApiClient, AccessTokenProvider> {
-        return TestBuilderAuthentication(this, authProvider)
+        return TestBuilderAuthentication(this, null, authProvider)
     }
 
     /**
@@ -40,7 +42,22 @@ class TestBuilder(private val config: Map<String, String>): AbstractAccessTokenT
         val realm: String = ConfigProvider.getConfig().getValue("quarkus.keycloak.devservices.realm-name", String::class.java)
         val clientId = "test"
         val clientSecret = "secret"
-        return TestBuilderAuthentication(this, KeycloakAccessTokenProvider(serverUrl, realm, clientId, username, password, clientSecret))
+        return TestBuilderAuthentication(this, null, KeycloakAccessTokenProvider(serverUrl, realm, clientId, username, password, clientSecret))
+    }
+
+    /**
+     * Returns authentication with terminal device api key
+     *
+     * @param apiKey device key
+     * @return authorized client
+     */
+    fun setTerminalDeviceApiKey(apiKey: String? = null): TestBuilderAuthentication {
+        val key = apiKey ?: TERMINAL_DEVICE_API_KEY
+        return TestBuilderAuthentication(
+            testBuilder = this,
+            accessTokenProvider = NullAccessTokenProvider(),
+            terminalDeviceApiKey = key
+        )
     }
 
 }

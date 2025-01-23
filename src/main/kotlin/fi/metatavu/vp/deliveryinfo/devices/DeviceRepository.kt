@@ -39,6 +39,16 @@ class DeviceRepository: AbstractRepository<Device, UUID>() {
     }
 
     /**
+     * Finds a device by its device id
+     *
+     * @param deviceId device id
+     * @return found device or null
+     */
+    suspend fun findByDeviceId(deviceId: String): Device? {
+        return find("deviceId = :deviceId", Parameters.with("deviceId", deviceId)).firstResult<Device?>().awaitSuspending()
+    }
+
+    /**
      * Lists devices
      *
      * @param site site

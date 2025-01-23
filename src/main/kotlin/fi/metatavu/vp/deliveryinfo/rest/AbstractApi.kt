@@ -5,6 +5,7 @@ import io.smallrye.mutiny.coroutines.asUni
 import io.vertx.core.Context
 import io.vertx.core.Vertx
 import jakarta.inject.Inject
+import jakarta.ws.rs.core.HttpHeaders
 import jakarta.ws.rs.core.Response
 import kotlinx.coroutines.*
 import org.eclipse.microprofile.config.inject.ConfigProperty
@@ -12,6 +13,7 @@ import org.eclipse.microprofile.jwt.JsonWebToken
 import java.lang.Runnable
 import java.util.*
 import kotlin.coroutines.CoroutineContext
+import jakarta.ws.rs.core.Context as JakartaContext
 
 /**
  * Abstract base class for all API services
@@ -23,8 +25,14 @@ abstract class AbstractApi {
     @ConfigProperty(name = "vp.env")
     private lateinit var environment: String
 
+    @ConfigProperty(name = "vp.deliveryinfo.terminaldevice.apiKey")
+    lateinit var terminalDeviceApiKeyValue: String
+
     @Inject
     private lateinit var jsonWebToken: JsonWebToken
+
+    @JakartaContext
+    lateinit var headers: HttpHeaders
 
     /**
      * Returns if production environment
@@ -45,6 +53,17 @@ abstract class AbstractApi {
 
             return null
         }
+
+    /**
+     * Returns request terminal device api key
+     *
+     * @return request terminal device api key
+     */
+    protected val requestTerminalDeviceKey: String?
+        get() {
+            return headers.getHeaderString("X-TerminalDevice-API-Key")
+        }
+
     /**
      * Constructs ok response
      *
@@ -251,6 +270,8 @@ abstract class AbstractApi {
         const val FORBIDDEN = "Forbidden"
         const val MISSING_REQUEST_BODY = "Missing request body"
         const val INVALID_REQUEST_BODY = "Invalid request body"
+
+        const val INVALID_API_KEY = "Invalid API key"
 
         const val SITE = "Site"
         const val FREIGHT = "Freight"

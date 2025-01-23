@@ -9,11 +9,13 @@ import fi.metatavu.vp.deliveryinfo.functional.settings.ApiTestSettings
 import fi.metatavu.vp.deliveryinfo.functional.settings.DefaultTestProfile
 import fi.metatavu.vp.test.client.models.Site
 import fi.metatavu.vp.test.client.models.SiteType
+import fi.metatavu.vp.test.client.models.TemperatureReading
 import io.quarkus.test.junit.QuarkusTest
 import io.quarkus.test.junit.TestProfile
 import io.restassured.http.Method
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.Test
+import java.time.Instant
 import java.util.*
 
 /**
@@ -372,6 +374,143 @@ class SitesTestIT : AbstractFunctionalTest() {
             )
             .build()
             .test()
+    }
+
+    @Test
+    fun testListSiteTemperatures() = createTestBuilder().use {
+        val deviceId = UUID.randomUUID().toString()
+        val device2Id = UUID.randomUUID().toString()
+        val site1 = Site(
+            name = "Test site 1",
+            location = "POINT (60.16952 24.93545)",
+            address = "Test address",
+            postalCode = "00100",
+            locality = "Helsinki",
+            siteType = SiteType.TERMINAL,
+            deviceIds = arrayOf(deviceId, device2Id)
+        )
+
+        val createdSite = it.manager.sites.create(site1)
+
+        val temperatureReading = TemperatureReading(
+            deviceIdentifier = deviceId,
+            hardwareSensorId = "wgrewgerf",
+            value = 23.2f,
+            timestamp = Instant.now().toEpochMilli()
+        )
+
+        val temperatureReading2 = TemperatureReading(
+            deviceIdentifier = deviceId,
+            hardwareSensorId = "wgrewgerf",
+            value = 25.2f,
+            timestamp = Instant.now().toEpochMilli()
+        )
+
+        val temperatureReading3 = TemperatureReading(
+            deviceIdentifier = deviceId,
+            hardwareSensorId = "wgrewgerf",
+            value = 21.1f,
+            timestamp = Instant.now().toEpochMilli()
+        )
+
+        it.setTerminalDeviceApiKey().temperatureReadings.createTemperatureReading(temperatureReading)
+        val thermometer = it.manager.thermometers.listThermometers(null, false).firstOrNull()
+        val reading = it.manager.sites.listSiteTemperatures(siteId = createdSite.id!!, includeArchived = false, null, null).firstOrNull()
+        assertNotNull(reading)
+        assertEquals(temperatureReading.value, reading!!.value)
+        assertEquals(temperatureReading.timestamp, reading.timestamp)
+        assertEquals(thermometer!!.id, reading.thermometerId)
+
+        it.setTerminalDeviceApiKey().temperatureReadings.createTemperatureReading(temperatureReading2)
+        it.setTerminalDeviceApiKey().temperatureReadings.createTemperatureReading(temperatureReading3)
+        val firstSiteActiveTemperatures = it.manager.sites.listSiteTemperatures(siteId = createdSite.id, includeArchived = false, null, null)
+        assertEquals(3, firstSiteActiveTemperatures.size)
+
+        val temperatureReading4 = TemperatureReading(
+            deviceIdentifier = device2Id,
+            hardwareSensorId = "wgrewgerf",
+            value = 21.1f,
+            timestamp = Instant.now().toEpochMilli()
+        )
+        it.setTerminalDeviceApiKey().temperatureReadings.createTemperatureReading(temperatureReading4)
+        val firstSiteActiveTemperaturesNew = it.manager.sites.listSiteTemperatures(siteId = createdSite.id, includeArchived = false, null, null)
+        assertEquals(1, firstSiteActiveTemperaturesNew.size)
+        val firstSiteAllTemperatures = it.manager.sites.listSiteTemperatures(siteId = createdSite.id, includeArchived = true, null, null)
+        assertEquals(4, firstSiteAllTemperatures.size)
+        val firstSiteFilteredTemperatures = it.manager.sites.listSiteTemperatures(siteId = createdSite.id, includeArchived = true, 1, null)
+        assertEquals(3, firstSiteFilteredTemperatures.size)
+        val firstSiteFilteredTemperatures2 = it.manager.sites.listSiteTemperatures(siteId = createdSite.id, includeArchived = true, 1, 2)
+        assertEquals(2, firstSiteFilteredTemperatures2.size)
+
+        val device3Id = UUID.randomUUID().toString()
+        val site2 = Site(
+            name = "Test site 1",
+            location = "POINT (60.16952 24.93545)",
+            address = "Test address",
+            postalCode = "00100",
+            locality = "Helsinki",
+            siteType = SiteType.TERMINAL,
+            deviceIds = arrayOf(device3Id)
+        )
+
+        val createdSite2 = it.manager.sites.create(site2)
+        val temperatureReading5 = TemperatureReading(
+            deviceIdentifier = device3Id,
+            hardwareSensorId = "wgrewgerf",
+            value = 21.1f,
+            timestamp = Instant.now().toEpochMilli()
+        )
+        it.setTerminalDeviceApiKey().temperatureReadings.createTemperatureReading(temperatureReading5)
+        val list6 = it.manager.sites.listSiteTemperatures(siteId = createdSite2.id!!, includeArchived = false, null, null)
+        assertEquals(1, list6.size)
+    }
+
+    @Test
+    fun testListTemperaturesFail() = createTestBuilder().use {
+        val deviceId = UUID.randomUUID().toString()
+        val site1 = Site(
+            name = "Test site 1",
+            location = "POINT (60.16952 24.93545)",
+            address = "Test address",
+            postalCode = "00100",
+            locality = "Helsinki",
+            siteType = SiteType.TERMINAL,
+            deviceIds = arrayOf(deviceId)
+        )
+
+        val createdSite = it.manager.sites.create(site1)
+        //Access rights checks
+        it.user.sites.assertListSiteTemperaturesFail(createdSite.id!!, 403)
+        it.driver.sites.assertListSiteTemperaturesFail(createdSite.id,403)
+        assertNotNull(it.manager.sites.listSiteTemperatures(createdSite.id, false, null, null))
+    }
+
+    @Test
+    fun testCreateTemperatureReadingFail() = createTestBuilder().use {
+        val deviceId = UUID.randomUUID().toString()
+        val site1 = Site(
+            name = "Test site 1",
+            location = "POINT (60.16952 24.93545)",
+            address = "Test address",
+            postalCode = "00100",
+            locality = "Helsinki",
+            siteType = SiteType.TERMINAL,
+            deviceIds = arrayOf(deviceId)
+        )
+
+        it.manager.sites.create(site1)
+        val temperatureReading = TemperatureReading(
+            deviceIdentifier = deviceId,
+            hardwareSensorId = "wgrewgerf",
+            value = 23.2f,
+            timestamp = Instant.now().toEpochMilli()
+        )
+        //Access rights checks
+        it.user.temperatureReadings.assertCreateTemperatureReadingFail(temperatureReading, 403)
+        it.driver.temperatureReadings.assertCreateTemperatureReadingFail(temperatureReading,403)
+        it.manager.temperatureReadings.assertCreateTemperatureReadingFail(temperatureReading,403)
+        it.setTerminalDeviceApiKey().temperatureReadings.createTemperatureReading(temperatureReading)
+        return@use
     }
 
 }

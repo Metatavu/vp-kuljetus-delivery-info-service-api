@@ -8,6 +8,7 @@ import fi.metatavu.vp.test.client.infrastructure.ApiClient
 import fi.metatavu.vp.test.client.infrastructure.ClientException
 import fi.metatavu.vp.test.client.models.Site
 import fi.metatavu.vp.test.client.models.SiteType
+import fi.metatavu.vp.test.client.models.Temperature
 import org.junit.Assert
 import java.util.*
 
@@ -57,6 +58,20 @@ class SiteTestBuilderResource(
      */
     fun create(site: Site): Site {
         return addClosable(api.createSite(site))
+    }
+
+    /**
+     * Lists site temperatures
+     *
+     * @param siteId site id
+     * @param includeArchived include archived
+     * @param first first result index
+     * @param max amount of results
+     *
+     * @return site temperatures
+     */
+    fun listSiteTemperatures(siteId: UUID, includeArchived: Boolean, first: Int?, max: Int?): List<Temperature> {
+        return api.listSiteTemperatures(siteId = siteId, includeArchived = includeArchived, first = first, max = max).toList()
     }
 
     /**
@@ -144,6 +159,21 @@ class SiteTestBuilderResource(
     fun assertListSitesFail(expectedStatus: Int) {
         try {
             listSites()
+            Assert.fail(String.format("Expected list to fail with status %d", expectedStatus))
+        } catch (ex: ClientException) {
+            assertClientExceptionStatus(expectedStatus, ex)
+        }
+    }
+
+    /**
+     * Asserts that site temperature listing fails with expected status
+     *
+     * @param siteId site id
+     * @param expectedStatus expected status
+     */
+    fun assertListSiteTemperaturesFail(siteId: UUID, expectedStatus: Int) {
+        try {
+            listSiteTemperatures(siteId = siteId, includeArchived = false, null, null)
             Assert.fail(String.format("Expected list to fail with status %d", expectedStatus))
         } catch (ex: ClientException) {
             assertClientExceptionStatus(expectedStatus, ex)

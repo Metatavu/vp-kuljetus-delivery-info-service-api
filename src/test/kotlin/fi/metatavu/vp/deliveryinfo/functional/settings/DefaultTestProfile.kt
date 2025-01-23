@@ -10,6 +10,11 @@ class DefaultTestProfile: QuarkusTestProfile {
     override fun getConfigOverrides(): MutableMap<String, String> {
         val config: MutableMap<String, String> = HashMap()
         config["vp.env"] = "TEST"
+        config["vp.deliveryinfo.terminaldevice.apiKey"] = "test-terminal-device-api-key"
         return config
+    }
+
+    companion object {
+        const val TERMINAL_DEVICE_API_KEY = "test-terminal-device-api-key"
     }
 }

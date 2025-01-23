@@ -47,6 +47,16 @@ class DeviceController {
     }
 
     /**
+     * Finds a device by its device id
+     *
+     * @param deviceId device id
+     * @return found device or null
+     */
+    suspend fun findByDeviceId(deviceId: String): Device? {
+        return deviceRepository.findByDeviceId(deviceId)
+    }
+
+    /**
      * Lists all devices
      *
      * @return pair of list of devices and total count
