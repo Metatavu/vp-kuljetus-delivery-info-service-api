@@ -63,10 +63,6 @@ class ThermometersApiImpl: ThermometersApi, AbstractApi() {
      * @return site or null
      */
     suspend fun getSiteIfExists(siteId: UUID?): Site? {
-        if (siteId != null) {
-            return siteController.findSite(siteId)
-        }
-
-        return null
+        return siteId?.let { siteController.findSite(it) }
     }
 }
