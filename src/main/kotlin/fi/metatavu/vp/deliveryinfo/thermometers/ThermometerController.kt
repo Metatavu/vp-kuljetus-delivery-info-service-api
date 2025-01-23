@@ -45,14 +45,21 @@ class ThermometerController {
      * @return true if archiving took place
      */
     suspend fun archiveOldThermometer(thermometer: Thermometer?, device: Device, site: Site): Boolean {
-        if (thermometer != null && (thermometer.espMacAddress != device.deviceId || thermometer.site!!.id != site.id)) {
-            val archivedAt = OffsetDateTime.now()
-            thermometerRepository.update(thermometer = thermometer, archivedAt = archivedAt, name = thermometer.name, modifierId = null)
-            return true
+        val thermometerIsUnchanged = thermometer?.espMacAddress == device.deviceId && thermometer.site!!.id == site.id
+
+        if (thermometer == null || thermometerIsUnchanged) {
+          return false
         }
 
-        return false
+        val archivedAt = OffsetDateTime.now()
+        thermometerRepository.update(
+            thermometer = thermometer,
+            archivedAt = archivedAt,
+            name = thermometer.name,
+            modifierId = null
+        )
 
+        return true
     }
 
     /**
