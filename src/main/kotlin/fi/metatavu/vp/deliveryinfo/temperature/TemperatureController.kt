@@ -58,13 +58,13 @@ class TemperatureController {
      *
      * @return temperature
      */
-    suspend fun list(site: Site, includeArchived: Boolean, first: Int?, max: Int?): List<Temperature> {
+    suspend fun list(site: Site, includeArchived: Boolean, first: Int?, max: Int?): Pair<List<Temperature>, Long> {
         return temperatureRepository.list(
             thermometer = null,
             site = site,
             includeArchived = includeArchived,
             first = first,
-            max = max).component1()
+            max = max)
     }
 
     /**
