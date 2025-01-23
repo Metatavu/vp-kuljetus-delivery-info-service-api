@@ -60,7 +60,7 @@ abstract class AbstractApi {
      */
     protected val requestTerminalDeviceKey: String?
         get() {
-            return headers.getHeaderString("X-DataReceiver-API-Key")
+            return headers.getHeaderString("X-TerminalDevice-API-Key")
         }
 
     /**
