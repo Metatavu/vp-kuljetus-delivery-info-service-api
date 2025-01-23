@@ -393,21 +393,21 @@ class SitesTestIT : AbstractFunctionalTest() {
         val createdSite = it.manager.sites.create(site1)
 
         val temperatureReading = TemperatureReading(
-            espMacAddress = deviceId,
+            deviceIdentifier = deviceId,
             hardwareSensorId = "wgrewgerf",
             value = 23.2f,
             timestamp = Instant.now().toEpochMilli()
         )
 
         val temperatureReading2 = TemperatureReading(
-            espMacAddress = deviceId,
+            deviceIdentifier = deviceId,
             hardwareSensorId = "wgrewgerf",
             value = 25.2f,
             timestamp = Instant.now().toEpochMilli()
         )
 
         val temperatureReading3 = TemperatureReading(
-            espMacAddress = deviceId,
+            deviceIdentifier = deviceId,
             hardwareSensorId = "wgrewgerf",
             value = 21.1f,
             timestamp = Instant.now().toEpochMilli()
@@ -427,7 +427,7 @@ class SitesTestIT : AbstractFunctionalTest() {
         assertEquals(3, firstSiteActiveTemperatures.size)
 
         val temperatureReading4 = TemperatureReading(
-            espMacAddress = device2Id,
+            deviceIdentifier = device2Id,
             hardwareSensorId = "wgrewgerf",
             value = 21.1f,
             timestamp = Instant.now().toEpochMilli()
@@ -455,7 +455,7 @@ class SitesTestIT : AbstractFunctionalTest() {
 
         val createdSite2 = it.manager.sites.create(site2)
         val temperatureReading5 = TemperatureReading(
-            espMacAddress = device3Id,
+            deviceIdentifier = device3Id,
             hardwareSensorId = "wgrewgerf",
             value = 21.1f,
             timestamp = Instant.now().toEpochMilli()
@@ -500,7 +500,7 @@ class SitesTestIT : AbstractFunctionalTest() {
 
         it.manager.sites.create(site1)
         val temperatureReading = TemperatureReading(
-            espMacAddress = deviceId,
+            deviceIdentifier = deviceId,
             hardwareSensorId = "wgrewgerf",
             value = 23.2f,
             timestamp = Instant.now().toEpochMilli()

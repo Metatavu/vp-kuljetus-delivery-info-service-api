@@ -15,7 +15,7 @@ class ThermometerTranslator: AbstractTranslator<Thermometer, fi.metatavu.vp.api.
             name = entity.name,
             hardwareSensorId = entity.hardwareSensorId,
             siteId = entity.site.id,
-            espMacAddress = entity.deviceIdentifier,
+            deviceIdentifier = entity.deviceIdentifier,
             archivedAt = entity.archivedAt,
             lastModifierId = entity.lastModifierId,
             createdAt = entity.createdAt,

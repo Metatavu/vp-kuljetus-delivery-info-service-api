@@ -35,7 +35,7 @@ class ThermometerTestsIT: AbstractFunctionalTest() {
         val createdSite = it.manager.sites.create(site1)
 
         val temperatureReading = TemperatureReading(
-            espMacAddress = deviceId,
+            deviceIdentifier = deviceId,
             hardwareSensorId = "wgrewgerf",
             value = 23.2f,
             timestamp = Instant.now().toEpochMilli()
@@ -44,7 +44,7 @@ class ThermometerTestsIT: AbstractFunctionalTest() {
         it.setTerminalDeviceApiKey().temperatureReadings.createTemperatureReading(temperatureReading)
         val thermometer = it.manager.thermometers.listThermometers(null, false).firstOrNull()
         assertNotNull(thermometer)
-        assertEquals(deviceId, thermometer!!.espMacAddress)
+        assertEquals(deviceId, thermometer!!.deviceIdentifier)
         assertEquals(temperatureReading.hardwareSensorId, thermometer.hardwareSensorId)
         assertEquals(createdSite.id, thermometer.siteId)
         assertNull(thermometer.archivedAt)
@@ -65,21 +65,21 @@ class ThermometerTestsIT: AbstractFunctionalTest() {
         ))
 
         val temperatureReading = TemperatureReading(
-            espMacAddress = deviceId,
+            deviceIdentifier = deviceId,
             hardwareSensorId = "wgrewgerf",
             value = 23.2f,
             timestamp = Instant.now().toEpochMilli()
         )
 
         val temperatureReading2 = TemperatureReading(
-            espMacAddress = deviceId,
+            deviceIdentifier = deviceId,
             hardwareSensorId = "wgrewgerf2",
             value = 23.2f,
             timestamp = Instant.now().toEpochMilli()
         )
 
         val temperatureReading3 = TemperatureReading(
-            espMacAddress = deviceId,
+            deviceIdentifier = deviceId,
             hardwareSensorId = "wgrewgerf3",
             value = 23.2f,
             timestamp = Instant.now().toEpochMilli()
@@ -97,7 +97,7 @@ class ThermometerTestsIT: AbstractFunctionalTest() {
         assertEquals(3, list3.size)
 
         val temperatureReading4 = TemperatureReading(
-            espMacAddress = device2Id,
+            deviceIdentifier = device2Id,
             hardwareSensorId = "wgrewgerf3",
             value = 23.2f,
             timestamp = Instant.now().toEpochMilli()
@@ -109,7 +109,7 @@ class ThermometerTestsIT: AbstractFunctionalTest() {
         val list5 = it.manager.thermometers.listThermometers(null, true)
         assertEquals(4, list5.size)
         val archived = list5.find { reading ->
-            reading.espMacAddress == temperatureReading3.espMacAddress && reading.hardwareSensorId == temperatureReading3.hardwareSensorId
+            reading.deviceIdentifier == temperatureReading3.deviceIdentifier && reading.hardwareSensorId == temperatureReading3.hardwareSensorId
         }
         assertNotNull(archived!!.archivedAt)
 
@@ -126,7 +126,7 @@ class ThermometerTestsIT: AbstractFunctionalTest() {
         ))
 
         val temperatureReading5 = TemperatureReading(
-            espMacAddress = device2Id,
+            deviceIdentifier = device2Id,
             hardwareSensorId = "wgrewgerf3",
             value = 23.2f,
             timestamp = Instant.now().toEpochMilli()
@@ -158,7 +158,7 @@ class ThermometerTestsIT: AbstractFunctionalTest() {
         ))
 
         val temperatureReading = TemperatureReading(
-            espMacAddress = deviceId,
+            deviceIdentifier = deviceId,
             hardwareSensorId = "wgrewgerf",
             value = 23.2f,
             timestamp = Instant.now().toEpochMilli()
@@ -185,7 +185,7 @@ class ThermometerTestsIT: AbstractFunctionalTest() {
         ))
 
         val temperatureReading = TemperatureReading(
-            espMacAddress = deviceId,
+            deviceIdentifier = deviceId,
             hardwareSensorId = "wgrewgerf",
             value = 23.2f,
             timestamp = Instant.now().toEpochMilli()
@@ -223,7 +223,7 @@ class ThermometerTestsIT: AbstractFunctionalTest() {
         it.manager.sites.create(site1)
 
         val temperatureReading = TemperatureReading(
-            espMacAddress = deviceId,
+            deviceIdentifier = deviceId,
             hardwareSensorId = "wgrewgerf",
             value = 23.2f,
             timestamp = Instant.now().toEpochMilli()
@@ -252,7 +252,7 @@ class ThermometerTestsIT: AbstractFunctionalTest() {
         ))
 
         val temperatureReading = TemperatureReading(
-            espMacAddress = deviceId,
+            deviceIdentifier = deviceId,
             hardwareSensorId = "wgrewgerf",
             value = 23.2f,
             timestamp = Instant.now().toEpochMilli()
