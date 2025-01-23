@@ -124,6 +124,11 @@ class ThermometerController {
      * @return update thermometer
      */
     suspend fun updateThermometerName(thermometer: Thermometer, name: String?, userId: UUID): Thermometer {
-        return thermometerRepository.update(thermometer = thermometer, archivedAt = thermometer.archivedAt, name = name, modifierId = userId)
+        return thermometerRepository.update(
+            thermometer = thermometer,
+            archivedAt = thermometer.archivedAt,
+            name = name,
+            modifierId = userId
+        )
     }
 }
