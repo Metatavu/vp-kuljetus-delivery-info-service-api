@@ -126,7 +126,7 @@ class SitesApiImpl: SitesApi, AbstractApi() {
         }
 
         if (site.siteType == "TERMINAL") {
-            deviceController.listBySite(site).component1().forEach { deviceController.delete(it) }
+            deviceController.listBySite(site).first.forEach { deviceController.delete(it) }
 
             thermometerController.listThermometers(site, true).forEach {
                 temperatureController.listByThermometer(it).forEach { temperature ->
