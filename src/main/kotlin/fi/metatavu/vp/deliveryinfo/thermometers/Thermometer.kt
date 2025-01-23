@@ -25,7 +25,7 @@ class Thermometer {
     var name: String? = null
 
     @ManyToOne
-    var site: Site? = null
+    lateinit var site: Site
 
     @Column
     var archivedAt: OffsetDateTime? = null
