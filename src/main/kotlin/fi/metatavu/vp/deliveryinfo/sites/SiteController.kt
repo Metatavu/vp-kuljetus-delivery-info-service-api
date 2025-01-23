@@ -2,6 +2,8 @@ package fi.metatavu.vp.deliveryinfo.sites
 
 import fi.metatavu.vp.api.model.SiteType
 import fi.metatavu.vp.deliveryinfo.devices.DeviceController
+import fi.metatavu.vp.deliveryinfo.temperature.TemperatureController
+import fi.metatavu.vp.deliveryinfo.thermometers.ThermometerController
 import jakarta.enterprise.context.ApplicationScoped
 import jakarta.inject.Inject
 import org.locationtech.jts.geom.Geometry
@@ -19,6 +21,12 @@ class SiteController {
 
     @Inject
     lateinit var deviceController: DeviceController
+
+    @Inject
+    lateinit var thermometerController: ThermometerController
+
+    @Inject
+    lateinit var temperatureController: TemperatureController
 
     private val reader = WKTReader()
 
@@ -122,6 +130,16 @@ class SiteController {
      * @param site site
      */
     suspend fun deleteSite(site: Site) {
+        if (site.siteType == "TERMINAL") {
+            deviceController.listBySite(site).first.forEach { deviceController.delete(it) }
+
+            thermometerController.listThermometers(site, true).forEach {
+                temperatureController.listByThermometer(it).forEach { temperature ->
+                    temperatureController.delete(temperature)
+                }
+                thermometerController.deleteThermometer(it)
+            }
+        }
         siteRepository.deleteSuspending(site)
     }
 

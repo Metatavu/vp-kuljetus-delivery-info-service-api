@@ -31,7 +31,7 @@ class ThermometerController {
         return thermometerRepository.create(
             id = UUID.randomUUID(),
             hardwareSensorId = hardwareSensorId,
-            espMacAddress = device.deviceId,
+            deviceIdentifier = device.deviceId,
             site = site
         )
     }
@@ -45,7 +45,7 @@ class ThermometerController {
      * @return true if archiving took place
      */
     suspend fun archiveOldThermometer(thermometer: Thermometer?, device: Device, site: Site): Boolean {
-        val thermometerIsUnchanged = thermometer?.espMacAddress == device.deviceId && thermometer.site!!.id == site.id
+        val thermometerIsUnchanged = thermometer?.deviceIdentifier == device.deviceId && thermometer.site!!.id == site.id
 
         if (thermometer == null || thermometerIsUnchanged) {
           return false

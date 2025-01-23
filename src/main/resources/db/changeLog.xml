@@ -269,7 +269,7 @@
                 <constraints primaryKey="true" nullable="false"/>
             </column>
             <column name="name" type="varchar(191)"/>
-            <column name="espmacaddress" type="varchar(191)">
+            <column name="deviceidentifier" type="varchar(191)">
                 <constraints nullable="false"/>
             </column>
             <column name="hardwaresensorid" type="varchar(191)">

@@ -33,9 +33,6 @@ class SitesApiImpl: SitesApi, AbstractApi() {
     lateinit var deviceController: DeviceController
 
     @Inject
-    lateinit var thermometerController: ThermometerController
-
-    @Inject
     lateinit var temperatureController: TemperatureController
 
     @Inject
@@ -86,7 +83,7 @@ class SitesApiImpl: SitesApi, AbstractApi() {
     @RolesAllowed(MANAGER_ROLE)
     override fun listSiteTemperatures(siteId: UUID, includeArchived: Boolean, first: Int?, max: Int?): Uni<Response> = withCoroutineScope {
         val site = siteController.findSite(siteId) ?: return@withCoroutineScope createNotFound(createNotFoundMessage(SITE, siteId))
-        val temperatures = temperatureController.list(site = site, includeArchived = includeArchived, first = first, max = max).map {
+        val temperatures = temperatureController.list(site = site, includeArchived = includeArchived, first = first, max = max).first.map {
             temperatureTranslator.translate(it)
         }
         createOk(temperatures)
@@ -123,17 +120,6 @@ class SitesApiImpl: SitesApi, AbstractApi() {
         val site = siteController.findSite(siteId) ?: return@withCoroutineScope createNotFound(createNotFoundMessage(SITE, siteId))
         if (taskController.listTasks(site = site).first.isNotEmpty()) {
             return@withCoroutineScope createConflict("Cannot delete site with tasks")
-        }
-
-        if (site.siteType == "TERMINAL") {
-            deviceController.listBySite(site).first.forEach { deviceController.delete(it) }
-
-            thermometerController.listThermometers(site, true).forEach {
-                temperatureController.listByThermometer(it).forEach { temperature ->
-                    temperatureController.delete(temperature)
-                }
-                thermometerController.deleteThermometer(it)
-            }
         }
 
         siteController.deleteSite(site)

@@ -13,6 +13,7 @@ import org.eclipse.microprofile.jwt.JsonWebToken
 import java.lang.Runnable
 import java.util.*
 import kotlin.coroutines.CoroutineContext
+import jakarta.ws.rs.core.Context as JakartaContext
 
 /**
  * Abstract base class for all API services
@@ -30,7 +31,7 @@ abstract class AbstractApi {
     @Inject
     private lateinit var jsonWebToken: JsonWebToken
 
-    @jakarta.ws.rs.core.Context
+    @JakartaContext
     lateinit var headers: HttpHeaders
 
     /**

@@ -45,7 +45,7 @@ class DeviceRepository: AbstractRepository<Device, UUID>() {
      * @return found device or null
      */
     suspend fun findByDeviceId(deviceId: String): Device? {
-        return find("deviceId = :deviceId", Parameters.with("deviceId", deviceId)).firstResult<Device().awaitSuspending()`
+        return find("deviceId = :deviceId", Parameters.with("deviceId", deviceId)).firstResult<Device?>().awaitSuspending()
     }
 
     /**

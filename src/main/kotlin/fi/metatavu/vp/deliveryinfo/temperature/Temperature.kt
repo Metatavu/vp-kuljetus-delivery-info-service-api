@@ -4,6 +4,9 @@ import fi.metatavu.vp.deliveryinfo.thermometers.Thermometer
 import jakarta.persistence.*
 import java.util.*
 
+/**
+ * Entity for temperature
+ */
 @Entity
 @Table(name = "temperature")
 class Temperature {

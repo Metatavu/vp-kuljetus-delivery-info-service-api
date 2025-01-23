@@ -423,8 +423,8 @@ class SitesTestIT : AbstractFunctionalTest() {
 
         it.setTerminalDeviceApiKey().temperatureReadings.createTemperatureReading(temperatureReading2)
         it.setTerminalDeviceApiKey().temperatureReadings.createTemperatureReading(temperatureReading3)
-        val list1 = it.manager.sites.listSiteTemperatures(siteId = createdSite.id, includeArchived = false, null, null)
-        assertEquals(3, list1.size)
+        val firstSiteActiveTemperatures = it.manager.sites.listSiteTemperatures(siteId = createdSite.id, includeArchived = false, null, null)
+        assertEquals(3, firstSiteActiveTemperatures.size)
 
         val temperatureReading4 = TemperatureReading(
             espMacAddress = device2Id,
@@ -433,14 +433,14 @@ class SitesTestIT : AbstractFunctionalTest() {
             timestamp = Instant.now().toEpochMilli()
         )
         it.setTerminalDeviceApiKey().temperatureReadings.createTemperatureReading(temperatureReading4)
-        val list2 = it.manager.sites.listSiteTemperatures(siteId = createdSite.id, includeArchived = false, null, null)
-        assertEquals(1, list2.size)
-        val list3 = it.manager.sites.listSiteTemperatures(siteId = createdSite.id, includeArchived = true, null, null)
-        assertEquals(4, list3.size)
-        val list4 = it.manager.sites.listSiteTemperatures(siteId = createdSite.id, includeArchived = true, 1, null)
-        assertEquals(3, list4.size)
-        val list5 = it.manager.sites.listSiteTemperatures(siteId = createdSite.id, includeArchived = true, 1, 2)
-        assertEquals(2, list5.size)
+        val firstSiteActiveTemperaturesNew = it.manager.sites.listSiteTemperatures(siteId = createdSite.id, includeArchived = false, null, null)
+        assertEquals(1, firstSiteActiveTemperaturesNew.size)
+        val firstSiteAllTemperatures = it.manager.sites.listSiteTemperatures(siteId = createdSite.id, includeArchived = true, null, null)
+        assertEquals(4, firstSiteAllTemperatures.size)
+        val firstSiteFilteredTemperatures = it.manager.sites.listSiteTemperatures(siteId = createdSite.id, includeArchived = true, 1, null)
+        assertEquals(3, firstSiteFilteredTemperatures.size)
+        val firstSiteFilteredTemperatures2 = it.manager.sites.listSiteTemperatures(siteId = createdSite.id, includeArchived = true, 1, 2)
+        assertEquals(2, firstSiteFilteredTemperatures2.size)
 
         val device3Id = UUID.randomUUID().toString()
         val site2 = Site(

@@ -51,7 +51,7 @@ class ThermometersApiImpl: ThermometersApi, AbstractApi() {
         val userId = loggedUserId ?: return@withCoroutineScope createUnauthorized(UNAUTHORIZED)
 
         val foundThermometer = thermometerController.findThermometer(thermometerId) ?: return@withCoroutineScope createNotFound("Thermometer with id $thermometerId not found")
-        val updatedThermometer = thermometerController.updateThermometerName(thermometer = foundThermometer, name = updateThermometerRequest.name, userId = userId)
+        val updatedThermometer = thermometerController.updateThermometerName(thermometerId = foundThermometer.id, name = updateThermometerRequest.name, userId = userId)
         createOk(thermometerTranslator.translate(updatedThermometer))
     }
 

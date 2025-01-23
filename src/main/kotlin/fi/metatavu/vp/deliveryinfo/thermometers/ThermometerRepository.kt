@@ -1,10 +1,8 @@
 package fi.metatavu.vp.deliveryinfo.thermometers
 
-import fi.metatavu.vp.deliveryinfo.devices.Device
 import fi.metatavu.vp.deliveryinfo.persistence.AbstractRepository
 import fi.metatavu.vp.deliveryinfo.sites.Site
 import io.quarkus.panache.common.Parameters
-import io.quarkus.panache.common.Sort
 import jakarta.enterprise.context.ApplicationScoped
 import java.time.OffsetDateTime
 import java.util.*
@@ -19,20 +17,19 @@ class ThermometerRepository : AbstractRepository<Thermometer, UUID>() {
      *
      * @param id id
      * @param hardwareSensorId sensor id
-     * @param espMacAddress ESP ḾAC address
+     * @param deviceIdentifier device identifier
      * @param site site (terminal)
-     * @param userId user id
      */
     suspend fun create(
         id: UUID,
         hardwareSensorId: String,
-        espMacAddress: String,
+        deviceIdentifier: String,
         site: Site
     ): Thermometer {
         val thermometer = Thermometer()
         thermometer.id = id
         thermometer.hardwareSensorId = hardwareSensorId
-        thermometer.espMacAddress = espMacAddress
+        thermometer.deviceIdentifier = deviceIdentifier
         thermometer.site = site
         return persistSuspending(thermometer)
     }
@@ -50,7 +47,11 @@ class ThermometerRepository : AbstractRepository<Thermometer, UUID>() {
     suspend fun update(thermometer: Thermometer, name: String?, archivedAt: OffsetDateTime?, modifierId: UUID?): Thermometer {
         thermometer.name = name
         thermometer.archivedAt = archivedAt
-        thermometer.lastModifierId = modifierId
+
+        if (modifierId != null) {
+            thermometer.lastModifierId = modifierId
+        }
+
         return persistSuspending(thermometer)
     }
 
