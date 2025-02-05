@@ -7,10 +7,10 @@ import jakarta.enterprise.context.ApplicationScoped
  * Translator for Thermometer JPA to REST entity
  */
 @ApplicationScoped
-class ThermometerTranslator: AbstractTranslator<Thermometer, fi.metatavu.vp.api.model.Thermometer>() {
+class ThermometerTranslator: AbstractTranslator<Thermometer, fi.metatavu.vp.api.model.TerminalThermometer>() {
 
-    override suspend fun translate(entity: Thermometer): fi.metatavu.vp.api.model.Thermometer {
-        return fi.metatavu.vp.api.model.Thermometer(
+    override suspend fun translate(entity: Thermometer): fi.metatavu.vp.api.model.TerminalThermometer {
+        return fi.metatavu.vp.api.model.TerminalThermometer(
             id = entity.id,
             name = entity.name,
             hardwareSensorId = entity.hardwareSensorId,
