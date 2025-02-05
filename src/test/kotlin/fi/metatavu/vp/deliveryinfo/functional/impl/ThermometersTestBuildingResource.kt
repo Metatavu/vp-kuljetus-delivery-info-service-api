@@ -3,14 +3,11 @@ package fi.metatavu.vp.deliveryinfo.functional.impl
 import fi.metatavu.jaxrs.test.functional.builder.auth.AccessTokenProvider
 import fi.metatavu.vp.deliveryinfo.functional.TestBuilder
 import fi.metatavu.vp.deliveryinfo.functional.settings.ApiTestSettings
-import fi.metatavu.vp.test.client.apis.TemperatureReadingsApi
 import fi.metatavu.vp.test.client.apis.ThermometersApi
 import fi.metatavu.vp.test.client.infrastructure.ApiClient
 import fi.metatavu.vp.test.client.infrastructure.ClientException
-import fi.metatavu.vp.test.client.models.Site
-import fi.metatavu.vp.test.client.models.TemperatureReading
-import fi.metatavu.vp.test.client.models.Thermometer
-import fi.metatavu.vp.test.client.models.UpdateThermometerRequest
+import fi.metatavu.vp.test.client.models.TerminalThermometer
+import fi.metatavu.vp.test.client.models.UpdateTerminalThermometerRequest
 import org.junit.Assert
 import java.util.*
 
@@ -21,8 +18,8 @@ class ThermometersTestBuildingResource(
     testBuilder: TestBuilder,
     private val accessTokenProvider: AccessTokenProvider?,
     apiClient: ApiClient
-) : ApiTestBuilderResource<Thermometer, ApiClient>(testBuilder, apiClient) {
-    override fun clean(p0: Thermometer?) {}
+) : ApiTestBuilderResource<TerminalThermometer, ApiClient>(testBuilder, apiClient) {
+    override fun clean(p0: TerminalThermometer?) {}
 
     override fun getApi(): ThermometersApi {
         ApiClient.accessToken = accessTokenProvider?.accessToken
@@ -37,8 +34,8 @@ class ThermometersTestBuildingResource(
      *
      * @return thermometers
      */
-    fun listThermometers(siteId: UUID?, archivedAt: Boolean): List<Thermometer> {
-        return api.listThermometers(siteId, archivedAt).toList()
+    fun listThermometers(siteId: UUID?, archivedAt: Boolean): List<TerminalThermometer> {
+        return api.listTerminalThermometers(siteId, archivedAt).toList()
     }
 
     /**
@@ -48,8 +45,8 @@ class ThermometersTestBuildingResource(
      *
      * @return found thermometer
      */
-    fun findThermometer(id: UUID): Thermometer {
-        return api.findThermometer(id)
+    fun findThermometer(id: UUID): TerminalThermometer {
+        return api.findTerminalThermometer(id)
     }
 
     /**
@@ -60,8 +57,8 @@ class ThermometersTestBuildingResource(
      *
      * @return updated thermometer
      */
-    fun updateThermometer(id: UUID, thermometer: UpdateThermometerRequest): Thermometer {
-        return api.updateThermometer(id, thermometer)
+    fun updateThermometer(id: UUID, thermometer: UpdateTerminalThermometerRequest): TerminalThermometer {
+        return api.updateTerminalThermometer(id, thermometer)
     }
 
     /**
@@ -101,7 +98,7 @@ class ThermometersTestBuildingResource(
      */
     fun assertUpdateThermometerFail(id: UUID, expectedStatus: Int) {
         try {
-            updateThermometer(id, UpdateThermometerRequest(name = "name"))
+            updateThermometer(id, UpdateTerminalThermometerRequest(name = "name"))
             Assert.fail(String.format("Expected list to fail with status %d", expectedStatus))
         } catch (ex: ClientException) {
             assertClientExceptionStatus(expectedStatus, ex)

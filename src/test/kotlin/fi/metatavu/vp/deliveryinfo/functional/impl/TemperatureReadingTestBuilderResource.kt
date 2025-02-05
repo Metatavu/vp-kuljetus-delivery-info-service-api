@@ -1,13 +1,11 @@
 package fi.metatavu.vp.deliveryinfo.functional.impl
 
-import fi.metatavu.jaxrs.test.functional.builder.auth.AccessTokenProvider
 import fi.metatavu.vp.deliveryinfo.functional.TestBuilder
 import fi.metatavu.vp.deliveryinfo.functional.settings.ApiTestSettings
 import fi.metatavu.vp.test.client.apis.TemperatureReadingsApi
 import fi.metatavu.vp.test.client.infrastructure.ApiClient
 import fi.metatavu.vp.test.client.infrastructure.ClientException
-import fi.metatavu.vp.test.client.models.TemperatureReading
-import fi.metatavu.vp.test.client.models.UpdateThermometerRequest
+import fi.metatavu.vp.test.client.models.TerminalTemperatureReading
 import org.junit.Assert
 
 /**
@@ -17,8 +15,8 @@ class TemperatureReadingTestBuilderResource(
     testBuilder: TestBuilder,
     private val terminalDeviceApiKey: String?,
     apiClient: ApiClient
-) : ApiTestBuilderResource<TemperatureReading, ApiClient>(testBuilder, apiClient) {
-    override fun clean(p0: TemperatureReading?) {}
+) : ApiTestBuilderResource<TerminalTemperatureReading, ApiClient>(testBuilder, apiClient) {
+    override fun clean(p0: TerminalTemperatureReading?) {}
 
 
     override fun getApi(): TemperatureReadingsApi {
@@ -34,7 +32,7 @@ class TemperatureReadingTestBuilderResource(
      * @param temperatureReading temperature reading
      */
     fun createTemperatureReading(
-        temperatureReading: TemperatureReading
+        temperatureReading: TerminalTemperatureReading
     ) {
         api.createTemperatureReading(temperatureReading)
     }
@@ -45,7 +43,7 @@ class TemperatureReadingTestBuilderResource(
      * @param temperatureReading temperature reading
      * @param expectedStatus expected status
      */
-    fun assertCreateTemperatureReadingFail(temperatureReading: TemperatureReading, expectedStatus: Int) {
+    fun assertCreateTemperatureReadingFail(temperatureReading: TerminalTemperatureReading, expectedStatus: Int) {
         try {
             createTemperatureReading(temperatureReading)
             Assert.fail(String.format("Expected list to fail with status %d", expectedStatus))

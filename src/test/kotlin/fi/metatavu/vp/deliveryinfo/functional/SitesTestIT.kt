@@ -9,7 +9,7 @@ import fi.metatavu.vp.deliveryinfo.functional.settings.ApiTestSettings
 import fi.metatavu.vp.deliveryinfo.functional.settings.DefaultTestProfile
 import fi.metatavu.vp.test.client.models.Site
 import fi.metatavu.vp.test.client.models.SiteType
-import fi.metatavu.vp.test.client.models.TemperatureReading
+import fi.metatavu.vp.test.client.models.TerminalTemperatureReading
 import io.quarkus.test.junit.QuarkusTest
 import io.quarkus.test.junit.TestProfile
 import io.restassured.http.Method
@@ -126,7 +126,7 @@ class SitesTestIT : AbstractFunctionalTest() {
 
         val created = it.manager.sites.create(site1)
         assertNotNull(it.manager.sites.findSite(created.id!!))
-        it.manager.sites.deleteSite(created.id!!)
+        it.manager.sites.deleteSite(created.id)
         val emptyList = it.manager.sites.listSites()
         assertEquals(0, emptyList.size)
     }
@@ -392,21 +392,21 @@ class SitesTestIT : AbstractFunctionalTest() {
 
         val createdSite = it.manager.sites.create(site1)
 
-        val temperatureReading = TemperatureReading(
+        val temperatureReading = TerminalTemperatureReading(
             deviceIdentifier = deviceId,
             hardwareSensorId = "wgrewgerf",
             value = 23.2f,
             timestamp = Instant.now().toEpochMilli()
         )
 
-        val temperatureReading2 = TemperatureReading(
+        val temperatureReading2 = TerminalTemperatureReading(
             deviceIdentifier = deviceId,
             hardwareSensorId = "wgrewgerf",
             value = 25.2f,
             timestamp = Instant.now().toEpochMilli()
         )
 
-        val temperatureReading3 = TemperatureReading(
+        val temperatureReading3 = TerminalTemperatureReading(
             deviceIdentifier = deviceId,
             hardwareSensorId = "wgrewgerf",
             value = 21.1f,
@@ -426,7 +426,7 @@ class SitesTestIT : AbstractFunctionalTest() {
         val firstSiteActiveTemperatures = it.manager.sites.listSiteTemperatures(siteId = createdSite.id, includeArchived = false, null, null)
         assertEquals(3, firstSiteActiveTemperatures.size)
 
-        val temperatureReading4 = TemperatureReading(
+        val temperatureReading4 = TerminalTemperatureReading(
             deviceIdentifier = device2Id,
             hardwareSensorId = "wgrewgerf",
             value = 21.1f,
@@ -454,7 +454,7 @@ class SitesTestIT : AbstractFunctionalTest() {
         )
 
         val createdSite2 = it.manager.sites.create(site2)
-        val temperatureReading5 = TemperatureReading(
+        val temperatureReading5 = TerminalTemperatureReading(
             deviceIdentifier = device3Id,
             hardwareSensorId = "wgrewgerf",
             value = 21.1f,
@@ -499,7 +499,7 @@ class SitesTestIT : AbstractFunctionalTest() {
         )
 
         it.manager.sites.create(site1)
-        val temperatureReading = TemperatureReading(
+        val temperatureReading = TerminalTemperatureReading(
             deviceIdentifier = deviceId,
             hardwareSensorId = "wgrewgerf",
             value = 23.2f,

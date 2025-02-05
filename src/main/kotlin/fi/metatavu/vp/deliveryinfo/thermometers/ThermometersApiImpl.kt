@@ -1,6 +1,6 @@
 package fi.metatavu.vp.deliveryinfo.thermometers
 
-import fi.metatavu.vp.api.model.UpdateThermometerRequest
+import fi.metatavu.vp.api.model.UpdateTerminalThermometerRequest
 import fi.metatavu.vp.api.spec.ThermometersApi
 import fi.metatavu.vp.deliveryinfo.rest.AbstractApi
 import fi.metatavu.vp.deliveryinfo.sites.Site
@@ -31,13 +31,13 @@ class ThermometersApiImpl: ThermometersApi, AbstractApi() {
     lateinit var thermometerTranslator: ThermometerTranslator
 
     @RolesAllowed(MANAGER_ROLE)
-    override fun findThermometer(thermometerId: UUID): Uni<Response> = withCoroutineScope {
+    override fun findTerminalThermometer(thermometerId: UUID): Uni<Response> = withCoroutineScope {
         val thermometer = thermometerController.findThermometer(thermometerId) ?: return@withCoroutineScope createNotFound("Thermometer with id $thermometerId not found")
         createOk(thermometerTranslator.translate(thermometer))
     }
 
     @RolesAllowed(MANAGER_ROLE)
-    override fun listThermometers(siteId: UUID?, includeArchived: Boolean, first: Int?, max: Int?): Uni<Response> = withCoroutineScope {
+    override fun listTerminalThermometers(siteId: UUID?, includeArchived: Boolean, first: Int?, max: Int?): Uni<Response> = withCoroutineScope {
         val site = getSiteIfExists(siteId)
         val thermometers = thermometerController.listThermometers(site = site, includeArchived = includeArchived)
         val translated = thermometers.first.map { thermometerTranslator.translate(it) }
@@ -45,9 +45,9 @@ class ThermometersApiImpl: ThermometersApi, AbstractApi() {
     }
 
     @RolesAllowed(MANAGER_ROLE)
-    override fun updateThermometer(
+    override fun updateTerminalThermometer(
         thermometerId: UUID,
-        updateThermometerRequest: UpdateThermometerRequest
+        updateThermometerRequest: UpdateTerminalThermometerRequest
     ): Uni<Response> = withCoroutineScope {
         val userId = loggedUserId ?: return@withCoroutineScope createUnauthorized(UNAUTHORIZED)
 

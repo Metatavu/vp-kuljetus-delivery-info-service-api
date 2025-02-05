@@ -1,6 +1,6 @@
 package fi.metatavu.vp.deliveryinfo.temperature
 
-import fi.metatavu.vp.api.model.TemperatureReading
+import fi.metatavu.vp.api.model.TerminalTemperatureReading
 import fi.metatavu.vp.api.spec.TemperatureReadingsApi
 import fi.metatavu.vp.deliveryinfo.devices.DeviceController
 import fi.metatavu.vp.deliveryinfo.rest.AbstractApi
@@ -8,7 +8,6 @@ import fi.metatavu.vp.deliveryinfo.thermometers.ThermometerController
 import io.quarkus.hibernate.reactive.panache.common.WithSession
 import io.quarkus.hibernate.reactive.panache.common.WithTransaction
 import io.smallrye.mutiny.Uni
-import jakarta.annotation.security.RolesAllowed
 import jakarta.enterprise.context.RequestScoped
 import jakarta.inject.Inject
 import jakarta.ws.rs.core.Response
@@ -31,7 +30,7 @@ class TemperatureReadingsApiImpl: TemperatureReadingsApi, AbstractApi() {
     lateinit var temperatureController: TemperatureController
 
     @WithTransaction
-    override fun createTemperatureReading(temperatureReading: TemperatureReading): Uni<Response> = withCoroutineScope {
+    override fun createTemperatureReading(temperatureReading: TerminalTemperatureReading): Uni<Response> = withCoroutineScope {
         if (requestTerminalDeviceKey != terminalDeviceApiKeyValue) return@withCoroutineScope createForbidden(INVALID_API_KEY)
         val device = deviceController.findByDeviceId(temperatureReading.deviceIdentifier)
             ?: return@withCoroutineScope createBadRequest("Device with address ${temperatureReading.deviceIdentifier} does not exist")

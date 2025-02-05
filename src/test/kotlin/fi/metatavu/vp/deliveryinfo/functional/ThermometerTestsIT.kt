@@ -3,8 +3,8 @@ package fi.metatavu.vp.deliveryinfo.functional
 import fi.metatavu.vp.deliveryinfo.functional.settings.DefaultTestProfile
 import fi.metatavu.vp.test.client.models.Site
 import fi.metatavu.vp.test.client.models.SiteType
-import fi.metatavu.vp.test.client.models.TemperatureReading
-import fi.metatavu.vp.test.client.models.UpdateThermometerRequest
+import fi.metatavu.vp.test.client.models.TerminalTemperatureReading
+import fi.metatavu.vp.test.client.models.UpdateTerminalThermometerRequest
 import io.quarkus.test.junit.QuarkusTest
 import io.quarkus.test.junit.TestProfile
 import org.junit.jupiter.api.Assertions.*
@@ -34,7 +34,7 @@ class ThermometerTestsIT: AbstractFunctionalTest() {
 
         val createdSite = it.manager.sites.create(site1)
 
-        val temperatureReading = TemperatureReading(
+        val temperatureReading = TerminalTemperatureReading(
             deviceIdentifier = deviceId,
             hardwareSensorId = "wgrewgerf",
             value = 23.2f,
@@ -64,21 +64,21 @@ class ThermometerTestsIT: AbstractFunctionalTest() {
             deviceIds = arrayOf(deviceId, device2Id)
         ))
 
-        val temperatureReading = TemperatureReading(
+        val temperatureReading = TerminalTemperatureReading(
             deviceIdentifier = deviceId,
             hardwareSensorId = "wgrewgerf",
             value = 23.2f,
             timestamp = Instant.now().toEpochMilli()
         )
 
-        val temperatureReading2 = TemperatureReading(
+        val temperatureReading2 = TerminalTemperatureReading(
             deviceIdentifier = deviceId,
             hardwareSensorId = "wgrewgerf2",
             value = 23.2f,
             timestamp = Instant.now().toEpochMilli()
         )
 
-        val temperatureReading3 = TemperatureReading(
+        val temperatureReading3 = TerminalTemperatureReading(
             deviceIdentifier = deviceId,
             hardwareSensorId = "wgrewgerf3",
             value = 23.2f,
@@ -96,7 +96,7 @@ class ThermometerTestsIT: AbstractFunctionalTest() {
         val list3 = it.manager.thermometers.listThermometers(null, true)
         assertEquals(3, list3.size)
 
-        val temperatureReading4 = TemperatureReading(
+        val temperatureReading4 = TerminalTemperatureReading(
             deviceIdentifier = device2Id,
             hardwareSensorId = "wgrewgerf3",
             value = 23.2f,
@@ -125,7 +125,7 @@ class ThermometerTestsIT: AbstractFunctionalTest() {
             deviceIds = arrayOf(device2Id)
         ))
 
-        val temperatureReading5 = TemperatureReading(
+        val temperatureReading5 = TerminalTemperatureReading(
             deviceIdentifier = device2Id,
             hardwareSensorId = "wgrewgerf3",
             value = 23.2f,
@@ -157,7 +157,7 @@ class ThermometerTestsIT: AbstractFunctionalTest() {
             deviceIds = arrayOf(deviceId)
         ))
 
-        val temperatureReading = TemperatureReading(
+        val temperatureReading = TerminalTemperatureReading(
             deviceIdentifier = deviceId,
             hardwareSensorId = "wgrewgerf",
             value = 23.2f,
@@ -184,7 +184,7 @@ class ThermometerTestsIT: AbstractFunctionalTest() {
             deviceIds = arrayOf(deviceId)
         ))
 
-        val temperatureReading = TemperatureReading(
+        val temperatureReading = TerminalTemperatureReading(
             deviceIdentifier = deviceId,
             hardwareSensorId = "wgrewgerf",
             value = 23.2f,
@@ -194,7 +194,10 @@ class ThermometerTestsIT: AbstractFunctionalTest() {
         it.setTerminalDeviceApiKey().temperatureReadings.createTemperatureReading(temperatureReading)
         val thermometer = it.manager.thermometers.listThermometers(null, false).first()
         assertNull(thermometer.name)
-        val updated = it.manager.thermometers.updateThermometer(id = thermometer.id!!, thermometer = UpdateThermometerRequest(name = "Sensor1"))
+        val updated = it.manager.thermometers.updateThermometer(
+            id = thermometer.id!!,
+            thermometer = UpdateTerminalThermometerRequest(name = "Sensor1")
+        )
         assertEquals("Sensor1", updated.name)
     }
 
@@ -222,7 +225,7 @@ class ThermometerTestsIT: AbstractFunctionalTest() {
 
         it.manager.sites.create(site1)
 
-        val temperatureReading = TemperatureReading(
+        val temperatureReading = TerminalTemperatureReading(
             deviceIdentifier = deviceId,
             hardwareSensorId = "wgrewgerf",
             value = 23.2f,
@@ -251,7 +254,7 @@ class ThermometerTestsIT: AbstractFunctionalTest() {
             deviceIds = arrayOf(deviceId)
         ))
 
-        val temperatureReading = TemperatureReading(
+        val temperatureReading = TerminalTemperatureReading(
             deviceIdentifier = deviceId,
             hardwareSensorId = "wgrewgerf",
             value = 23.2f,
@@ -262,7 +265,7 @@ class ThermometerTestsIT: AbstractFunctionalTest() {
         val thermometer = it.manager.thermometers.listThermometers(null, false).first()
         it.user.thermometers.assertUpdateThermometerFail(thermometer.id!!, 403)
         it.driver.thermometers.assertUpdateThermometerFail(thermometer.id, 403)
-        it.manager.thermometers.updateThermometer(thermometer.id, UpdateThermometerRequest(name = "name"))
+        it.manager.thermometers.updateThermometer(thermometer.id, UpdateTerminalThermometerRequest(name = "name"))
         return@use
     }
 }
