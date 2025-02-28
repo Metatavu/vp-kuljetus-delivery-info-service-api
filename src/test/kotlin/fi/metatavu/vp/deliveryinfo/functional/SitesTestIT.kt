@@ -479,7 +479,7 @@ class SitesTestIT : AbstractFunctionalTest() {
         )
 
         val createdSite = it.manager.sites.create(site1)
-        //Access rights checks
+        //Access rights checks 
         it.user.sites.assertListSiteTemperaturesFail(createdSite.id!!, 403)
         it.driver.sites.assertListSiteTemperaturesFail(createdSite.id,403)
         assertNotNull(it.manager.sites.listSiteTemperatures(createdSite.id, false, null, null))
