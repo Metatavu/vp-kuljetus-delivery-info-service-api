@@ -2,6 +2,8 @@ package fi.metatavu.vp.deliveryinfo.temperature
 
 import fi.metatavu.vp.deliveryinfo.sites.Site
 import fi.metatavu.vp.deliveryinfo.thermometers.Thermometer
+import fi.metatavu.vp.messaging.GlobalEventController
+import fi.metatavu.vp.messaging.events.TemperatureGlobalEvent
 import jakarta.enterprise.context.ApplicationScoped
 import jakarta.inject.Inject
 import java.util.*
@@ -14,6 +16,9 @@ class TemperatureController {
 
     @Inject
     lateinit var temperatureRepository: TemperatureRepository
+
+    @Inject
+    lateinit var globalEventController: GlobalEventController
 
     /**
      * Create new temperature
@@ -29,6 +34,13 @@ class TemperatureController {
         timestamp: Long,
         value: Float
     ): Temperature {
+        globalEventController.publish(
+            TemperatureGlobalEvent(
+                temperature = value,
+                sensorId = thermometer.hardwareSensorId
+            )
+        )
+
         return temperatureRepository.create(
             id = UUID.randomUUID(),
             thermometer = thermometer,

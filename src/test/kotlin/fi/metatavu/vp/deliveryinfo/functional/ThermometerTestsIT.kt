@@ -1,6 +1,9 @@
 package fi.metatavu.vp.deliveryinfo.functional
 
 import fi.metatavu.vp.deliveryinfo.functional.settings.DefaultTestProfile
+import fi.metatavu.vp.messaging.RoutingKey
+import fi.metatavu.vp.messaging.client.MessagingClient
+import fi.metatavu.vp.messaging.events.TemperatureGlobalEvent
 import fi.metatavu.vp.test.client.models.Site
 import fi.metatavu.vp.test.client.models.SiteType
 import fi.metatavu.vp.test.client.models.TerminalTemperatureReading
@@ -41,7 +44,14 @@ class ThermometerTestsIT: AbstractFunctionalTest() {
             timestamp = Instant.now().toEpochMilli()
         )
 
+        val messageConsumer = MessagingClient.setConsumer<TemperatureGlobalEvent>(RoutingKey.TEMPERATURE)
         it.setTerminalDeviceApiKey().temperatureReadings.createTemperatureReading(temperatureReading)
+
+        val messages = messageConsumer.consumeMessages(1)
+        assertEquals(1, messages.size)
+        assertEquals(23.2f, messages.first().temperature)
+        assertEquals("wgrewgerf", messages.first().sensorId)
+
         val thermometer = it.manager.thermometers.listThermometers(null, false).firstOrNull()
         assertNotNull(thermometer)
         assertEquals(deviceId, thermometer!!.deviceIdentifier)
