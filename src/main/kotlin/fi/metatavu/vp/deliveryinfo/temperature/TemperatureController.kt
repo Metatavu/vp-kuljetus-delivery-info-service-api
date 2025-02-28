@@ -37,7 +37,8 @@ class TemperatureController {
         globalEventController.publish(
             TemperatureGlobalEvent(
                 temperature = value,
-                sensorId = thermometer.hardwareSensorId
+                thermometerId = thermometer.id,
+                timestamp = timestamp
             )
         )
 

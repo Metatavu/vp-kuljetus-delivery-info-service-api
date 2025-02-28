@@ -37,24 +37,25 @@ class ThermometerTestsIT: AbstractFunctionalTest() {
 
         val createdSite = it.manager.sites.create(site1)
 
+        val timeStamp = Instant.now().toEpochMilli()
         val temperatureReading = TerminalTemperatureReading(
             deviceIdentifier = deviceId,
             hardwareSensorId = "wgrewgerf",
             value = 23.2f,
-            timestamp = Instant.now().toEpochMilli()
+            timestamp = timeStamp
         )
 
         val messageConsumer = MessagingClient.setConsumer<TemperatureGlobalEvent>(RoutingKey.TEMPERATURE)
         it.setTerminalDeviceApiKey().temperatureReadings.createTemperatureReading(temperatureReading)
 
         val messages = messageConsumer.consumeMessages(1)
-        assertEquals(1, messages.size)
-        assertEquals(23.2f, messages.first().temperature)
-        assertEquals("wgrewgerf", messages.first().sensorId)
-
         val thermometer = it.manager.thermometers.listThermometers(null, false).firstOrNull()
         assertNotNull(thermometer)
-        assertEquals(deviceId, thermometer!!.deviceIdentifier)
+        assertEquals(1, messages.size)
+        assertEquals(thermometer!!.id, messages.first().thermometerId)
+        assertEquals(23.2f, messages.first().temperature)
+        assertEquals(timeStamp, messages.first().timestamp)
+        assertEquals(deviceId, thermometer.deviceIdentifier)
         assertEquals(temperatureReading.hardwareSensorId, thermometer.hardwareSensorId)
         assertEquals(createdSite.id, thermometer.siteId)
         assertNull(thermometer.archivedAt)
