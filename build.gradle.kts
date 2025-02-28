@@ -36,13 +36,14 @@ dependencies {
     implementation("io.quarkus:quarkus-kotlin")
     implementation("io.quarkus:quarkus-smallrye-health")
     implementation("org.locationtech.jts:jts-core:$jtsVersion")
-
     implementation("io.vertx:vertx-core")
     implementation("io.vertx:vertx-lang-kotlin")
     implementation("io.vertx:vertx-lang-kotlin-coroutines")
 
     implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8")
     implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
+
+    implementation("io.quarkus:quarkus-messaging-rabbitmq")
 
     configurations.all {
         exclude(group = "commons-logging", module = "commons-logging")
@@ -70,10 +71,13 @@ java {
 sourceSets["main"].java {
     srcDir("build/generated/api-spec/src/main/kotlin")
     srcDir("build/generated/work-planning-api-spec/src/main/kotlin")
+    srcDir("build/generated/user-management-api-spec/src/main/kotlin")
+    srcDir("vp-kuljetus-messaging-service/src/main/kotlin")
 }
 sourceSets["test"].java {
     srcDir("build/generated/api-client/src/main/kotlin")
     srcDir("quarkus-invalid-param-test/src/main/kotlin")
+    srcDir("vp-kuljetus-messaging-service/src/test/kotlin")
 }
 
 allOpen {
@@ -106,6 +110,26 @@ val generateApiSpec = tasks.register("generateApiSpec",GenerateTask::class){
     setProperty("apiPackage", "${project.group}.api.spec")
     setProperty("invokerPackage", "${project.group}.api.invoker")
     setProperty("modelPackage", "${project.group}.api.model")
+    setProperty("templateDir", "$rootDir/openapi/api-spec")
+    setProperty("validateSpec", false)
+
+    this.configOptions.put("library", "jaxrs-spec")
+    this.configOptions.put("dateLibrary", "java8")
+    this.configOptions.put("enumPropertyNaming", "UPPERCASE")
+    this.configOptions.put("interfaceOnly", "true")
+    this.configOptions.put("useMutiny", "true")
+    this.configOptions.put("returnResponse", "true")
+    this.configOptions.put("useSwaggerAnnotations", "false")
+    this.configOptions.put("additionalModelTypeAnnotations", "@io.quarkus.runtime.annotations.RegisterForReflection")
+}
+
+val generateUserManagementApiSpec = tasks.register("generateUserManagementApiSpec",GenerateTask::class){
+    setProperty("generatorName", "kotlin-server")
+    setProperty("inputSpec",  "$rootDir/vp-kuljetus-transport-management-specs/services/user-management-services.yaml")
+    setProperty("outputDir", "$buildDir/generated/user-management-api-spec")
+    setProperty("apiPackage", "${project.group}.usermanagement.spec")
+    setProperty("invokerPackage", "${project.group}.usermanagement.invoker")
+    setProperty("modelPackage", "${project.group}.usermanagement.model")
     setProperty("templateDir", "$rootDir/openapi/api-spec")
     setProperty("validateSpec", false)
 
@@ -155,6 +179,7 @@ val generateWorkPlanningApiClient = tasks.register("generateWorkPlanningApiClien
 
 tasks.named("compileKotlin") {
     dependsOn(generateApiSpec)
+    dependsOn(generateUserManagementApiSpec)
     dependsOn(generateWorkPlanningApiClient)
 }
 
@@ -171,4 +196,3 @@ tasks.named<Test>("testNative") {
     testLogging.showStandardStreams = true
     testLogging.exceptionFormat = org.gradle.api.tasks.testing.logging.TestExceptionFormat.FULL
 }
-
