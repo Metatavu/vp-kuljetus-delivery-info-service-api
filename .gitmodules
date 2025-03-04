@@ -4,3 +4,6 @@
 [submodule "quarkus-invalid-param-test"]
 	path = quarkus-invalid-param-test
 	url = https://github.com/Metatavu/quarkus-invalid-param-test.git
+[submodule "vp-kuljetus-messaging-service"]
+	path = vp-kuljetus-messaging-service
+	url = https://github.com/Metatavu/vp-kuljetus-messaging-service.git
