@@ -49,9 +49,10 @@ class ThermometerTestsIT: AbstractFunctionalTest() {
         it.setTerminalDeviceApiKey().temperatureReadings.createTemperatureReading(temperatureReading)
 
         val messages = messageConsumer.consumeMessages(1)
+        assertEquals(1, messages.size)
+
         val thermometer = it.manager.thermometers.listThermometers(null, false).firstOrNull()
         assertNotNull(thermometer)
-        assertEquals(1, messages.size)
         assertEquals(thermometer!!.id, messages.first().thermometerId)
         assertEquals(23.2f, messages.first().temperature)
         assertEquals(timeStamp, messages.first().timestamp)
