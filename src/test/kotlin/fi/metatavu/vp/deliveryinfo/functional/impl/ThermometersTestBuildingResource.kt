@@ -30,12 +30,12 @@ class ThermometersTestBuildingResource(
      * List thermometers
      *
      * @param siteId site id
-     * @param archivedAt archived at
+     * @param archived archived
      *
      * @return thermometers
      */
-    fun listThermometers(siteId: UUID?, archivedAt: Boolean): List<TerminalThermometer> {
-        return api.listTerminalThermometers(siteId, archivedAt).toList()
+    fun listThermometers(siteId: UUID?, archived: Boolean): List<TerminalThermometer> {
+        return api.listTerminalThermometers(siteId, archived).toList()
     }
 
     /**
