@@ -6,6 +6,7 @@ import fi.metatavu.vp.deliveryinfo.rest.AbstractApi
 import fi.metatavu.vp.deliveryinfo.sites.Site
 import fi.metatavu.vp.deliveryinfo.sites.SiteController
 import io.quarkus.hibernate.reactive.panache.common.WithSession
+import io.quarkus.hibernate.reactive.panache.common.WithTransaction
 import io.smallrye.mutiny.Uni
 import jakarta.annotation.security.RolesAllowed
 import jakarta.enterprise.context.RequestScoped
@@ -31,12 +32,14 @@ class ThermometersApiImpl: ThermometersApi, AbstractApi() {
     lateinit var thermometerTranslator: ThermometerTranslator
 
     @RolesAllowed(MANAGER_ROLE)
+    @WithTransaction
     override fun findTerminalThermometer(thermometerId: UUID): Uni<Response> = withCoroutineScope {
         val thermometer = thermometerController.findThermometer(thermometerId) ?: return@withCoroutineScope createNotFound("Thermometer with id $thermometerId not found")
         createOk(thermometerTranslator.translate(thermometer))
     }
 
     @RolesAllowed(MANAGER_ROLE)
+    @WithTransaction
     override fun listTerminalThermometers(siteId: UUID?, includeArchived: Boolean, first: Int?, max: Int?): Uni<Response> = withCoroutineScope {
         val site = getSiteIfExists(siteId)
         val thermometers = thermometerController.listThermometers(site = site, includeArchived = includeArchived)
@@ -45,6 +48,7 @@ class ThermometersApiImpl: ThermometersApi, AbstractApi() {
     }
 
     @RolesAllowed(MANAGER_ROLE)
+    @WithTransaction
     override fun updateTerminalThermometer(
         thermometerId: UUID,
         updateThermometerRequest: UpdateTerminalThermometerRequest
