@@ -210,7 +210,11 @@ class ThermometerTestsIT: AbstractFunctionalTest() {
             id = thermometer.id!!,
             thermometer = UpdateTerminalThermometerRequest(name = "Sensor1")
         )
-        assertEquals("Sensor1", updated.name)
+
+        val foundUpdated = it.manager.thermometers.findThermometer(
+            id = updated.id!!
+        )
+        assertEquals("Sensor1", foundUpdated.name)
     }
 
     @Test
