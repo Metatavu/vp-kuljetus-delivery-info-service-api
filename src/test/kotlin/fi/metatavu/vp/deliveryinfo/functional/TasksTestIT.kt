@@ -10,6 +10,9 @@ import fi.metatavu.vp.deliveryinfo.functional.impl.WorkPlanningMock.Companion.ro
 import fi.metatavu.vp.deliveryinfo.functional.impl.WorkPlanningMock.Companion.routeId2
 import fi.metatavu.vp.deliveryinfo.functional.settings.ApiTestSettings
 import fi.metatavu.vp.deliveryinfo.functional.settings.DefaultTestProfile
+import fi.metatavu.vp.messaging.RoutingKey
+import fi.metatavu.vp.messaging.client.MessagingClient
+import fi.metatavu.vp.messaging.events.TaskGlobalEvent
 import fi.metatavu.vp.test.client.models.Task
 import fi.metatavu.vp.test.client.models.TaskStatus
 import fi.metatavu.vp.test.client.models.TaskType
@@ -262,7 +265,17 @@ class TasksTestIT : AbstractFunctionalTest() {
             groupNumber = 1
         )
 
+        val messageConsumer = MessagingClient.setConsumer<TaskGlobalEvent>(RoutingKey.TASK)
         val updated = it.manager.tasks.updateTask(createdTask.id!!, updateData)
+
+        val messages = messageConsumer.consumeMessages(1)
+
+        val message = messages.first()
+
+        assertEquals(TaskType.UNLOAD.toString(), message.taskType.toString())
+        assertEquals(TaskStatus.IN_PROGRESS.toString(), message.taskStatus.toString() )
+        assert(message.userId.toString().isNotBlank())
+
         assertEquals(updateData.freightId, updated.freightId)
         assertEquals(updateData.customerSiteId, updated.customerSiteId)
         assertEquals(updateData.type, updated.type)

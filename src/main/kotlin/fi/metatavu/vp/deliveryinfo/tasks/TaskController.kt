@@ -4,6 +4,8 @@ import fi.metatavu.vp.api.model.TaskStatus
 import fi.metatavu.vp.api.model.TaskType
 import fi.metatavu.vp.deliveryinfo.freights.Freight
 import fi.metatavu.vp.deliveryinfo.sites.Site
+import fi.metatavu.vp.messaging.GlobalEventController
+import fi.metatavu.vp.messaging.events.TaskGlobalEvent
 import fi.metatavu.vp.workplanning.spec.RoutesApi
 import io.smallrye.mutiny.coroutines.awaitSuspending
 import jakarta.enterprise.context.ApplicationScoped
@@ -25,6 +27,9 @@ class TaskController {
 
     @Inject
     lateinit var logger: org.jboss.logging.Logger
+
+    @Inject
+    lateinit var globalEventController: GlobalEventController
 
     /**
      * Checks if route exists
@@ -158,6 +163,14 @@ class TaskController {
         restTask: fi.metatavu.vp.api.model.Task,
         modifierId: UUID
     ): Task {
+        globalEventController.publish(
+            TaskGlobalEvent(
+                userId = modifierId,
+                taskType = restTask.type,
+                taskStatus = restTask.status,
+            )
+        )
+
         if (existingTask.status == TaskStatus.TODO && restTask.status == TaskStatus.IN_PROGRESS) {
             existingTask.startedAt = java.time.OffsetDateTime.now()
         }

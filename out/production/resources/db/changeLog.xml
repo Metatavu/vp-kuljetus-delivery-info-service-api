@@ -1,0 +1,311 @@
+<?xml version="1.1" encoding="UTF-8" standalone="no"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+		http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.9.xsd">
+    <changeSet id="sites" author="katja danilova">
+        <createTable tableName="site">
+            <column name="id" type="binary(16)">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="name" type="varchar(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="latitude" type="double">
+                <constraints nullable="false"/>
+            </column>
+            <column name="longitude" type="double">
+                <constraints nullable="false"/>
+            </column>
+
+            <column name="creatorid" type="binary(16)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="createdat" type="datetime(6)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="lastmodifierid" type="binary(16)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="modifiedat" type="datetime(6)">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+    </changeSet>
+
+    <changeSet id="freights" author="katja danilova">
+        <createTable tableName="freight">
+            <column name="id" type="binary(16)">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="pointofdeparture" type="varchar(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="destination" type="varchar(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="sender" type="varchar(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="recipient" type="varchar(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="payer" type="varchar(255)"/>
+            <column name="shipmentinfo" type="longtext"/>
+            <column name="temperaturemin" type="double"/>
+            <column name="temperaturemax" type="double"/>
+            <column name="reservations" type="longtext"/>
+            <column name="creatorid" type="binary(16)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="createdat" type="datetime(6)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="lastmodifierid" type="binary(16)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="modifiedat" type="datetime(6)">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+        
+        <createTable tableName="freight_unit">
+            <column name="id" type="binary(16)">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="freight_id" type="binary(16)">
+                <constraints nullable="false" foreignKeyName="FK_FREIGHTUNIT_FREIGHT_ID" referencedColumnNames="id" referencedTableName="freight"/>
+            </column>
+            <column name="type" type="varchar(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="quantity" type="varchar(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="quantityunit" type="varchar(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="reservations" type="longtext"/>
+            <column name="creatorid" type="binary(16)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="createdat" type="datetime(6)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="lastmodifierid" type="binary(16)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="modifiedat" type="datetime(6)">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+    </changeSet>
+
+    <changeSet id="tasks" author="katja danilova">
+        <createTable tableName="task">
+            <column name="id" type="binary(16)">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="freight_id" type="binary(16)">
+                <constraints nullable="false" foreignKeyName="FK_TASK_FREIGHT_ID" referencedColumnNames="id" referencedTableName="freight"/>
+            </column>
+            <column name="site_id" type="binary(16)">
+                <constraints nullable="false" foreignKeyName="FK_TASK_SITE_ID" referencedColumnNames="id" referencedTableName="site"/>
+            </column>
+            <column name="tasktype" type="varchar(191)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="remarks" type="longtext" />
+            <column name="routeid" type="binary(16)" />
+            <column name="creatorid" type="binary(16)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="createdat" type="datetime(6)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="lastmodifierid" type="binary(16)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="modifiedat" type="datetime(6)">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+    </changeSet>
+
+    <changeSet id="task_fields" author="katja danilova">
+        <addColumn tableName="task">
+            <column name="status" type="varchar(191)">
+                <constraints nullable="false"/>
+            </column>
+        </addColumn>
+    </changeSet>
+
+    <changeSet id="site-archiving" author="katja danilova">
+        <addColumn tableName="site">
+            <column name="archivedat" type="datetime(6)" />
+        </addColumn>
+    </changeSet>
+
+    <changeSet id="add_additional_fields_to_site" author="Ville Juutila">
+        <addColumn tableName="site">
+            <column name="address" type="varchar(191)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="postalcode" type="varchar(191)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="locality" type="varchar(191)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="additionalinfo" type="clob"/>
+        </addColumn>
+    </changeSet>
+
+    <changeSet id="freight-number" author="katja danilova">
+        <addColumn tableName="freight">
+            <column name="freightnumber" type="int" />
+        </addColumn>
+        <addUniqueConstraint tableName="freight" columnNames="freightnumber"/>
+        <addAutoIncrement tableName="freight" columnName="freightnumber" columnDataType="int"/>
+    </changeSet>
+
+    <changeSet id="change_freight_unit_quantity_to_double_and_remove_quantity_unit" author="Ville Juutila">
+        <dropNotNullConstraint tableName="freight_unit" columnName="quantity" columnDataType="varchar(191)"/>
+        <modifyDataType tableName="freight_unit" columnName="quantity" newDataType="double"/>
+        <dropColumn tableName="freight_unit" columnName="quantityunit"/>
+    </changeSet>
+
+    <changeSet id="add_new_relations_to_freight" author="Ville Juutila">
+        <dropColumn tableName="freight" columnName="pointofdeparture"/>
+        <dropColumn tableName="freight" columnName="destination"/>
+        <dropColumn tableName="freight" columnName="sender"/>
+        <dropColumn tableName="freight" columnName="recipient"/>
+        <dropColumn tableName="freight" columnName="payer"/>
+        <dropColumn tableName="freight" columnName="shipmentinfo"/>
+        <dropColumn tableName="freight" columnName="temperaturemin"/>
+        <dropColumn tableName="freight" columnName="temperaturemax"/>
+        <dropColumn tableName="freight" columnName="reservations"/>
+        <addColumn tableName="freight">
+            <column name="pointofdeparturesite_id" type="binary(16)">
+                <constraints nullable="false" foreignKeyName="FK_FREIGHT_POINTOFDEPARTURE_SITE_ID" referencedColumnNames="id" referencedTableName="site"/>
+            </column>
+            <column name="destinationsite_id" type="binary(16)">
+                <constraints nullable="false" foreignKeyName="FK_FREIGHT_DESTINATION_SITE_ID" referencedColumnNames="id" referencedTableName="site"/>
+            </column>
+            <column name="sendersite_id" type="binary(16)">
+                <constraints nullable="false" foreignKeyName="FK_FREIGHT_SENDER_SITE_ID" referencedColumnNames="id" referencedTableName="site"/>
+            </column>
+            <column name="recipientsite_id" type="binary(16)">
+                <constraints nullable="false" foreignKeyName="FK_FREIGHT_RECIPIENT_SITE_ID" referencedColumnNames="id" referencedTableName="site"/>
+            </column>
+        </addColumn>
+    </changeSet>
+    
+    <changeSet id="task_additional_fields" author="katja danilova">
+        <addColumn tableName="task">
+            <column name="startedat" type="datetime(6)"/>
+            <column name="finishedat" type="datetime(6)"/>
+            <column name="groupnumber" type="integer">
+                <constraints nullable="false"/>
+            </column>
+        </addColumn>
+
+        <sql>
+            UPDATE task SET groupnumber = 0;
+        </sql>
+    </changeSet>
+
+    <changeSet id="add_content_field" author="katja danilova">
+        <addColumn tableName="freight_unit">
+            <column name="contents" type="varchar(255)"/>
+        </addColumn>
+    </changeSet>
+
+    <changeSet id="order_number" author="katja danilova">
+        <addColumn tableName="task">
+            <column name="ordernumber" type="int" />
+        </addColumn>
+    </changeSet>
+
+    <changeSet id="set_freight_number_auto_increment" author="Ville Juutila">
+        <sql>ALTER TABLE freight AUTO_INCREMENT = 100000001</sql>
+    </changeSet>
+
+    <changeSet id="terminals" author="Simeon Platonov">
+        <createTable tableName="device">
+            <column name="id" type="binary(16)">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="deviceid" type="varchar(191)">
+                <constraints unique="true" nullable="false"/>
+            </column>
+            <column name="site_id" type="binary(16)">
+                <constraints nullable="false" foreignKeyName="FK_DEVICE_SITE_ID" referencedColumnNames="id" referencedTableName="site"/>
+            </column>
+            <column name="creatorid" type="binary(16)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="createdat" type="datetime(6)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="lastmodifierid" type="binary(16)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="modifiedat" type="datetime(6)">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+        <addColumn tableName="site">
+            <column name="sitetype" type="varchar(191)">
+                <constraints nullable="false"/>
+            </column>
+        </addColumn>
+        <sql>UPDATE site SET sitetype="CUSTOMER_SITE"</sql>
+    </changeSet>
+    <changeSet id="thermometer" author="Simeon Platonov">
+        <createTable tableName="thermometer">
+            <column name="id" type="binary(16)">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="name" type="varchar(191)"/>
+            <column name="deviceidentifier" type="varchar(191)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="hardwaresensorid" type="varchar(191)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="site_id" type="binary(16)">
+                <constraints nullable="false" foreignKeyName="FK_THERMOMETER_SITE_ID" referencedColumnNames="id" referencedTableName="site"/>
+            </column>
+            <column name="createdat" type="datetime(6)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="lastmodifierid" type="binary(16)">
+                <constraints nullable="true"/>
+            </column>
+            <column name="modifiedat" type="datetime(6)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="archivedat" type="datetime(6)">
+                <constraints nullable="true"/>
+            </column>
+        </createTable>
+    </changeSet>
+    <changeSet id="temperature" author="Simeon Platonov">
+        <createTable tableName="temperature">
+            <column name="id" type="binary(16)">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="thermometer_id" type="binary(16)">
+                <constraints nullable="false" foreignKeyName="FK_TEMPERATURE_THERMOMETER_ID" referencedColumnNames="id" referencedTableName="thermometer"/>
+            </column>
+            <column name="value" type="float">
+                <constraints nullable="false"/>
+            </column>
+            <column name="timestamp" type="bigint">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+    </changeSet>
+</databaseChangeLog>
