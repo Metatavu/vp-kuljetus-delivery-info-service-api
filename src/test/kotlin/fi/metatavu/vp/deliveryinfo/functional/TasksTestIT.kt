@@ -272,8 +272,8 @@ class TasksTestIT : AbstractFunctionalTest() {
 
         val message = messages.first()
 
-        assertEquals(TaskType.UNLOAD.toString(), message.taskType.toString())
-        assertEquals(TaskStatus.IN_PROGRESS.toString(), message.taskStatus.toString() )
+        assertEquals(TaskType.UNLOAD.toString(), message.taskType)
+        assertEquals(TaskStatus.IN_PROGRESS.toString(), message.taskStatus)
         assert(message.userId.toString().isNotBlank())
 
         assertEquals(updateData.freightId, updated.freightId)

@@ -166,8 +166,8 @@ class TaskController {
         globalEventController.publish(
             TaskGlobalEvent(
                 userId = modifierId,
-                taskType = restTask.type,
-                taskStatus = restTask.status,
+                taskType = restTask.type.value,
+                taskStatus = restTask.status.value,
             )
         )
 
