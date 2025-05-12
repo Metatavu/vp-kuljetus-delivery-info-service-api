@@ -1,7 +1,0 @@
-{
-  "resources": [
-    {
-      "pattern": "db/changeLog.xml"
-    }
-  ]
-}
