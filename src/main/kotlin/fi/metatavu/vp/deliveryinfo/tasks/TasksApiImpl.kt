@@ -139,7 +139,8 @@ class TasksApiImpl : TasksApi, AbstractApi() {
             freight = freight,
             site = site,
             restTask = task,
-            modifierId = userId
+            modifierId = userId,
+            routeId = task.routeId
         )
 
         createOk(taskTranslator.translate(updated))
