@@ -8,8 +8,12 @@ import fi.metatavu.vp.deliveryinfo.functional.impl.InvalidTestValues
 import fi.metatavu.vp.deliveryinfo.functional.impl.WorkPlanningMock
 import fi.metatavu.vp.deliveryinfo.functional.impl.WorkPlanningMock.Companion.routeId
 import fi.metatavu.vp.deliveryinfo.functional.impl.WorkPlanningMock.Companion.routeId2
+import fi.metatavu.vp.deliveryinfo.functional.impl.WorkPlanningMock.Companion.truckId
 import fi.metatavu.vp.deliveryinfo.functional.settings.ApiTestSettings
 import fi.metatavu.vp.deliveryinfo.functional.settings.DefaultTestProfile
+import fi.metatavu.vp.messaging.RoutingKey
+import fi.metatavu.vp.messaging.client.MessagingClient
+import fi.metatavu.vp.messaging.events.TaskGlobalEvent
 import fi.metatavu.vp.test.client.models.Task
 import fi.metatavu.vp.test.client.models.TaskStatus
 import fi.metatavu.vp.test.client.models.TaskType
@@ -231,6 +235,43 @@ class TasksTestIT : AbstractFunctionalTest() {
     }
 
     @Test
+    fun testTaskEvent() = createTestBuilder().use {
+        val site1 = it.manager.sites.create()
+        val freight1 = it.manager.freights.create(site1, site1)
+
+        val routeId = routeId
+        val taskData = Task(
+            freightId = freight1.id!!,
+            customerSiteId = site1.id!!,
+            type = TaskType.LOAD,
+            remarks = "remarks",
+            routeId = routeId,
+            orderNumber = 0,
+            status = TaskStatus.TODO,
+            groupNumber = 0
+        )
+
+        val createdTask = it.manager.tasks.create(taskData)
+        val updateData = createdTask.copy(
+            type = TaskType.UNLOAD,
+            status = TaskStatus.IN_PROGRESS,
+        )
+
+        val messageConsumer = MessagingClient.setConsumer<TaskGlobalEvent>(RoutingKey.TASK)
+        it.manager.tasks.updateTask(createdTask.id!!, updateData)
+
+        val messages = messageConsumer.consumeMessages(1)
+
+        val message = messages.first()
+
+        assertEquals(TaskType.UNLOAD.toString(), message.taskType)
+        assertEquals(TaskStatus.IN_PROGRESS.toString(), message.taskStatus)
+        assert(message.userId.toString().isNotBlank())
+        assert(message.eventTime.toString().isNotBlank())
+        assertEquals(truckId, message.truckId)
+    }
+
+    @Test
     fun testUpdate() = createTestBuilder().use {
         val site1 = it.manager.sites.create()
         val freight1 = it.manager.freights.create(site1, site1)
@@ -263,6 +304,7 @@ class TasksTestIT : AbstractFunctionalTest() {
         )
 
         val updated = it.manager.tasks.updateTask(createdTask.id!!, updateData)
+
         assertEquals(updateData.freightId, updated.freightId)
         assertEquals(updateData.customerSiteId, updated.customerSiteId)
         assertEquals(updateData.type, updated.type)
