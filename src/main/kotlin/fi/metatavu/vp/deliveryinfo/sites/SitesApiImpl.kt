@@ -44,10 +44,30 @@ class SitesApiImpl: SitesApi, AbstractApi() {
     @Inject
     lateinit var taskController: TaskController
 
+    @Inject
+    lateinit var thermometerController: ThermometerController
+
     @RolesAllowed(DRIVER_ROLE, MANAGER_ROLE)
-    override fun listSites(archived: Boolean?, first: Int?, max: Int?): Uni<Response> = withCoroutineScope {
-        val ( sites, count ) = siteController.listSites(archived, first, max)
-        createOk(sites.map { siteTranslator.translate(it) }, count)
+    override fun listSites(archived: Boolean?, thermometerId: UUID?, first: Int?, max: Int?): Uni<Response> = withCoroutineScope {
+        if (thermometerId != null) {
+            val thermometer = thermometerController.findThermometer(thermometerId)
+                ?: return@withCoroutineScope createBadRequest("Thermometer with id $thermometerId does not exist")
+
+            val site = thermometer.site
+
+            val returnList = mutableListOf<Site>()
+
+            val archivedParameterMatches = (archived == true && site.archivedAt != null) || (archived != true && site.archivedAt == null)
+
+            if ((first == 0 || first == null) && (max == null || max > 0) && archivedParameterMatches) {
+                returnList.add(siteTranslator.translate(site))
+            }
+
+            return@withCoroutineScope createOk(returnList, returnList.size.toLong())
+        } else {
+            val ( sites, count ) = siteController.listSites(archived, first, max)
+            return@withCoroutineScope createOk(sites.map { siteTranslator.translate(it) }, count)
+        }
     }
 
     @RolesAllowed(MANAGER_ROLE)

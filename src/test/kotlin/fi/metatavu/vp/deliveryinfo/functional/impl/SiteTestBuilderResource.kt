@@ -143,12 +143,13 @@ class SiteTestBuilderResource(
      * Lists sites
      *
      * @param archived archived
+     * @param thermometerId
      * @param first first result
      * @param max max results
      * @return list of sites
      */
-    fun listSites(archived: Boolean? = null, first: Int? = null, max: Int? = null): Array<Site> {
-        return api.listSites(archived = archived, first = first, max = max)
+    fun listSites(archived: Boolean? = null, thermometerId: UUID? = null, first: Int? = null, max: Int? = null): Array<Site> {
+        return api.listSites(archived = archived, thermometerId = thermometerId, first = first, max = max)
     }
 
     /**
@@ -156,9 +157,9 @@ class SiteTestBuilderResource(
      *
      * @param expectedStatus expected status
      */
-    fun assertListSitesFail(expectedStatus: Int) {
+    fun assertListSitesFail(expectedStatus: Int, thermometerId: UUID? = null) {
         try {
-            listSites()
+            listSites(thermometerId = thermometerId)
             Assert.fail(String.format("Expected list to fail with status %d", expectedStatus))
         } catch (ex: ClientException) {
             assertClientExceptionStatus(expectedStatus, ex)
