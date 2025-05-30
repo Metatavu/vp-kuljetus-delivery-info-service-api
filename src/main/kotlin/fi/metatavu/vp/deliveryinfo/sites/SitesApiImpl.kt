@@ -51,7 +51,7 @@ class SitesApiImpl: SitesApi, AbstractApi() {
     override fun listSites(archived: Boolean?, thermometerId: UUID?, first: Int?, max: Int?): Uni<Response> = withCoroutineScope {
         if (thermometerId != null) {
             val thermometer = thermometerController.findThermometer(thermometerId)
-                ?: return@withCoroutineScope createBadRequest("Thermometer with id $thermometerId does not exist")
+                ?: return@withCoroutineScope createOk(emptyList<Site>())
 
             val site = thermometer.site
 

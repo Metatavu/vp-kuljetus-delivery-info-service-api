@@ -65,7 +65,7 @@ class ThermometerTestsIT: AbstractFunctionalTest() {
         assertEquals(1, sites.size, "Expected one site to be associated with the thermometer")
         assertEquals(createdSite.id, sites.first().id, "Expected the site to match the created site")
 
-        it.manager.sites.assertListSitesFail(400, thermometerId = UUID.randomUUID())
+        assertEquals(0, it.manager.sites.listSites(thermometerId = UUID.randomUUID()).size, "Thermometer with random ID should not return any sites")
         assertEquals(0, it.manager.sites.listSites(archived = true, thermometerId = thermometer.id).size, "There should be no archived sites")
         assertEquals(0, it.manager.sites.listSites(max = 0, thermometerId = thermometer.id).size, "Max 0 should return no sites")
         assertEquals(0, it.manager.sites.listSites(first = 1, thermometerId = thermometer.id).size, "First 1 should return no sites")
