@@ -157,9 +157,9 @@ class SiteTestBuilderResource(
      *
      * @param expectedStatus expected status
      */
-    fun assertListSitesFail(expectedStatus: Int, thermometerId: UUID? = null) {
+    fun assertListSitesFail(expectedStatus: Int) {
         try {
-            listSites(thermometerId = thermometerId)
+            listSites()
             Assert.fail(String.format("Expected list to fail with status %d", expectedStatus))
         } catch (ex: ClientException) {
             assertClientExceptionStatus(expectedStatus, ex)
