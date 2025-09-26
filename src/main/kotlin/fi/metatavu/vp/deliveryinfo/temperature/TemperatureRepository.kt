@@ -78,10 +78,6 @@ class TemperatureRepository: AbstractRepository<Temperature, UUID>() {
             parameters.and("site", site)
         }
 
-        if (includeArchived != true) {
-            addCondition(stringBuilder, "thermometer.archivedAt is null")
-        }
-
         if (createdAfter != null) {
             addCondition(stringBuilder, "timestamp > :createdAfter")
             parameters.and("createdAfter", createdAfter)
@@ -91,6 +87,11 @@ class TemperatureRepository: AbstractRepository<Temperature, UUID>() {
             addCondition(stringBuilder, "timestamp < :createdBefore")
             parameters.and("createdBefore", createdBefore)
         }
+
+        if (includeArchived != true) {
+            addCondition(stringBuilder, "thermometer.archivedAt is null")
+        }
+
 
         return applyFirstMaxToQuery(find(stringBuilder.toString(), Sort.by("timestamp").descending(), parameters), firstIndex = first, maxResults = max)
     }
