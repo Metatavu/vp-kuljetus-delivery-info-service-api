@@ -17,6 +17,8 @@ import jakarta.ws.rs.core.Response
 import java.util.*
 import io.quarkus.hibernate.reactive.panache.common.WithSession
 import io.quarkus.hibernate.reactive.panache.common.WithTransaction
+import java.time.OffsetDateTime
+import java.time.ZoneId
 
 /**
  * Sites API implementation
@@ -101,10 +103,10 @@ class SitesApiImpl: SitesApi, AbstractApi() {
     }
 
     @RolesAllowed(MANAGER_ROLE)
-    override fun listSiteTemperatures(siteId: UUID, includeArchived: Boolean, first: Int?, max: Int?): Uni<Response> = withCoroutineScope {
+    override fun listSiteTemperatures(siteId: UUID, includeArchived: Boolean, first: Int?, max: Int?, createdAfter: OffsetDateTime?, createdBefore: OffsetDateTime?): Uni<Response> = withCoroutineScope {
         val site = siteController.findSite(siteId) ?: return@withCoroutineScope createNotFound(createNotFoundMessage(SITE, siteId))
-        val temperatures = temperatureController.list(site = site, includeArchived = includeArchived, first = first, max = max)
 
+        val temperatures = temperatureController.list(site = site, includeArchived = includeArchived, first = first, max = max, createdBefore = createdBefore, createdAfter = createdAfter)
         val translated = temperatures.first.map { temperatureTranslator.translate(it) }
         createOk(translated, temperatures.second)
     }
