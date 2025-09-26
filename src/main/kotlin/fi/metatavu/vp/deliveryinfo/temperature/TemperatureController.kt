@@ -6,6 +6,8 @@ import fi.metatavu.vp.messaging.GlobalEventController
 import fi.metatavu.vp.messaging.events.TemperatureGlobalEvent
 import jakarta.enterprise.context.ApplicationScoped
 import jakarta.inject.Inject
+import java.time.OffsetDateTime
+import java.time.ZoneId
 import java.util.*
 
 /**
@@ -71,13 +73,17 @@ class TemperatureController {
      *
      * @return temperature
      */
-    suspend fun list(site: Site, includeArchived: Boolean, first: Int?, max: Int?): Pair<List<Temperature>, Long> {
+    suspend fun list(site: Site, includeArchived: Boolean, first: Int?, max: Int?, createdAfter: OffsetDateTime?, createdBefore: OffsetDateTime?): Pair<List<Temperature>, Long> {
+        val createdBeforeEpochSeconds = createdBefore?.atZoneSameInstant(ZoneId.of("Europe/Helsinki"))?.toEpochSecond()
+        val createdAfterEpochSeconds = createdAfter?.atZoneSameInstant(ZoneId.of("Europe/Helsinki"))?.toEpochSecond()
         return temperatureRepository.list(
             thermometer = null,
             site = site,
             includeArchived = includeArchived,
             first = first,
-            max = max)
+            max = max,
+            createdBefore = createdBeforeEpochSeconds,
+            createdAfter = createdAfterEpochSeconds)
     }
 
     /**

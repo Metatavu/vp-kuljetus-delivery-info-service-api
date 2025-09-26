@@ -64,7 +64,7 @@ class TemperatureRepository: AbstractRepository<Temperature, UUID>() {
      * @param max amount of results
      * @return temperature
      */
-    suspend fun list(thermometer: Thermometer?, site: Site?, includeArchived: Boolean?, first: Int?, max: Int?): Pair<List<Temperature>, Long> {
+    suspend fun list(thermometer: Thermometer?, site: Site?, includeArchived: Boolean?, first: Int?, max: Int?, createdBefore: Long?, createdAfter: Long?): Pair<List<Temperature>, Long> {
         val stringBuilder = StringBuilder()
         val parameters = Parameters()
 
@@ -82,6 +82,15 @@ class TemperatureRepository: AbstractRepository<Temperature, UUID>() {
             addCondition(stringBuilder, "thermometer.archivedAt is null")
         }
 
+        if (createdAfter != null) {
+            addCondition(stringBuilder, "timestamp > :createdAfter")
+            parameters.and("createdAfter", createdAfter)
+        }
+
+        if (createdBefore != null) {
+            addCondition(stringBuilder, "timestamp < :createdBefore")
+            parameters.and("createdBefore", createdBefore)
+        }
 
         return applyFirstMaxToQuery(find(stringBuilder.toString(), Sort.by("timestamp").descending(), parameters), firstIndex = first, maxResults = max)
     }
