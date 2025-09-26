@@ -308,4 +308,10 @@
             </column>
         </createTable>
     </changeSet>
+    <changeSet id="indextemperaturebytimestampandthermometer" author="">
+        <createIndex  indexName="idx_temperature_timestamp_thermometer" tableName="temperature" unique="false">
+            <column name="timestamp"/>
+            <column name="thermometer_id"/>
+        </createIndex>
+    </changeSet>
 </databaseChangeLog>
