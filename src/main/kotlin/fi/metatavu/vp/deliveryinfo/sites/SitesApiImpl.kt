@@ -103,7 +103,7 @@ class SitesApiImpl: SitesApi, AbstractApi() {
     }
 
     @RolesAllowed(MANAGER_ROLE)
-    override fun listSiteTemperatures(siteId: UUID, includeArchived: Boolean, first: Int?, max: Int?, createdAfter: OffsetDateTime?, createdBefore: OffsetDateTime?): Uni<Response> = withCoroutineScope(requestTimeOut = 30000) {
+    override fun listSiteTemperatures(siteId: UUID, includeArchived: Boolean, first: Int?, max: Int?, createdAfter: OffsetDateTime?, createdBefore: OffsetDateTime?): Uni<Response> = withCoroutineScope(requestTimeOut = 30000L) {
         val site = siteController.findSite(siteId) ?: return@withCoroutineScope createNotFound(createNotFoundMessage(SITE, siteId))
 
         val temperatures = temperatureController.list(site = site, includeArchived = includeArchived, first = first, max = max, createdBefore = createdBefore, createdAfter = createdAfter)
